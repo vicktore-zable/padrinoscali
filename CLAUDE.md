@@ -28,12 +28,22 @@
 ```
 edisongiraldo.com/
 ├── CLAUDE.md                    ← Esta constitución
-├── DEPLOY_EDISONGIRALDO.md      ← Credenciales y rutas (NO compartir)
-├── .claude/
-│   ├── agents/                  ← Agentes especializados de campaña
-│   ├── references/              ← Perfiles de dominio y contexto
-│   └── rules/                   ← Reglas de calidad
-└── quality_reports/             ← Outputs auditados de IA
+├── DEPLOY_EDISONGIRALDO.md      ← Credenciales (NO compartir)
+├── .gitignore
+├── config/
+│   └── config.php              ← Configuración principal
+├── *.py                       ← Scripts de diagnóstico/auditoría
+├── *_content.txt               ← Contenidos extraídos del remoto
+└── quality_reports/          ← Reports auditados
+
+# Desarrollo Local (XAMPP)
+F:\xampp2\htdocs\aratio\
+├── api/                      ← Endpoints backend
+├── pages/                    ← Vistas Alpine.js
+├── includes/                 ← Clases núcleo
+├── config/
+│   └── config.php            ← Config local (apunta a DB remota)
+└── mod_*/                   ← Módulos adicionales
 ```
 
 ---
@@ -67,10 +77,10 @@ py notebook_agent.py review <archivo_o_texto>
 
 ---
 
-## 🎯 Estado Actual del Proyecto
+## 🎯 Estado del Proyecto
 
-- **Sistema en Producción**: ✅ Activo en Hostinger
-- **Base de Datos Migrada**: ✅ 15 tablas (76 usuarios, 1231 puestos de votación)
-- **NotebookLM**: 🔄 Pendiente configuración
-- **Agentes IA**: 🔄 Pendiente activación
-- **Frontend Skills**: 🔄 Pendiente aplicación
+- **Git**: ✅ Inicializado (1 commit)
+- **Producción**: https://edisongiraldo.com/
+- **Preview**: https://navajowhite-goose-984880.hostingersite.com/
+- **XAMPP local**: F:\xampp2\htdocs\aratio\ (cambios pendientes sin commit)
+- **DB**: 15 tablas en producción (u577647812_aratio)

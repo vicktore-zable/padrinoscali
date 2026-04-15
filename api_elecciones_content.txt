@@ -1,0 +1,149 @@
+﻿<?php
+
+/**
+
+ * API: Elecciones
+
+ * CRUD endpoints for elections
+
+ */
+
+require_once __DIR__ . '/../config/config.php';
+
+requireAuth();
+
+
+
+$db = getDB();
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+$user = getSessionUser();
+
+
+
+header('Content-Type: application/json; charset=utf-8');
+
+
+
+try {
+
+    switch ($method) {
+
+        case 'GET':
+
+            $stmt = $db->prepare("SELECT * FROM elecciones ORDER BY fecha_eleccion DESC");
+
+            $stmt->execute();
+
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            jsonResponse(['success' => true, 'data' => $data]);
+
+            break;
+
+        case 'POST':
+
+            $data = getJsonInput();
+
+            $required = ['codigo', 'nombre', 'tipo', 'ambito', 'fecha_eleccion', 'estado'];
+
+            foreach ($required as $field) {
+
+                if (empty($data[$field])) {
+
+                    jsonResponse(['success' => false, 'message' => "El campo $field es requerido"], 400);
+
+                }
+
+            }
+
+            $stmt = $db->prepare("INSERT INTO elecciones (codigo, nombre, tipo, ambito, fecha_eleccion, estado) VALUES (?, ?, ?, ?, ?, ?)");
+
+            $stmt->execute([
+
+                $data['codigo'],
+
+                $data['nombre'],
+
+                $data['tipo'],
+
+                $data['ambito'],
+
+                $data['fecha_eleccion'],
+
+                $data['estado']
+
+            ]);
+
+            jsonResponse(['success' => true, 'message' => 'Elecci├│n creada', 'id' => $db->lastInsertId()]);
+
+            break;
+
+        case 'PUT':
+
+            $data = getJsonInput();
+
+            if (empty($data['id'])) {
+
+                jsonResponse(['success' => false, 'message' => 'ID de elecci├│n requerido'], 400);
+
+            }
+
+            $stmt = $db->prepare("UPDATE elecciones SET codigo = ?, nombre = ?, tipo = ?, ambito = ?, fecha_eleccion = ?, estado = ? WHERE id = ?");
+
+            $stmt->execute([
+
+                $data['codigo'],
+
+                $data['nombre'],
+
+                $data['tipo'],
+
+                $data['ambito'],
+
+                $data['fecha_eleccion'],
+
+                $data['estado'],
+
+                $data['id']
+
+            ]);
+
+            jsonResponse(['success' => true, 'message' => 'Elecci├│n actualizada']);
+
+            break;
+
+        case 'DELETE':
+
+            $id = $_GET['id'] ?? null;
+
+            if (empty($id)) {
+
+                jsonResponse(['success' => false, 'message' => 'ID de elecci├│n requerido'], 400);
+
+            }
+
+            $stmt = $db->prepare("DELETE FROM elecciones WHERE id = ?");
+
+            $stmt->execute([$id]);
+
+            jsonResponse(['success' => true, 'message' => 'Elecci├│n eliminada']);
+
+            break;
+
+        default:
+
+            jsonResponse(['success' => false, 'message' => 'M├⌐todo no permitido'], 405);
+
+    }
+
+} catch (Exception $e) {
+
+    error_log('Error en API elecciones: ' . $e->getMessage());
+
+    jsonResponse(['success' => false, 'message' => 'Error interno del servidor'], 500);
+
+}
+
+?>

@@ -1,0 +1,146 @@
+﻿<?php
+/**
+ * API: Candidatos
+ * CRUD endpoints for candidates
+ */
+require_once __DIR__ . '/../config/config.php';
+requireAuth();
+
+$db = getDB();
+$method = $_SERVER['REQUEST_METHOD'];
+$user = getSessionUser();
+
+header('Content-Type: application/json; charset=utf-8');
+
+try {
+    switch ($method) {
+        case 'GET':
+            $stmt = $db->prepare("
+                SELECT c.*, g.nombre as grupo_nombre, g.sigla as grupo_sigla, e.nombre as eleccion_nombre
+                FROM candidatos c
+                LEFT JOIN grupos_politicos g ON c.grupo_politico_id = g.id
+                LEFT JOIN elecciones e ON c.eleccion_id = e.id
+                ORDER BY c.created_at DESC
+            ");
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            jsonResponse(['success' => true, 'data' => $data]);
+            break;
+
+        case 'POST':
+            $data = getJsonInput();
+            $required = ['nombres', 'apellidos', 'tipo_documento', 'documento', 'cargo_aspira'];
+            foreach ($required as $field) {
+                if (empty($data[$field])) {
+                    jsonResponse(['success' => false, 'message' => "El campo $field es requerido"], 400);
+                }
+            }
+
+            // Generar nombre completo
+            $nombreCompleto = trim($data['nombres'] . ' ' . $data['apellidos']);
+
+            // Sanear IDs opcionales (convertir '' a null para MySQL strict mode)
+            $grupoPoliticoId = !empty($data['grupo_politico_id']) ? $data['grupo_politico_id'] : null;
+            $eleccionId = !empty($data['eleccion_id']) ? $data['eleccion_id'] : null;
+
+            $stmt = $db->prepare("
+                INSERT INTO candidatos (
+                    nombres, apellidos, nombre_completo, tipo_documento, documento,
+                    cargo_aspira, grupo_politico_id, eleccion_id, email, telefono,
+                    foto_url, departamento, municipio, biografia, propuestas, estado
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $data['nombres'],
+                $data['apellidos'],
+                $nombreCompleto,
+                $data['tipo_documento'],
+                $data['documento'],
+                $data['cargo_aspira'],
+                $grupoPoliticoId,
+                $eleccionId,
+                $data['email'] ?? null,
+                $data['telefono'] ?? null,
+                $data['foto_url'] ?? null,
+                $data['departamento'] ?? null,
+                $data['municipio'] ?? null,
+                $data['biografia'] ?? null,
+                $data['propuestas'] ?? null,
+                $data['estado'] ?? 'inscrito'
+            ]);
+
+            jsonResponse(['success' => true, 'message' => 'Candidato creado exitosamente', 'id' => $db->lastInsertId()]);
+            break;
+
+        case 'PUT':
+            $data = getJsonInput();
+            if (empty($data['id'])) {
+                jsonResponse(['success' => false, 'message' => 'ID de candidato requerido'], 400);
+            }
+
+            // Generar nombre completo
+            $nombreCompleto = trim($data['nombres'] . ' ' . $data['apellidos']);
+
+            // Sanear IDs opcionales (convertir '' a null para MySQL strict mode)
+            $grupoPoliticoId = !empty($data['grupo_politico_id']) ? $data['grupo_politico_id'] : null;
+            $eleccionId = !empty($data['eleccion_id']) ? $data['eleccion_id'] : null;
+
+            $stmt = $db->prepare("
+                UPDATE candidatos SET
+                    nombres = ?, apellidos = ?, nombre_completo = ?, tipo_documento = ?,
+                    documento = ?, cargo_aspira = ?, grupo_politico_id = ?, eleccion_id = ?,
+                    email = ?, telefono = ?, foto_url = ?, departamento = ?, municipio = ?,
+                    biografia = ?, propuestas = ?, estado = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $data['nombres'],
+                $data['apellidos'],
+                $nombreCompleto,
+                $data['tipo_documento'],
+                $data['documento'],
+                $data['cargo_aspira'],
+                $grupoPoliticoId,
+                $eleccionId,
+                $data['email'] ?? null,
+                $data['telefono'] ?? null,
+                $data['foto_url'] ?? null,
+                $data['departamento'] ?? null,
+                $data['municipio'] ?? null,
+                $data['biografia'] ?? null,
+                $data['propuestas'] ?? null,
+                $data['estado'] ?? 'inscrito',
+                $data['id']
+            ]);
+
+            jsonResponse(['success' => true, 'message' => 'Candidato actualizado exitosamente']);
+            break;
+
+        case 'DELETE':
+            $id = $_GET['id'] ?? null;
+            if (empty($id)) {
+                jsonResponse(['success' => false, 'message' => 'ID de candidato requerido'], 400);
+            }
+
+            // Verificar si hay campa├▒as asociadas
+            $stmt = $db->prepare("SELECT COUNT(*) FROM campanas WHERE candidato_id = ?");
+            $stmt->execute([$id]);
+            $count = $stmt->fetchColumn();
+
+            if ($count > 0) {
+                jsonResponse(['success' => false, 'message' => "No se puede eliminar: tiene $count campa├▒a(s) asociada(s)"], 400);
+            }
+
+            $stmt = $db->prepare("DELETE FROM candidatos WHERE id = ?");
+            $stmt->execute([$id]);
+            jsonResponse(['success' => true, 'message' => 'Candidato eliminado exitosamente']);
+            break;
+
+        default:
+            jsonResponse(['success' => false, 'message' => 'M├⌐todo no permitido'], 405);
+    }
+} catch (Exception $e) {
+    error_log('Error en API candidatos: ' . $e->getMessage());
+    jsonResponse(['success' => false, 'message' => 'Error interno del servidor: ' . $e->getMessage()], 500);
+}
+?>

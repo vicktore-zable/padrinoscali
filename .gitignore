@@ -1,0 +1,21 @@
+# Archivos sensibles
+DEPLOY_EDISONGIRALDO.md
+*.log
+php-errors.log
+
+# Archivos de_cache
+/cache/
+/storage/
+*.cache
+
+# Entorno
+.env
+.env.local
+.phpunit.cache
+
+#Sistema
+.DS_Store
+Thumbs.db
+
+# XAMPP local
+F:/xampp2/

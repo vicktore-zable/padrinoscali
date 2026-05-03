@@ -33,7 +33,7 @@ def fix_fetch_paths(content, subpath):
     changed = content != original
     return content, changed
 
-pages = ['campanas', 'candidatos', 'elecciones', 'grupos', 'usuarios', 'jac']
+pages = ['campanas', 'candidatos', 'elecciones', 'grupos', 'usuarios', 'jac', 'eventos', 'dashboard_asistencia', 'registro_asistencia']
 subpath = '/aratio'
 total_fixed = 0
 

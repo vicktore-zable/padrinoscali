@@ -6,7 +6,8 @@
  * PRODUCCIÓN: edisongiraldo.com/aratio/
  * SERVIDOR:   157.173.208.254:65002
  * DB:         u577647812_aratio (Hostinger)
- * Última actualización: 2026-04-14
+ * SSH:        Clave ED25519 (sin password)
+ * Última actualización: 2026-05-02
  */
 
 // =============================================
@@ -89,7 +90,7 @@ define('ITEMS_PER_PAGE', 20);
 // =============================================
 // COLORES CORPORATIVOS — Edison Giraldo
 // =============================================
-define('COLOR_PRIMARY', '#FF00FF');   // Magenta
+define('COLOR_PRIMARY', 'hsla(220, 93%, 50%, 1.00)');   // Magenta
 define('COLOR_SECONDARY', '#FFD700'); // Dorado
 
 // =============================================

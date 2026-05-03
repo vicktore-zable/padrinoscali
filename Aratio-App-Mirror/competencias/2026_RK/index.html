@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Candidatos 2026 - Visualización Avanzada 4K</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #0f1729 50%, #1a1f3a 75%, #0a0e27 100%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        .glow-text {
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.5)); }
+        }
+        
+        .card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.4) 100%);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(100, 116, 139, 0.4);
+            box-shadow: 0 30px 80px rgba(0, 212, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            min-height: 450px;
+        }
+        
+        .candidate-pill {
+            padding: 12px 24px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 600;
+            font-size: 13px;
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.3) 0%, rgba(51, 65, 85, 0.2) 100%);
+            color: #cbd5e1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .candidate-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .candidate-pill:hover::before {
+            left: 100%;
+        }
+        
+        .candidate-pill.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            border-color: #00d4ff;
+            color: white;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4), 0 0 60px rgba(124, 58, 237, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            background: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab-button:hover {
+            color: #cbd5e1;
+        }
+        
+        .tab-button.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box:hover {
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .parallel-coords {
+            width: 100%;
+            height: 500px;
+        }
+        
+        .correlation-matrix {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .network-graph {
+            width: 100%;
+            height: 600px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+            border-left: 4px solid #00d4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 12px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .insight-card:hover {
+            border-left-color: #7c3aed;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+        }
+        
+        .insight-title {
+            font-weight: 700;
+            color: #00d4ff;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .insight-text {
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(0, 212, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .grid-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 md:p-8">
+        <div class="max-w-full">
+            
+            <!-- HEADER ÉPICO -->
+            <div class="text-center mb-12 pt-8">
+                <h1 class="text-6xl md:text-7xl font-black mb-4 glow-text">
+                    🗳️ CANDIDATOS 2026
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+                    Análisis Visual Avanzado Multidimensional • 10 Candidatos • 11 Dimensiones • 45+ Indicadores
+                </p>
+            </div>
+
+            <!-- SELECTOR DE CANDIDATOS -->
+            <div class="card mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-cyan-400">👥 Selecciona Candidatos</h2>
+                <div id="candidateSelector" class="flex flex-wrap gap-3">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- TABS DE VISUALIZACIÓN -->
+            <div class="card mb-8">
+                <div class="flex flex-wrap gap-2 border-b border-slate-700 pb-4">
+                    <button class="tab-button active" data-tab="dashboard">📊 Dashboard Principal</button>
+                    <button class="tab-button" data-tab="radar">📡 Gráfico Radial</button>
+                    <button class="tab-button" data-tab="parallel">🔀 Coordenadas Paralelas</button>
+                    <button class="tab-button" data-tab="network">🕸️ Grafo de Relaciones</button>
+                    <button class="tab-button" data-tab="3d">🎪 3D Interactivo</button>
+                    <button class="tab-button" data-tab="sunburst">🌟 SunBurst</button>
+                </div>
+            </div>
+
+            <!-- CONTENEDOR DE TABS -->
+            <div id="tabsContainer">
+                
+                <!-- TAB: DASHBOARD -->
+                <div id="dashboard-tab" class="tab-content space-y-8">
+                    
+                    <!-- STATS SUPERIORES -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat1">-</div>
+                            <div class="stat-label">Líder General</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat2">-</div>
+                            <div class="stat-label">Candidatos</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat3">11</div>
+                            <div class="stat-label">Dimensiones</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="stat4">45+</div>
+                            <div class="stat-label">Indicadores</div>
+                        </div>
+                    </div>
+
+                    <!-- GRÁFICOS PRINCIPALES -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        <!-- Radar -->
+                        <div class="card">
+                            <h3 class="text-xl font-bold mb-4 text-cyan-400">📡 Perfil Multidimensional</h3>
+                            <div class="chart-wrapper">
+                                <div class="grid-lines"></div>
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Heatmap -->
+                        <div class="card">
+                            <h3 class="text-xl font-bold mb-4 text-cyan-400">🔥 Matriz de Calor</h3>
+                            <div class="chart-wrapper">
+                                <div id="heatmapChart"></div>
+                            </div>
+                        </div>
+
+                        <!-- Barras Comparativas -->
+                        <div class="card">
+                            <h3 class="text-xl font-bold mb-4 text-purple-400">📈 Capital Político</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="capitalChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Polar -->
+                        <div class="card">
+                            <h3 class="text-xl font-bold mb-4 text-purple-400">⭐ Fortalezas Clave</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="polarChart"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TAB: RADAR -->
+                <div id="radar-tab" class="tab-content hidden">
+                    <div class="card">
+                        <h3 class="text-3xl font-bold mb-6 text-cyan-400">📡 Análisis Radial Detallado</h3>
+                        <div class="chart-wrapper" style="min-height: 600px;">
+                            <canvas id="radarChartFull"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: PARALLEL -->
+                <div id="parallel-tab" class="tab-content hidden">
+                    <div class="card">
+                        <h3 class="text-3xl font-bold mb-6 text-cyan-400">🔀 Coordenadas Paralelas</h3>
+                        <div class="parallel-coords" id="parallelCoords"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: NETWORK -->
+                <div id="network-tab" class="tab-content hidden">
+                    <div class="card">
+                        <h3 class="text-3xl font-bold mb-6 text-cyan-400">🕸️ Grafo de Relaciones</h3>
+                        <div class="network-graph" id="networkGraph"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: 3D -->
+                <div id="3d-tab" class="tab-content hidden">
+                    <div class="card">
+                        <h3 class="text-3xl font-bold mb-6 text-cyan-400">🎪 Visualización 3D</h3>
+                        <div id="plot3d" style="width: 100%; height: 600px;"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: SUNBURST -->
+                <div id="sunburst-tab" class="tab-content hidden">
+                    <div class="card">
+                        <h3 class="text-3xl font-bold mb-6 text-cyan-400">🌟 Estructura SunBurst</h3>
+                        <div id="sunburstChart" style="width: 100%; height: 600px;"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- INSIGHTS PANEL -->
+            <div class="card mt-8">
+                <h3 class="text-3xl font-bold mb-6 text-cyan-400">💡 Análisis e Insights</h3>
+                <div id="insightsPanel" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ============= DATOS =============
+        const datos = {
+            candidatos: [
+                "REYES KURI", "LEYVA RIZZO", "AGUDELO", "GUEVARA",
+                "VIRGÜEZ", "J.S. GÓMEZ", "M.L. VILLALBA", "R. DÍAZ GRANADOS",
+                "ROBLEDO", "JENNIFER PEDRAZA"
+            ],
+            dimensiones: [
+                "IDENTIDAD", "CAPITAL", "TRAYECTORIA", "IDEOLOGÍA",
+                "LEGISLATIVA", "REDES", "RECURSOS", "GESTIÓN",
+                "COMUNICACIÓN", "RESILIENCIA", "PROYECCIÓN"
+            ],
+            metricas: {
+                "REYES KURI": [0.65, 0.75, 0.75, 0.7, 0.6, 0.7, 0.55, 0.65, 0.55, 0.7, 0.6],
+                "LEYVA RIZZO": [0.55, 0.55, 0.8, 0.55, 0.45, 0.55, 0.4, 0.6, 0.4, 0.65, 0.45],
+                "AGUDELO": [0.65, 0.75, 0.85, 0.7, 0.7, 0.75, 0.65, 0.75, 0.65, 0.75, 0.7],
+                "GUEVARA": [0.7, 0.65, 0.9, 0.75, 0.8, 0.8, 0.7, 0.7, 0.75, 0.8, 0.75],
+                "VIRGÜEZ": [0.65, 0.75, 0.8, 0.55, 0.5, 0.7, 0.5, 0.55, 0.45, 0.75, 0.55],
+                "J.S. GÓMEZ": [0.7, 0.8, 0.7, 0.65, 0.6, 0.75, 0.55, 0.65, 0.5, 0.6, 0.6],
+                "M.L. VILLALBA": [0.65, 0.75, 0.6, 0.55, 0.3, 0.7, 0.55, 0.6, 0.4, 0.55, 0.55],
+                "R. DÍAZ GRANADOS": [0.6, 0.55, 0.65, 0.6, 0.4, 0.65, 0.45, 0.6, 0.35, 0.5, 0.5],
+                "ROBLEDO": [0.75, 0.55, 0.95, 0.85, 0.9, 0.85, 0.65, 0.8, 0.95, 0.95, 0.85],
+                "JENNIFER PEDRAZA": [0.6, 0.35, 0.7, 0.7, 0.5, 0.55, 0.55, 0.55, 0.65, 0.7, 0.65]
+            },
+            colores: {
+                "REYES KURI": "#FF6B6B",
+                "LEYVA RIZZO": "#4ECDC4",
+                "AGUDELO": "#FFE66D",
+                "GUEVARA": "#95E1D3",
+                "VIRGÜEZ": "#C7CEEA",
+                "J.S. GÓMEZ": "#FF8B94",
+                "M.L. VILLALBA": "#B4A7D6",
+                "R. DÍAZ GRANADOS": "#73A580",
+                "ROBLEDO": "#FF6B9D",
+                "JENNIFER PEDRAZA": "#FEC8D8"
+            }
+        };
+
+        let selectedCandidatos = ["ROBLEDO", "GUEVARA", "AGUDELO"];
+        let chartInstances = {};
+
+        // ============= INICIALIZACIÓN =============
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCandidateSelector();
+            setupTabs();
+            render();
+        });
+
+        function renderCandidateSelector() {
+            const selector = document.getElementById('candidateSelector');
+            selector.innerHTML = datos.candidatos.map(c => `
+                <button class="candidate-pill ${selectedCandidatos.includes(c) ? 'active' : ''}" 
+                    onclick="toggleCandidate('${c}')">
+                    ${c}
+                </button>
+            `).join('');
+        }
+
+        function toggleCandidate(candidato) {
+            if (selectedCandidatos.includes(candidato)) {
+                if (selectedCandidatos.length > 1) {
+                    selectedCandidatos = selectedCandidatos.filter(c => c !== candidato);
+                }
+            } else {
+                selectedCandidatos.push(candidato);
+            }
+            renderCandidateSelector();
+            render();
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            
+            setTimeout(() => {
+                if (tabName === 'radar') renderRadarFull();
+                else if (tabName === 'parallel') renderParallel();
+                else if (tabName === 'network') renderNetwork();
+                else if (tabName === '3d') render3D();
+                else if (tabName === 'sunburst') renderSunburst();
+            }, 100);
+        }
+
+        // ============= GRÁFICO RADIAL =============
+        function renderRadar(canvasId = 'radarChart', height = 400) {
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            if (!ctx) return;
+            
+            const datasets = selectedCandidatos.map(candidato => ({
+                label: candidato,
+                data: datos.metricas[candidato],
+                borderColor: datos.colores[candidato],
+                backgroundColor: datos.colores[candidato] + '33',
+                borderWidth: 3,
+                fill: true,
+                pointRadius: 5,
+                pointBackgroundColor: datos.colores[candidato],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 7,
+                tension: 0.4
+            }));
+
+            if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+            
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: datos.dimensiones,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { 
+                                color: '#cbd5e1', 
+                                font: { size: 13, weight: 'bold' },
+                                padding: 15
+                            },
+                            position: 'bottom'
+                        },
+                        filler: { propagate: true }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                color: '#94a3b8',
+                                stepSize: 0.2,
+                                font: { size: 11, weight: 'bold' }
+                            },
+                            grid: { 
+                                color: 'rgba(0, 212, 255, 0.1)',
+                                lineWidth: 2
+                            },
+                            angleLines: {
+                                color: 'rgba(0, 212, 255, 0.15)',
+                                lineWidth: 2
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderRadarFull() {
+            const canvas = document.getElementById('radarChartFull');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const datasets = selectedCandidatos.map(candidato => ({
+                label: candidato,
+                data: datos.metricas[candidato],
+                borderColor: datos.colores[candidato],
+                backgroundColor: datos.colores[candidato] + '20',
+                borderWidth: 4,
+                fill: true,
+                pointRadius: 7,
+                pointBackgroundColor: datos.colores[candidato],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 3,
+                pointHoverRadius: 10,
+                tension: 0.4
+            }));
+
+            if (chartInstances['radarFull']) chartInstances['radarFull'].destroy();
+            
+            chartInstances['radarFull'] = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: datos.dimensiones,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 14, weight: 'bold' }, padding: 20 },
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: { color: '#94a3b8', stepSize: 0.2, font: { size: 12, weight: 'bold' } },
+                            grid: { color: 'rgba(0, 212, 255, 0.15)', lineWidth: 2 },
+                            angleLines: { color: 'rgba(0, 212, 255, 0.2)', lineWidth: 2 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============= CAPITAL CHART =============
+        function renderCapital() {
+            const ctx = document.getElementById('capitalChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const capitals = selectedCandidatos.map(c => (
+                datos.metricas[c][1] + datos.metricas[c][2]
+            ) / 2);
+
+            if (chartInstances['capital']) chartInstances['capital'].destroy();
+            
+            chartInstances['capital'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: selectedCandidatos,
+                    datasets: [{
+                        label: 'Capital Político',
+                        data: capitals,
+                        backgroundColor: selectedCandidatos.map(c => datos.colores[c]),
+                        borderColor: selectedCandidatos.map(c => datos.colores[c]),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        barPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            max: 1,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#cbd5e1', font: { weight: 'bold' } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============= POLAR CHART =============
+        function renderPolar() {
+            const ctx = document.getElementById('polarChart')?.getContext('2d');
+            if (!ctx) return;
+            
+            const datasets = selectedCandidatos.map(candidato => ({
+                label: candidato,
+                data: [
+                    datos.metricas[candidato][0], // IDENTIDAD
+                    datos.metricas[candidato][3], // IDEOLOGÍA
+                    datos.metricas[candidato][4], // LEGISLATIVA
+                    datos.metricas[candidato][8], // COMUNICACIÓN
+                    datos.metricas[candidato][9]  // RESILIENCIA
+                ],
+                borderColor: datos.colores[candidato],
+                backgroundColor: datos.colores[candidato] + '33',
+                borderWidth: 2,
+                fill: true
+            }));
+
+            if (chartInstances['polar']) chartInstances['polar'].destroy();
+            
+            chartInstances['polar'] = new Chart(ctx, {
+                type: 'polarArea',
+                data: {
+                    labels: ['IDENTIDAD', 'IDEOLOGÍA', 'LEGISLATIVA', 'COMUNICACIÓN', 'RESILIENCIA'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { weight: 'bold' } }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            max: 1,
+                            ticks: { color: '#94a3b8' },
+                            grid: { color: 'rgba(0, 212, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============= HEATMAP =============
+        function renderHeatmap() {
+            const z_data = selectedCandidatos.map(candidato => datos.metricas[candidato]);
+            
+            const heatmapData = [{
+                z: z_data,
+                x: datos.dimensiones,
+                y: selectedCandidatos,
+                type: 'heatmap',
+                colorscale: [[0, '#ef4444'], [0.5, '#eab308'], [1, '#22c55e']],
+                hovertemplate: '<b>%{y}</b><br><b>%{x}</b><br>Score: %{z:.2f}<extra></extra>'
+            }];
+            
+            const layout = {
+                margin: {l: 150, r: 50, t: 50, b: 100},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 11, family: 'Inter'},
+                xaxis: {side: 'bottom'},
+                yaxis: {automargin: true}
+            };
+            
+            Plotly.newPlot('heatmapChart', heatmapData, layout, {responsive: true});
+        }
+
+        // ============= PARALLEL COORDINATES =============
+        function renderParallel() {
+            const dimensions = [];
+            const colorIndices = [];
+            
+            datos.dimensiones.forEach((dim, idx) => {
+                dimensions.push({
+                    label: dim,
+                    values: selectedCandidatos.map(c => datos.metricas[c][idx]),
+                    range: [0, 1]
+                });
+            });
+
+            // Crear arreglo de colores para cada línea
+            const colorMap = {};
+            selectedCandidatos.forEach((c, i) => {
+                const hex = datos.colores[c];
+                const r = parseInt(hex.slice(1,3), 16);
+                const g = parseInt(hex.slice(3,5), 16);
+                const b = parseInt(hex.slice(5,7), 16);
+                colorMap[c] = i;
+            });
+
+            const parallelData = [{
+                type: 'parcoords',
+                line: {
+                    color: selectedCandidatos.map((c, i) => i),
+                    colorscale: selectedCandidatos.map(c => datos.colores[c]),
+                    showscale: false,
+                    thickness: 4
+                },
+                dimensions: dimensions
+            }];
+
+            const layout = {
+                margin: {l: 100, r: 50, t: 50, b: 50},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 11}
+            };
+
+            Plotly.newPlot('parallelCoords', parallelData, layout, {responsive: true});
+        }
+
+        // ============= NETWORK GRAPH =============
+        function renderNetwork() {
+            // Crear matriz de similitud basada en dimensiones
+            const similitud = {};
+            
+            selectedCandidatos.forEach(c1 => {
+                similitud[c1] = {};
+                selectedCandidatos.forEach(c2 => {
+                    if (c1 === c2) {
+                        similitud[c1][c2] = 0;
+                    } else {
+                        // Calcular similitud como 1 - distancia euclidiana normalizada
+                        const dist = Math.sqrt(
+                            datos.metricas[c1].reduce((sum, v1, idx) => {
+                                const v2 = datos.metricas[c2][idx];
+                                return sum + Math.pow(v1 - v2, 2);
+                            }, 0)
+                        );
+                        similitud[c1][c2] = 1 - (dist / Math.sqrt(11)); // normalizar
+                    }
+                });
+            });
+
+            // Crear nodos y links para la red
+            const nodes = selectedCandidatos.map(c => ({
+                name: c,
+                color: datos.colores[c]
+            }));
+
+            const links = [];
+            selectedCandidatos.forEach((c1, i) => {
+                selectedCandidatos.forEach((c2, j) => {
+                    if (i < j && similitud[c1][c2] > 0.5) {
+                        links.push({
+                            source: i,
+                            target: j,
+                            value: similitud[c1][c2]
+                        });
+                    }
+                });
+            });
+
+            // Crear trace para plotly (scatter con líneas)
+            const edgeX = [];
+            const edgeY = [];
+            
+            links.forEach(link => {
+                edgeX.push(nodes[link.source].name);
+                edgeX.push(nodes[link.target].name);
+                edgeX.push(null);
+            });
+
+            const nodeTrace = {
+                x: nodes.map(n => n.name),
+                y: nodes.map((n, i) => i),
+                mode: 'markers+text',
+                text: nodes.map(n => n.name),
+                textposition: 'top center',
+                textfont: {size: 12, color: '#fff'},
+                marker: {
+                    size: 25,
+                    color: nodes.map(n => n.color),
+                    line: {color: '#fff', width: 2}
+                },
+                type: 'scatter'
+            };
+
+            const layout = {
+                showlegend: false,
+                hovermode: 'closest',
+                margin: {b: 20, l: 5, r: 5, t: 40},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                xaxis: {showgrid: false, zeroline: false, showticklabels: false},
+                yaxis: {showgrid: false, zeroline: false, showticklabels: false},
+                font: {color: '#cbd5e1', size: 12}
+            };
+
+            Plotly.newPlot('networkGraph', [nodeTrace], layout, {responsive: true});
+        }
+
+        // ============= 3D SCATTER =============
+        function render3D() {
+            const trace = {
+                x: selectedCandidatos.map(c => datos.metricas[c][3]),
+                y: selectedCandidatos.map(c => datos.metricas[c][1]),
+                z: selectedCandidatos.map(c => datos.metricas[c][9]),
+                mode: 'markers+text',
+                text: selectedCandidatos,
+                textposition: 'top center',
+                textfont: {size: 12, color: '#cbd5e1'},
+                marker: {
+                    size: 20,
+                    color: selectedCandidatos.map(c => datos.colores[c]),
+                    line: {color: '#fff', width: 2},
+                    opacity: 0.9
+                },
+                type: 'scatter3d'
+            };
+            
+            const layout = {
+                scene: {
+                    xaxis: {title: 'IDEOLOGÍA', backgroundcolor: 'rgba(0,0,0,0.1)', gridcolor: '#444', zerolinecolor: '#666'},
+                    yaxis: {title: 'CAPITAL', backgroundcolor: 'rgba(0,0,0,0.1)', gridcolor: '#444', zerolinecolor: '#666'},
+                    zaxis: {title: 'RESILIENCIA', backgroundcolor: 'rgba(0,0,0,0.1)', gridcolor: '#444', zerolinecolor: '#666'},
+                    bgcolor: 'rgba(0,0,0,0.2)'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 12}
+            };
+            
+            Plotly.newPlot('plot3d', [trace], layout, {responsive: true});
+        }
+
+        // ============= SUNBURST =============
+        function renderSunburst() {
+            const candidato = selectedCandidatos[0] || "ROBLEDO";
+            const values = datos.metricas[candidato];
+            
+            const labels = [candidato, ...datos.dimensiones];
+            const parents = ["", ...Array(11).fill(candidato)];
+            const values_arr = [1, ...values];
+            const colors_arr = [0.5, ...values];
+            const text_labels = [candidato, ...datos.dimensiones.map((dim, idx) => `${dim}<br>${(values[idx]).toFixed(2)}`)];
+            
+            const sunburstData = [{
+                labels: labels,
+                parents: parents,
+                values: values_arr,
+                text: text_labels,
+                hovertemplate: '<b>%{label}</b><br>Score: %{text}<extra></extra>',
+                marker: {
+                    colors: colors_arr,
+                    colorscale: [[0, '#ef4444'], [0.33, '#fbbf24'], [0.66, '#84cc16'], [1, '#22c55e']],
+                    cmid: 0.5,
+                    colorbar: {
+                        title: "Score",
+                        thickness: 20,
+                        tickvals: [0, 0.25, 0.5, 0.75, 1.0],
+                        ticktext: ['0.0', '0.25', '0.5', '0.75', '1.0']
+                    }
+                },
+                textfont: {size: 12, color: '#fff'},
+                type: 'sunburst'
+            }];
+            
+            const layout = {
+                margin: {l: 0, r: 150, t: 50, b: 0},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 12}
+            };
+            
+            Plotly.newPlot('sunburstChart', sunburstData, layout, {responsive: true});
+        }
+
+        // ============= INSIGHTS =============
+        function renderInsights() {
+            const scores = selectedCandidatos.map(c => ({
+                name: c,
+                score: datos.metricas[c].reduce((a, b) => a + b, 0) / 11
+            })).sort((a, b) => b.score - a.score);
+
+            const topCandidato = scores[0].name;
+            
+            const insights = [
+                {
+                    title: '🏆 Líder General',
+                    text: `${topCandidato} lidera con un score promedio de ${scores[0].score.toFixed(2)} de 1.0`
+                },
+                {
+                    title: '👥 Comparación',
+                    text: `${selectedCandidatos.length} candidatos seleccionados de ${datos.candidatos.length} disponibles`
+                },
+                {
+                    title: '📊 Análisis Completo',
+                    text: `11 dimensiones de análisis político multidimensional`
+                },
+                {
+                    title: '💡 Insight Clave',
+                    text: `${topCandidato} destaca en capacidad legislativa y resiliencia política`
+                }
+            ];
+
+            const panel = document.getElementById('insightsPanel');
+            panel.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <div class="insight-title">${insight.title}</div>
+                    <div class="insight-text">${insight.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // ============= RENDER PRINCIPAL =============
+        function render() {
+            renderRadar('radarChart', 400);
+            renderCapital();
+            renderPolar();
+            renderHeatmap();
+            renderInsights();
+            
+            // Update stats
+            const topCandidato = selectedCandidatos.reduce((a, b) => {
+                const scoreA = datos.metricas[a].reduce((x, y) => x + y, 0);
+                const scoreB = datos.metricas[b].reduce((x, y) => x + y, 0);
+                return scoreA > scoreB ? a : b;
+            });
+            
+            document.getElementById('stat1').textContent = topCandidato;
+            document.getElementById('stat2').textContent = selectedCandidatos.length;
+        }
+
+    </script>
+</body>
+</html>

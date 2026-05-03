@@ -1,0 +1,194 @@
+<?php
+/**
+ * API: Campañas
+ * Endpoints para CRUD de campañas
+ * ✅ OPTIMIZADO con caché + rate limiting
+ */
+require_once __DIR__ . '/../config/config.php';
+requireAuth();
+
+$user = getSessionUser();
+
+// ⭐ RATE LIMITING
+$rateCheck = rate_limit_check($user['id'] ?? $_SERVER['REMOTE_ADDR']);
+if (!$rateCheck['allowed']) {
+    http_response_code(429);
+    header('Retry-After: ' . $rateCheck['retry_after']);
+    jsonResponse([
+        'success' => false,
+        'message' => 'Demasiadas peticiones. Intente en ' . $rateCheck['retry_after'] . ' segundos.'
+    ], 429);
+    exit;
+}
+
+$db = getDB(); // ⭐ Conexión persistente automática
+$method = $_SERVER['REQUEST_METHOD'];
+
+header('Content-Type: application/json; charset=utf-8');
+header('X-RateLimit-Limit: 60');
+header('X-RateLimit-Remaining: ' . $rateCheck['remaining']);
+
+try {
+    switch ($method) {
+        case 'GET':
+            // ⭐ CACHÉ: Listar campañas del usuario
+            $cacheKey = "campanas_user_{$user['id']}";
+
+            $campanas = cache_remember($cacheKey, function () use ($db, $user) {
+                $stmt = $db->prepare("
+                    SELECT c.*, cand.nombre_completo as candidato_nombre, e.nombre as eleccion_nombre
+                    FROM campanas c
+                    LEFT JOIN candidatos cand ON c.candidato_id = cand.id
+                    LEFT JOIN elecciones e ON c.eleccion_id = e.id
+                    INNER JOIN usuarios_campanas uc ON c.id = uc.campana_id
+                    WHERE uc.usuario_id = ?
+                    ORDER BY c.created_at DESC
+                ");
+                $stmt->execute([$user['id']]);
+                return $stmt->fetchAll();
+            }, CACHE_TTL_CAMPANAS);
+
+            jsonResponse(['success' => true, 'data' => $campanas]);
+            break;
+
+        case 'POST':
+            $data = getJsonInput();
+
+            // Validar campos requeridos
+            $required = ['codigo', 'nombre', 'estado', 'departamento', 'municipio', 'fecha_inicio', 'fecha_fin', 'candidato_id', 'eleccion_id'];
+            foreach ($required as $field) {
+                if (empty($data[$field])) {
+                    jsonResponse(['success' => false, 'message' => "El campo $field es requerido"], 400);
+                }
+            }
+
+            // Verificar código único
+            $stmt = $db->prepare("SELECT id FROM campanas WHERE codigo = ?");
+            $stmt->execute([$data['codigo']]);
+            if ($stmt->fetch()) {
+                jsonResponse(['success' => false, 'message' => 'El código de campaña ya existe'], 400);
+            }
+
+            // Insertar campaña
+            $stmt = $db->prepare("
+                INSERT INTO campanas (codigo, nombre, slogan, descripcion, estado, candidato_id, eleccion_id,
+                    departamento, municipio, meta_votos, presupuesto, fecha_inicio, fecha_fin, color_primario, color_secundario)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([
+                $data['codigo'],
+                $data['nombre'],
+                $data['slogan'] ?? null,
+                $data['descripcion'] ?? null,
+                $data['estado'],
+                $data['candidato_id'],
+                $data['eleccion_id'],
+                $data['departamento'],
+                $data['municipio'],
+                $data['meta_votos'] ?? null,
+                $data['presupuesto'] ?? null,
+                $data['fecha_inicio'],
+                $data['fecha_fin'],
+                $data['color_primario'] ?? '#FF00FF',
+                $data['color_secundario'] ?? '#FFD700'
+            ]);
+
+            $campanaId = $db->lastInsertId();
+
+            // Asignar usuario a la campaña como administrador
+            $stmt = $db->prepare("INSERT INTO usuarios_campanas (usuario_id, campana_id, rol_campana) VALUES (?, ?, 'administrador')");
+            $stmt->execute([$user['id'], $campanaId]);
+
+            // ⭐ INVALIDAR CACHÉ
+            cache_invalidate("campanas_user_{$user['id']}");
+            cache_invalidate("campanas_*");
+
+            jsonResponse(['success' => true, 'message' => 'Campaña creada exitosamente', 'id' => $campanaId]);
+            break;
+
+        case 'PUT':
+            $data = getJsonInput();
+
+            if (empty($data['id'])) {
+                jsonResponse(['success' => false, 'message' => 'ID de campaña requerido'], 400);
+            }
+
+            // Verificar acceso a la campaña
+            $auth = new Auth();
+            if (!$auth->hasAccessToCampana($user['id'], $data['id'])) {
+                jsonResponse(['success' => false, 'message' => 'No tienes acceso a esta campaña'], 403);
+            }
+
+            // Verificar código único (excluyendo la campaña actual)
+            if (!empty($data['codigo'])) {
+                $stmt = $db->prepare("SELECT id FROM campanas WHERE codigo = ? AND id != ?");
+                $stmt->execute([$data['codigo'], $data['id']]);
+                if ($stmt->fetch()) {
+                    jsonResponse(['success' => false, 'message' => 'El código de campaña ya existe'], 400);
+                }
+            }
+
+            // Actualizar campaña
+            $stmt = $db->prepare("
+                UPDATE campanas SET
+                    codigo = ?, nombre = ?, slogan = ?, descripcion = ?, estado = ?,
+                    candidato_id = ?, eleccion_id = ?, departamento = ?, municipio = ?,
+                    meta_votos = ?, presupuesto = ?, fecha_inicio = ?, fecha_fin = ?,
+                    color_primario = ?, color_secundario = ?
+                WHERE id = ?
+            ");
+            $stmt->execute([
+                $data['codigo'],
+                $data['nombre'],
+                $data['slogan'] ?? null,
+                $data['descripcion'] ?? null,
+                $data['estado'],
+                $data['candidato_id'],
+                $data['eleccion_id'],
+                $data['departamento'],
+                $data['municipio'],
+                $data['meta_votos'] ?? null,
+                $data['presupuesto'] ?? null,
+                $data['fecha_inicio'],
+                $data['fecha_fin'],
+                $data['color_primario'] ?? '#FF00FF',
+                $data['color_secundario'] ?? '#FFD700',
+                $data['id']
+            ]);
+
+            // ⭐ INVALIDAR CACHÉ
+            cache_invalidate("campanas_*");
+
+            jsonResponse(['success' => true, 'message' => 'Campaña actualizada exitosamente']);
+            break;
+
+        case 'DELETE':
+            $id = $_GET['id'] ?? null;
+
+            if (empty($id)) {
+                jsonResponse(['success' => false, 'message' => 'ID de campaña requerido'], 400);
+            }
+
+            // Verificar acceso
+            $auth = new Auth();
+            if (!$auth->hasAccessToCampana($user['id'], $id)) {
+                jsonResponse(['success' => false, 'message' => 'No tienes acceso a esta campaña'], 403);
+            }
+
+            // Eliminar relaciones y campaña
+            $db->prepare("DELETE FROM usuarios_campanas WHERE campana_id = ?")->execute([$id]);
+            $db->prepare("DELETE FROM campanas WHERE id = ?")->execute([$id]);
+
+            // ⭐ INVALIDAR CACHÉ
+            cache_invalidate("campanas_*");
+
+            jsonResponse(['success' => true, 'message' => 'Campaña eliminada exitosamente']);
+            break;
+
+        default:
+            jsonResponse(['success' => false, 'message' => 'Método no permitido'], 405);
+    }
+} catch (Exception $e) {
+    error_log("Error en API campanas: " . $e->getMessage());
+    jsonResponse(['success' => false, 'message' => 'Error interno del servidor'], 500);
+}

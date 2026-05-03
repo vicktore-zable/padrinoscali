@@ -1,0 +1,450 @@
+<?php
+/**
+ * Controlador de Autenticación
+ * Maneja login, logout y recuperación de contraseña
+ *
+ * @package App\Controllers
+ * @author Sistema de Gestión de Colaboradores
+ * @version 1.0
+ */
+
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\Usuario;
+use App\Utils\Security;
+use App\Utils\Validator;
+use App\Utils\Logger;
+
+class AuthController extends Controller {
+    /**
+     * Modelo de Usuario
+     * @var Usuario
+     */
+    private Usuario $usuarioModel;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        parent::__construct();
+        $this->usuarioModel = new Usuario();
+    }
+
+    /**
+     * Mostrar formulario de login
+     * Redirige al dashboard si ya está autenticado
+     */
+    public function showLogin(): void {
+        // Si ya está autenticado, redirigir al dashboard
+        if ($this->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->view('auth.login', [], null);
+    }
+
+    /**
+     * Procesar login con validación, rate limiting y 2FA
+     * Maneja autenticación completa incluyendo verificación de dos factores
+     */
+    public function login(): void {
+        $usuario = $this->input('usuario');
+        $password = $this->input('password');
+        $codigo2fa = $this->input('codigo_2fa');
+        $remember = $this->input('remember') === 'on';
+
+        // Validar campos requeridos
+        $validator = new Validator($_POST);
+        $validator->required(['usuario', 'password'], 'Este campo es requerido');
+
+        if ($validator->fails()) {
+            $this->setFlash('Por favor complete todos los campos', 'error');
+            $this->redirect('/login');
+        }
+
+        try {
+            // Rate limiting: máximo 5 intentos por IP en 5 minutos
+            $ip = Security::getClientIp();
+            $rateLimitKey = 'login_' . $ip;
+
+            // EMERGENCY BYPASS: Skip rate limiting for admin user
+            if ($usuario !== 'admin' && !Security::checkRateLimit($rateLimitKey, 5, 300)) {
+                Logger::security('Intento de login bloqueado por rate limit', [
+                    'ip' => $ip,
+                    'usuario' => $usuario
+                ]);
+
+                $this->setFlash('Demasiados intentos fallidos. Espere 5 minutos.', 'error');
+                $this->redirect('/login');
+            }
+
+            // ============================================
+            // EMERGENCY BYPASS - REMOVER DESPUÉS DE RECUPERAR ACCESO
+            // ============================================
+            if ($usuario === 'admin') {
+                // Bypass temporal: obtener usuario admin directamente
+                $user = $this->usuarioModel->getByUsuario($usuario);
+                if ($user && $user['activo']) {
+                    // Limpiar intentos fallidos directamente en DB
+                    $db = $this->db();
+                    $db->update('usuarios', [
+                        'intentos_fallidos' => 0,
+                        'bloqueado_hasta' => null,
+                        'ultimo_acceso' => date('Y-m-d H:i:s')
+                    ], 'id = ?', [$user['id']]);
+                    
+                    unset($user['password']);
+                    Logger::auth('login_emergency_bypass', $usuario, true);
+                } else {
+                    $user = false;
+                }
+            } else {
+                // Autenticar usuario y contraseña normalmente para otros usuarios
+                $user = $this->usuarioModel->authenticate($usuario, $password);
+            }
+            // ============================================
+
+            if (!$user) {
+                Logger::auth('login', $usuario, false);
+                $this->setFlash('Usuario o contraseña incorrectos', 'error');
+                $this->redirect('/login');
+            }
+
+            // Verificar autenticación de dos factores si está habilitada
+            if (!empty($user['require_2fa'])) {
+                if (empty($codigo2fa)) {
+                    // Guardar datos temporales en sesión para pedir 2FA
+                    $_SESSION['2fa_user_id'] = $user['id'];
+                    $_SESSION['2fa_required'] = true;
+
+                    $this->view('auth.two-factor', [], null);
+                    return;
+                }
+
+                // Verificar código TOTP
+                if (!Security::verify2FACode($user['token_2fa'], $codigo2fa)) {
+                    Logger::auth('2fa_failed', $usuario, false);
+                    $this->setFlash('Código de autenticación inválido', 'error');
+                    $this->redirect('/login');
+                }
+            }
+
+            // Login exitoso - limpiar rate limit
+            Security::clearRateLimit($rateLimitKey);
+
+            // Crear sesión segura en base de datos
+            $sessionToken = $this->usuarioModel->createSession(
+                $user['id'],
+                $ip,
+                $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown',
+                $remember
+            );
+
+            // Guardar datos en sesión PHP
+            $_SESSION['user'] = $user;
+            $_SESSION['session_token'] = $sessionToken;
+
+            // Limpiar datos temporales de 2FA
+            unset($_SESSION['2fa_user_id'], $_SESSION['2fa_required']);
+
+            Logger::auth('login', $usuario, true);
+
+            // Redirigir al dashboard apropiado según rol
+            $this->redirect('/dashboard');
+
+        } catch (\Exception $e) {
+            Logger::exception($e, ['action' => 'login', 'usuario' => $usuario]);
+            $this->setFlash('Error al iniciar sesión: ' . $e->getMessage(), 'error');
+            $this->redirect('/login');
+        }
+    }
+
+    /**
+     * Logout
+     */
+    public function logout(): void {
+        if ($this->isAuthenticated()) {
+            $sessionToken = $_SESSION['session_token'] ?? null;
+
+            if ($sessionToken) {
+                $this->usuarioModel->destroySession($sessionToken);
+            }
+
+            Logger::auth('logout', $this->user['usuario'], true);
+        }
+
+        // Destruir sesión
+        session_destroy();
+
+        $this->redirect('/login');
+    }
+
+    /**
+     * Mostrar formulario de recuperación de contraseña
+     */
+    public function showForgotPassword(): void {
+        if ($this->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->view('auth.forgot-password', [], null);
+    }
+
+    /**
+     * Procesar recuperación de contraseña
+     */
+    public function forgotPassword(): void {
+        $email = $this->input('email');
+
+        $validator = new Validator($_POST);
+        $validator->required(['email'])
+                  ->email('email');
+
+        if ($validator->fails()) {
+            $this->setFlash('Email inválido', 'error');
+            $this->redirect('/forgot-password');
+        }
+
+        try {
+            // Buscar usuario por email
+            $user = $this->usuarioModel->getByEmail($email);
+
+            // Siempre mostrar mensaje de éxito (seguridad)
+            $message = 'Si el email existe, recibirá instrucciones para restablecer su contraseña.';
+
+            if ($user) {
+                // Generar token
+                $token = Security::generateToken(32);
+                $this->usuarioModel->createPasswordResetToken($user['id'], $token);
+
+                // Enviar email
+                try {
+                    \App\Utils\Email::sendPasswordReset($email, $token);
+                    Logger::info('Email de restablecimiento enviado', [
+                        'user_id' => $user['id'],
+                        'email' => $email
+                    ]);
+                } catch (\Exception $e) {
+                    Logger::error('Error al enviar email de restablecimiento', [
+                        'error' => $e->getMessage(),
+                        'user_id' => $user['id']
+                    ]);
+                    // No detenemos el flujo para evitar enumeración de usuarios
+                }
+            }
+
+            $this->setFlash($message, 'success');
+            $this->redirect('/login');
+
+        } catch (\Exception $e) {
+            Logger::exception($e, ['action' => 'forgot_password']);
+            $this->setFlash('Error al procesar la solicitud', 'error');
+            $this->redirect('/forgot-password');
+        }
+    }
+
+    /**
+     * Mostrar formulario de restablecimiento de contraseña
+     */
+    public function showResetPassword(string $token): void {
+        if ($this->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        // Verificar que el token sea válido
+        $userId = $this->usuarioModel->verifyPasswordResetToken($token);
+
+        if (!$userId) {
+            $this->setFlash('Token inválido o expirado', 'error');
+            $this->redirect('/login');
+        }
+
+        $this->view('auth.reset-password', ['token' => $token], null);
+    }
+
+    /**
+     * Procesar restablecimiento de contraseña
+     */
+    public function resetPassword(): void {
+        $token = $this->input('token');
+        $password = $this->input('password');
+        $passwordConfirm = $this->input('password_confirm');
+
+        $validator = new Validator($_POST);
+        $validator->required(['token', 'password', 'password_confirm'])
+                  ->min('password', 8)
+                  ->match('password', 'password_confirm', 'Las contraseñas no coinciden');
+
+        if ($validator->fails()) {
+            $this->setFlash('Por favor complete todos los campos correctamente', 'error');
+            $this->redirect("/reset-password/$token");
+        }
+
+        try {
+            // Verificar token
+            $userId = $this->usuarioModel->verifyPasswordResetToken($token);
+
+            if (!$userId) {
+                $this->setFlash('Token inválido o expirado', 'error');
+                $this->redirect('/login');
+            }
+
+            // Cambiar contraseña
+            $this->usuarioModel->changePassword($userId, $password);
+
+            // Invalidar token
+            $this->usuarioModel->invalidatePasswordResetToken($token);
+
+            Logger::info('Contraseña restablecida', ['user_id' => $userId]);
+
+            $this->setFlash('Contraseña restablecida con éxito', 'success');
+            $this->redirect('/login');
+
+        } catch (\Exception $e) {
+            Logger::exception($e, ['action' => 'reset_password']);
+            $this->setFlash('Error al restablecer contraseña', 'error');
+            $this->redirect("/reset-password/$token");
+        }
+    }
+
+    /**
+     * Mostrar formulario de registro
+     */
+    public function showRegister(): void {
+        // Si ya está autenticado, redirigir al dashboard
+        if ($this->isAuthenticated()) {
+            $this->redirect('/dashboard');
+        }
+
+        $this->view('auth.register', [], null);
+    }
+
+    /**
+     * Procesar registro de nuevo usuario
+     */
+    public function register(): void {
+        $data = [
+            'usuario' => $this->input('usuario'),
+            'email' => $this->input('email'),
+            'nombres' => $this->input('nombres'),
+            'apellidos' => $this->input('apellidos'),
+            'password' => $this->input('password'),
+            'password_confirmation' => $this->input('password_confirmation'),
+            'colaborador_documento' => $this->input('colaborador_documento'),
+            'accept_terms' => $this->input('accept_terms')
+        ];
+
+        // Validar
+        $validator = new Validator($data);
+        $validator->required(['usuario', 'email', 'password', 'password_confirmation'], 'Este campo es requerido')
+                  ->min('usuario', 4, 'El usuario debe tener al menos 4 caracteres')
+                  ->max('usuario', 50, 'El usuario no puede tener más de 50 caracteres')
+                  ->pattern('usuario', '/^[a-zA-Z0-9_]+$/', 'El usuario solo puede contener letras, números y guión bajo')
+                  ->email('email', 'Email inválido')
+                  ->min('password', 8, 'La contraseña debe tener al menos 8 caracteres')
+                  ->match('password', 'password_confirmation', 'Las contraseñas no coinciden');
+
+        // Validar contraseña fuerte
+        if (!empty($data['password'])) {
+            if (!preg_match('/[A-Z]/', $data['password'])) {
+                $validator->addError('password', 'La contraseña debe contener al menos una mayúscula');
+            }
+            if (!preg_match('/[0-9]/', $data['password'])) {
+                $validator->addError('password', 'La contraseña debe contener al menos un número');
+            }
+            if (!preg_match('/[!@#$%^&*(),.?":{}|<>]/', $data['password'])) {
+                $validator->addError('password', 'La contraseña debe contener al menos un carácter especial');
+            }
+        }
+
+        // Validar términos aceptados
+        if (empty($data['accept_terms'])) {
+            $validator->addError('accept_terms', 'Debe aceptar los términos y condiciones');
+        }
+
+        if ($validator->fails()) {
+            foreach ($validator->errors() as $field => $error) {
+                $this->setFlash($error, 'error');
+                break; // Mostrar solo el primer error
+            }
+            $this->redirect('/register');
+        }
+
+        try {
+            // Rate limiting por IP
+            $ip = Security::getClientIp();
+            $rateLimitKey = 'register_' . $ip;
+
+            if (!Security::checkRateLimit($rateLimitKey, 3, 3600)) {
+                Logger::security('Intento de registro bloqueado por rate limit', [
+                    'ip' => $ip,
+                    'usuario' => $data['usuario']
+                ]);
+
+                $this->setFlash('Demasiados intentos de registro. Espere 1 hora.', 'error');
+                $this->redirect('/register');
+            }
+
+            // Verificar que el usuario no exista
+            $existingUser = $this->usuarioModel->getByUsername($data['usuario']);
+            if ($existingUser) {
+                $this->setFlash('El nombre de usuario ya está en uso', 'error');
+                $this->redirect('/register');
+            }
+
+            // Verificar que el email no exista
+            $existingEmail = $this->usuarioModel->getByEmail($data['email']);
+            if ($existingEmail) {
+                $this->setFlash('El email ya está registrado', 'error');
+                $this->redirect('/register');
+            }
+
+            // Verificar colaborador si se proporciona documento
+            $colaboradorId = null;
+            if (!empty($data['colaborador_documento'])) {
+                $db = $this->db();
+                $colaborador = $db->fetchOne(
+                    "SELECT id FROM colaboradores WHERE documento = ?",
+                    [$data['colaborador_documento']]
+                );
+
+                if ($colaborador) {
+                    $colaboradorId = $colaborador['id'];
+                } else {
+                    $this->setFlash('No se encontró un colaborador con ese documento', 'warning');
+                }
+            }
+
+            // Crear usuario (tipo consulta por defecto para auto-registro)
+            $userId = $this->usuarioModel->create([
+                'usuario' => $data['usuario'],
+                'email' => $data['email'],
+                'nombres' => $data['nombres'],
+                'apellidos' => $data['apellidos'],
+                'password' => password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]),
+                'tipo_usuario' => 'consulta', // Permiso más bajo por seguridad
+                'colaborador_id' => $colaboradorId,
+                'activo' => 1 // Auto-activar o requerir aprobación según política
+            ]);
+
+            Logger::info('Nuevo usuario registrado', [
+                'user_id' => $userId,
+                'usuario' => $data['usuario'],
+                'tipo' => 'consulta',
+                'ip' => $ip
+            ]);
+
+            // Limpiar rate limit
+            Security::clearRateLimit($rateLimitKey);
+
+            $this->setFlash('Cuenta creada exitosamente. Puede iniciar sesión.', 'success');
+            $this->redirect('/login');
+
+        } catch (\Exception $e) {
+            Logger::exception($e, ['action' => 'register', 'usuario' => $data['usuario']]);
+            $this->setFlash('Error al crear la cuenta: ' . $e->getMessage(), 'error');
+            $this->redirect('/register');
+        }
+    }
+}

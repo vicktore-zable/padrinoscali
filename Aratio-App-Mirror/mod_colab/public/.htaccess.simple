@@ -1,0 +1,18 @@
+# Configuración mínima para funcionar
+RewriteEngine On
+RewriteBase /
+
+# Si el archivo o directorio existe, servirlo directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Todo lo demás va a index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Charset UTF-8
+AddDefaultCharset UTF-8
+
+# Proteger .env
+<Files .env>
+    Require all denied
+</Files>

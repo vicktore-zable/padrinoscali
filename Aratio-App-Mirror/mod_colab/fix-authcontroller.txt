@@ -1,0 +1,49 @@
+INSTRUCCIONES PARA CORREGIR EL PROBLEMA DE LOGIN
+
+El problema es que cuando el usuario hace login, los datos se guardan en $_SESSION pero
+PHP termina con exit() ANTES de escribir la sesión al disco. Cuando el navegador carga
+/dashboard, la sesión está vacía y el middleware redirige a /login.
+
+SOLUCIÓN: Agregar session_write_close() antes del redirect
+
+ARCHIVO: src/Controllers/AuthController.php
+LÍNEA: 127-130
+
+CAMBIAR DE:
+-----------
+            Logger::auth('login', $usuario, true);
+
+            // Redirigir al dashboard apropiado según rol
+            $this->redirect('/dashboard');
+
+
+CAMBIAR A:
+----------
+            Logger::auth('login', $usuario, true);
+
+            // IMPORTANTE: Forzar escritura de sesión antes de redirigir
+            // Sin esto, PHP puede terminar antes de escribir la sesión y se pierden los datos
+            session_write_close();
+
+            // Redirigir al dashboard apropiado según rol
+            $this->redirect('/dashboard');
+
+
+PASOS PARA APLICAR:
+
+1. Conectar por FTP o SSH al servidor
+2. Editar: /public_html/mod_colab/src/Controllers/AuthController.php
+3. Buscar línea 127: Logger::auth('login', $usuario, true);
+4. Agregar después de ella:
+
+   // IMPORTANTE: Forzar escritura de sesión antes de redirigir
+   // Sin esto, PHP puede terminar antes de escribir la sesión y se pierden los datos
+   session_write_close();
+
+5. Guardar el archivo
+6. Probar el login nuevamente
+
+VERIFICAR:
+- El login debe redirigir correctamente a /dashboard
+- No debe volver a /login
+- El usuario debe permanecer autenticado

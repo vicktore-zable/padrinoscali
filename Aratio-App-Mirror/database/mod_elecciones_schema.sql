@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS mod_elecciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    anio INT NOT NULL,
+    departamento VARCHAR(100),
+    municipio VARCHAR(100),
+    puesto VARCHAR(255),
+    mesa INT,
+    comuna VARCHAR(255),
+    partido VARCHAR(255),
+    candidato VARCHAR(255),
+    votos INT,
+    corporacion VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_anio (anio),
+    INDEX idx_municipio (municipio),
+    INDEX idx_puesto (puesto),
+    INDEX idx_candidato (candidato),
+    INDEX idx_partido (partido),
+    INDEX idx_corporacion (corporacion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

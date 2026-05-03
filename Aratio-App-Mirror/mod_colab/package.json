@@ -1,0 +1,54 @@
+{
+  "name": "aratio-colaboradores",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión Integral de Colaboradores - Frontend",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run watch:css\" \"npm run watch:js\"",
+    "watch:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --watch",
+    "watch:js": "node esbuild.config.js --watch",
+    "build:css": "tailwindcss -i ./public/css/input.css -o ./public/css/output.css --minify",
+    "build:js": "node esbuild.config.js",
+    "build": "npm run build:css && npm run build:js",
+    "production": "NODE_ENV=production npm run build",
+    "clean": "rm -rf public/js/bundle.js public/css/output.css",
+    "lint": "eslint public/js --ext .js",
+    "format": "prettier --write \"public/js/**/*.js\""
+  },
+  "keywords": [
+    "colaboradores",
+    "gestion",
+    "php",
+    "tailwindcss"
+  ],
+  "author": "A Ratio",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2",
+    "esbuild": "^0.19.11",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1"
+  },
+  "dependencies": {
+    "@alpinejs/collapse": "^3.13.5",
+    "@alpinejs/focus": "^3.13.5",
+    "@alpinejs/mask": "^3.13.5",
+    "alpinejs": "^3.13.5",
+    "apexcharts": "^3.45.2",
+    "choices.js": "^10.2.0",
+    "daisyui": "^4.6.0",
+    "flatpickr": "^4.6.13",
+    "flowbite": "^2.2.1",
+    "toastify-js": "^1.12.0",
+    "sweetalert2": "^11.10.5",
+    "vis-data": "^7.1.9",
+    "vis-network": "^9.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,211 @@
+<?php
+/**
+ * Vista de Visualización de Curriculum
+ */
+
+use App\Utils\Security;
+
+$colaborador = $colaborador ?? [];
+$curriculum = $curriculum ?? [];
+?>
+
+<!-- Action Buttons -->
+<div class="mb-6 flex justify-end space-x-3">
+    <a href="/curriculum/<?= $colaborador['id'] ?>/edit" class="btn btn-primary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Editar
+    </a>
+    <a href="/colaboradores/<?= $colaborador['id'] ?>" class="btn btn-secondary">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Volver
+    </a>
+</div>
+
+<!-- Resumen Profesional -->
+<?php if (!empty($curriculum['resumen_profesional'])): ?>
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Resumen Profesional</h2>
+    </div>
+    <div class="card-body">
+        <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['resumen_profesional'] ?? '') ?></p>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Experiencia Laboral -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Experiencia Laboral</h2>
+    </div>
+    <div class="card-body">
+        <?php if (!empty($curriculum['experiencia_laboral'])): ?>
+            <div class="space-y-6">
+                <?php foreach ($curriculum['experiencia_laboral'] as $index => $exp): ?>
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?= htmlspecialchars($exp['cargo'] ?? '') ?>
+                                </h3>
+                                <p class="text-md text-gray-700 font-medium">
+                                    <?= htmlspecialchars($exp['empresa'] ?? '') ?>
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <?= date('m/Y', strtotime($exp['fecha_inicio'])) ?> -
+                                    <?= isset($exp['actual']) && $exp['actual'] ? 'Actualidad' : date('m/Y', strtotime($exp['fecha_fin'])) ?>
+                                </p>
+                                <?php if (!empty($exp['descripcion'])): ?>
+                                    <p class="text-gray-600 mt-2 whitespace-pre-line"><?= htmlspecialchars($exp['descripcion']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-gray-500 text-center py-8">No hay experiencia laboral registrada</p>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Formación Académica -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Formación Académica</h2>
+    </div>
+    <div class="card-body">
+        <?php if (!empty($curriculum['formacion_academica'])): ?>
+            <div class="space-y-6">
+                <?php foreach ($curriculum['formacion_academica'] as $index => $form): ?>
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?= htmlspecialchars($form['titulo'] ?? '') ?>
+                                </h3>
+                                <p class="text-md text-gray-700 font-medium">
+                                    <?= htmlspecialchars($form['institucion'] ?? '') ?>
+                                </p>
+                                <div class="flex items-center space-x-3 mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <?= htmlspecialchars($form['nivel'] ?? '') ?>
+                                    </span>
+                                    <p class="text-sm text-gray-500">
+                                        <?= date('m/Y', strtotime($form['fecha_inicio'])) ?> -
+                                        <?= isset($form['en_curso']) && $form['en_curso'] ? 'En curso' : date('m/Y', strtotime($form['fecha_fin'])) ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-gray-500 text-center py-8">No hay formación académica registrada</p>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Participación Política -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Participación Política</h2>
+    </div>
+    <div class="card-body">
+        <?php if (!empty($curriculum['participacion_politica'])): ?>
+            <div class="space-y-6">
+                <?php foreach ($curriculum['participacion_politica'] as $index => $part): ?>
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    <?= htmlspecialchars($part['cargo'] ?? '') ?>
+                                </h3>
+                                <p class="text-md text-gray-700 font-medium">
+                                    <?= htmlspecialchars($part['organizacion'] ?? '') ?>
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <?= date('m/Y', strtotime($part['fecha_inicio'])) ?> -
+                                    <?= isset($part['actual']) && $part['actual'] ? 'Actualidad' : date('m/Y', strtotime($part['fecha_fin'])) ?>
+                                </p>
+                                <?php if (!empty($part['descripcion'])): ?>
+                                    <p class="text-gray-600 mt-2 whitespace-pre-line"><?= htmlspecialchars($part['descripcion']) ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="text-gray-500 text-center py-8">No hay participación política registrada</p>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Información Adicional -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Habilidades -->
+    <?php if (!empty($curriculum['habilidades'])): ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Habilidades</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['habilidades']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Idiomas -->
+    <?php if (!empty($curriculum['idiomas'])): ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Idiomas</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['idiomas']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Reconocimientos -->
+    <?php if (!empty($curriculum['reconocimientos'])): ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Reconocimientos</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['reconocimientos']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Referencias -->
+    <?php if (!empty($curriculum['referencias'])): ?>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Referencias</h2>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['referencias']) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<!-- Observaciones -->
+<?php if (!empty($curriculum['observaciones'])): ?>
+<div class="card mt-6">
+    <div class="card-header">
+        <h2 class="card-title">Observaciones</h2>
+    </div>
+    <div class="card-body">
+        <p class="text-gray-700 whitespace-pre-line"><?= htmlspecialchars($curriculum['observaciones']) ?></p>
+    </div>
+</div>
+<?php endif; ?>

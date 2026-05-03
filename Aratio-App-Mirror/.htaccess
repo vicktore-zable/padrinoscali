@@ -1,0 +1,87 @@
+# =====================================================
+# .htaccess — Aratio @ edisongiraldo.com/aratio/
+# Versión: 2.0.0 | 2026-04-14
+# =====================================================
+
+Options -MultiViews
+DirectoryIndex index.php index.html
+
+RewriteEngine On
+RewriteBase /aratio/
+
+# =====================================================
+# RUTAS PRINCIPALES
+# =====================================================
+RewriteRule ^login/?$                   index.php  [L,QSA]
+RewriteRule ^dashboard/?$               index.php  [L,QSA]
+RewriteRule ^portal/(.*)$               index.php  [L,QSA]
+
+# =====================================================
+# REGISTROS PÚBLICOS
+# =====================================================
+RewriteRule ^registro-simpatizante/?$   registro_simpatizante.php  [L,QSA]
+RewriteRule ^registro-lider/?$          registro-lider.php         [L,QSA]
+
+# =====================================================
+# MÓDULOS
+# =====================================================
+RewriteRule ^mapa-puestos/?$            mapa_territorios.php         [L,QSA]
+RewriteRule ^reporte-diaD/?$            mod_diaD/index.php           [L,QSA]
+RewriteRule ^dashboard-diaD/?$          mod_diaD/dashboard.php       [L,QSA]
+RewriteRule ^dashboard-jac/?$           mod_jac/dashboard.php        [L,QSA]
+RewriteRule ^JAC/?$                     mod_jac/index.php            [L,QSA]
+
+# =====================================================
+# API
+# =====================================================
+RewriteRule ^api/colaboradores/(.*)$    mod_colab/public/index.php   [L,QSA]
+RewriteRule ^territorios/(.*)$          mod_colab/public/index.php   [L,QSA]
+
+# =====================================================
+# PROTECCIÓN DE ARCHIVOS SENSIBLES
+# =====================================================
+<FilesMatch "^\." >
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(env|sql|log|sh|py|ps1|bat|md|txt|json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(config|includes|database)/">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Bloquear archivos de debug y temporales
+<FilesMatch "^(tmp_|debug_|check_|verify_|test_|fix_|export_|import_|migrate_)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# =====================================================
+# CONFIGURACIÓN DE PHP
+# =====================================================
+php_value upload_max_filesize  10M
+php_value post_max_size        10M
+php_value max_execution_time   300
+php_value max_input_time       300
+
+# =====================================================
+# SEGURIDAD
+# =====================================================
+Options -Indexes
+
+# Evitar acceso a backups y logs
+<FilesMatch "\.(bak|backup|orig|save)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# =====================================================
+# MANEJO DE ERRORES
+# =====================================================
+ErrorDocument 403 /aratio/index.php
+ErrorDocument 404 /aratio/index.php

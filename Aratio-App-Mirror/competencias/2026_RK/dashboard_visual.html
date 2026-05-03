@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Candidatos Senado 2026 - Análisis Visual Avanzado</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: #e2e8f0;
+        }
+        .glass { 
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        .card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .radar-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            margin: 20px 0;
+        }
+        .metric-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px;
+        }
+        .candidate-btn {
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            background: rgba(71, 85, 105, 0.3);
+            color: #cbd5e1;
+        }
+        .candidate-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-color: #60a5fa;
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        .dimension-indicator {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #60a5fa;
+        }
+        .sunburst-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 6px;
+        }
+        .comparison-bar {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 10px;
+        }
+        .comparison-label {
+            min-width: 150px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .comparison-value {
+            background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .heatmap-cell {
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        .loading { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-6 md:p-8">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Header -->
+            <div class="mb-8 text-center">
+                <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400 mb-2">
+                    🗳️ ANÁLISIS VISUAL DE COMPETENCIA
+                </h1>
+                <p class="text-gray-400 text-lg">Candidatos Senado 2026 - Visualización Multidimensional Avanzada</p>
+            </div>
+
+            <!-- Selector de Candidatos -->
+            <div class="card mb-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🎯</span> Selecciona Candidatos a Comparar
+                </h2>
+                <div id="candidateSelector" class="flex flex-wrap gap-2">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Tabs de Visualizaciones -->
+            <div class="card mb-6 border-b-2 border-slate-700">
+                <div id="tabs" class="flex gap-2 flex-wrap">
+                    <button class="tab-btn tab-active px-4 py-2 font-semibold transition-all" data-tab="radar">📊 Gráfico Radial</button>
+                    <button class="tab-btn px-4 py-2 font-semibold transition-all" data-tab="sunburst">🌟 SunBurst</button>
+                    <button class="tab-btn px-4 py-2 font-semibold transition-all" data-tab="heatmap">🔥 Matriz de Calor</button>
+                    <button class="tab-btn px-4 py-2 font-semibold transition-all" data-tab="comparison">⚖️ Comparativa</button>
+                    <button class="tab-btn px-4 py-2 font-semibold transition-all" data-tab="3d">🎪 Visualización 3D</button>
+                </div>
+            </div>
+
+            <!-- Área de Contenido Dinámico -->
+            <div id="content" class="space-y-6">
+                
+                <!-- Tab: Radar Chart -->
+                <div id="radar-tab" class="tab-content card">
+                    <h3 class="text-2xl font-bold mb-4">📡 Gráfico Radial por Dimensión</h3>
+                    <p class="text-gray-400 mb-4">Compara candidatos en las 11 dimensiones de análisis político</p>
+                    <div class="radar-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tab: SunBurst -->
+                <div id="sunburst-tab" class="tab-content hidden card">
+                    <h3 class="text-2xl font-bold mb-4">🌈 Visualización SunBurst - Estructura Multidimensional</h3>
+                    <p class="text-gray-400 mb-4">Explora la jerarquía de capacidades de cada candidato</p>
+                    <div id="sunburstChart" style="width: 100%; height: 600px;"></div>
+                </div>
+
+                <!-- Tab: Heatmap -->
+                <div id="heatmap-tab" class="tab-content hidden card">
+                    <h3 class="text-2xl font-bold mb-4">🔥 Matriz de Calor - Fortalezas y Debilidades</h3>
+                    <p class="text-gray-400 mb-4">Visualiza de un vistazo dónde cada candidato destaca o se queda atrás</p>
+                    <div id="heatmapChart" style="width: 100%; height: 500px;"></div>
+                </div>
+
+                <!-- Tab: Comparison -->
+                <div id="comparison-tab" class="tab-content hidden card">
+                    <h3 class="text-2xl font-bold mb-4">⚖️ Comparativa Directa</h3>
+                    <p class="text-gray-400 mb-4">Compara métricas clave lado a lado</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold mb-4 text-blue-400">Capital Político Total</h4>
+                            <div id="capitalComparison"></div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-4 text-cyan-400">Proyección Electoral 2026</h4>
+                            <div id="votesComparison"></div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-4 text-green-400">Fortaleza de Redes</h4>
+                            <div id="netsComparison"></div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-4 text-purple-400">Capacidad Legislativa</h4>
+                            <div id="legislativeComparison"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: 3D -->
+                <div id="3d-tab" class="tab-content hidden card">
+                    <h3 class="text-2xl font-bold mb-4">🎪 Visualización 3D Interactiva</h3>
+                    <p class="text-gray-400 mb-4">Explora candidatos en un espacio 3D (Ideología, Capital, Resiliencia)</p>
+                    <div id="plot3d" style="width: 100%; height: 600px;"></div>
+                </div>
+
+            </div>
+
+            <!-- Insights Panel -->
+            <div class="card mt-8">
+                <h3 class="text-2xl font-bold mb-4">💡 Insights Clave</h3>
+                <div id="insightsPanel" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Generado dinámicamente -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ============= DATOS =============
+        const datos = {
+            candidatos: [
+                "REYES KURI", "LEYVA RIZZO", "AGUDELO", "GUEVARA",
+                "VIRGÜEZ", "J.S. GÓMEZ", "M.L. VILLALBA", "R. DÍAZ GRANADOS",
+                "ROBLEDO", "JENNIFER PEDRAZA"
+            ],
+            dimensiones: [
+                "IDENTIDAD", "CAPITAL", "TRAYECTORIA", "IDEOLOGÍA",
+                "LEGISLATIVA", "REDES", "RECURSOS", "GESTIÓN",
+                "COMUNICACIÓN", "RESILIENCIA", "PROYECCIÓN"
+            ],
+            metricas: {
+                "REYES KURI": [0.65, 0.75, 0.75, 0.7, 0.6, 0.7, 0.55, 0.65, 0.55, 0.7, 0.6],
+                "LEYVA RIZZO": [0.55, 0.55, 0.8, 0.55, 0.45, 0.55, 0.4, 0.6, 0.4, 0.65, 0.45],
+                "AGUDELO": [0.65, 0.75, 0.85, 0.7, 0.7, 0.75, 0.65, 0.75, 0.65, 0.75, 0.7],
+                "GUEVARA": [0.7, 0.65, 0.9, 0.75, 0.8, 0.8, 0.7, 0.7, 0.75, 0.8, 0.75],
+                "VIRGÜEZ": [0.65, 0.75, 0.8, 0.55, 0.5, 0.7, 0.5, 0.55, 0.45, 0.75, 0.55],
+                "J.S. GÓMEZ": [0.7, 0.8, 0.7, 0.65, 0.6, 0.75, 0.55, 0.65, 0.5, 0.6, 0.6],
+                "M.L. VILLALBA": [0.65, 0.75, 0.6, 0.55, 0.3, 0.7, 0.55, 0.6, 0.4, 0.55, 0.55],
+                "R. DÍAZ GRANADOS": [0.6, 0.55, 0.65, 0.6, 0.4, 0.65, 0.45, 0.6, 0.35, 0.5, 0.5],
+                "ROBLEDO": [0.75, 0.55, 0.95, 0.85, 0.9, 0.85, 0.65, 0.8, 0.95, 0.95, 0.85],
+                "JENNIFER PEDRAZA": [0.6, 0.35, 0.7, 0.7, 0.5, 0.55, 0.55, 0.55, 0.65, 0.7, 0.65]
+            },
+            colores: {
+                "REYES KURI": "#FF6B6B",
+                "LEYVA RIZZO": "#4ECDC4",
+                "AGUDELO": "#FFE66D",
+                "GUEVARA": "#95E1D3",
+                "VIRGÜEZ": "#C7CEEA",
+                "J.S. GÓMEZ": "#FF8B94",
+                "M.L. VILLALBA": "#B4A7D6",
+                "R. DÍAZ GRANADOS": "#73A580",
+                "ROBLEDO": "#FF6B9D",
+                "JENNIFER PEDRAZA": "#FEC8D8"
+            }
+        };
+
+        let selectedCandidatos = ["ROBLEDO", "GUEVARA"];
+
+        // ============= INICIALIZACIÓN =============
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCandidateSelector();
+            setupTabs();
+            render();
+        });
+
+        function renderCandidateSelector() {
+            const selector = document.getElementById('candidateSelector');
+            selector.innerHTML = datos.candidatos.map(c => `
+                <button class="candidate-btn ${selectedCandidatos.includes(c) ? 'active' : ''}" 
+                    onclick="toggleCandidate('${c}')">
+                    ${c}
+                </button>
+            `).join('');
+        }
+
+        function toggleCandidate(candidato) {
+            if (selectedCandidatos.includes(candidato)) {
+                if (selectedCandidatos.length > 1) {
+                    selectedCandidatos = selectedCandidatos.filter(c => c !== candidato);
+                }
+            } else {
+                selectedCandidatos.push(candidato);
+            }
+            renderCandidateSelector();
+            render();
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    showTab(tabName);
+                });
+            });
+        }
+
+        function showTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+            
+            // Mostrar tab seleccionado
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+            
+            // Redibujar gráficos si es necesario
+            setTimeout(() => {
+                if (tabName === 'radar') renderRadar();
+                else if (tabName === 'sunburst') renderSunburst();
+                else if (tabName === 'heatmap') renderHeatmap();
+                else if (tabName === 'comparison') renderComparison();
+                else if (tabName === '3d') render3D();
+            }, 100);
+        }
+
+        // ============= GRÁFICO RADIAL =============
+        function renderRadar() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            const datasets = selectedCandidatos.map(candidato => ({
+                label: candidato,
+                data: datos.metricas[candidato],
+                borderColor: datos.colores[candidato],
+                backgroundColor: datos.colores[candidato] + '22',
+                borderWidth: 3,
+                fill: true,
+                pointRadius: 5,
+                pointBackgroundColor: datos.colores[candidato],
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                tension: 0.3
+            }));
+
+            if (window.radarChartInstance) window.radarChartInstance.destroy();
+            
+            window.radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: datos.dimensiones,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#cbd5e1', font: { size: 14, weight: 'bold' } }
+                        },
+                        filler: { propagate: true }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: { color: '#94a3b8', stepSize: 0.2 },
+                            grid: { color: 'rgba(100, 116, 139, 0.2)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============= SUNBURST =============
+        function renderSunburst() {
+            const candidato = selectedCandidatos[0] || "ROBLEDO";
+            const values = datos.metricas[candidato];
+            
+            const labels = [];
+            const parents = [];
+            const values_arr = [];
+            const colors_arr = [];
+            const text_labels = [];
+            
+            // Root
+            labels.push(candidato);
+            parents.push("");
+            values_arr.push(1);
+            colors_arr.push(0.5);
+            text_labels.push(candidato);
+            
+            // Dimensiones
+            datos.dimensiones.forEach((dim, idx) => {
+                labels.push(dim);
+                parents.push(candidato);
+                values_arr.push(values[idx]);
+                colors_arr.push(values[idx]);
+                text_labels.push(`${dim}<br>${(values[idx]).toFixed(2)}`);
+            });
+            
+            const sunburstData = [{
+                labels: labels,
+                parents: parents,
+                values: values_arr,
+                text: text_labels,
+                hovertemplate: '<b>%{label}</b><br>Score: %{text}<extra></extra>',
+                marker: {
+                    colors: colors_arr,
+                    colorscale: [[0, '#ef4444'], [0.33, '#fbbf24'], [0.66, '#84cc16'], [1, '#22c55e']],
+                    cmid: 0.5,
+                    colorbar: {
+                        title: "Score",
+                        thickness: 20,
+                        tickvals: [0, 0.25, 0.5, 0.75, 1.0],
+                        ticktext: ['0.0', '0.25', '0.5', '0.75', '1.0']
+                    }
+                },
+                textfont: {size: 12, color: '#fff'},
+                type: 'sunburst'
+            }];
+            
+            const layout = {
+                margin: {l: 0, r: 150, t: 50, b: 0},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 12}
+            };
+            
+            Plotly.newPlot('sunburstChart', sunburstData, layout, {responsive: true});
+        }
+
+        // ============= HEATMAP =============
+        function renderHeatmap() {
+            const z_data = selectedCandidatos.map(candidato => datos.metricas[candidato]);
+            
+            // Crear texto con valores
+            const text_data = z_data.map(row => 
+                row.map(val => `${(val).toFixed(2)}`)
+            );
+            
+            const heatmapData = [{
+                z: z_data,
+                x: datos.dimensiones,
+                y: selectedCandidatos,
+                text: text_data,
+                texttemplate: '%{text}',
+                textfont: {size: 11, color: '#fff'},
+                type: 'heatmap',
+                colorscale: [[0, '#ef4444'], [0.33, '#fbbf24'], [0.66, '#84cc16'], [1, '#22c55e']],
+                hovertemplate: '<b>%{y}</b><br><b>%{x}</b><br>Score: %{z:.2f}<extra></extra>',
+                colorbar: {
+                    title: "Score",
+                    tickvals: [0, 0.25, 0.5, 0.75, 1.0],
+                    ticktext: ['0.0', '0.25', '0.5', '0.75', '1.0']
+                }
+            }];
+            
+            const layout = {
+                margin: {l: 120, r: 100, t: 50, b: 100},
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 11},
+                xaxis: {side: 'bottom'},
+                yaxis: {automargin: true}
+            };
+            
+            Plotly.newPlot('heatmapChart', heatmapData, layout, {responsive: true});
+        }
+
+        // ============= COMPARATIVAS =============
+        function renderComparison() {
+            // Capital Político
+            let html = '';
+            const capitales = selectedCandidatos.map(c => ({
+                name: c,
+                value: (datos.metricas[c][1] + datos.metricas[c][2]) / 2
+            })).sort((a, b) => b.value - a.value);
+            
+            html = capitales.map(item => `
+                <div class="comparison-bar">
+                    <div class="comparison-label">${item.name}</div>
+                    <div class="comparison-value" style="width: ${item.value * 100}%;">
+                        ${(item.value).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('capitalComparison').innerHTML = html;
+            
+            // Votos esperados
+            const votos = selectedCandidatos.map(c => ({
+                name: c,
+                value: datos.metricas[c][6] // RECURSOS
+            })).sort((a, b) => b.value - a.value);
+            
+            html = votos.map(item => `
+                <div class="comparison-bar">
+                    <div class="comparison-label">${item.name}</div>
+                    <div class="comparison-value" style="width: ${item.value * 100}%;">
+                        ${(item.value * 100000).toFixed(0)} votos
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('votesComparison').innerHTML = html;
+            
+            // Redes
+            const redes = selectedCandidatos.map(c => ({
+                name: c,
+                value: datos.metricas[c][5]
+            })).sort((a, b) => b.value - a.value);
+            
+            html = redes.map(item => `
+                <div class="comparison-bar">
+                    <div class="comparison-label">${item.name}</div>
+                    <div class="comparison-value" style="width: ${item.value * 100}%;">
+                        ${(item.value).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('netsComparison').innerHTML = html;
+            
+            // Legislativa
+            const leg = selectedCandidatos.map(c => ({
+                name: c,
+                value: datos.metricas[c][4]
+            })).sort((a, b) => b.value - a.value);
+            
+            html = leg.map(item => `
+                <div class="comparison-bar">
+                    <div class="comparison-label">${item.name}</div>
+                    <div class="comparison-value" style="width: ${item.value * 100}%;">
+                        ${(item.value).toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('legislativeComparison').innerHTML = html;
+        }
+
+        // ============= 3D =============
+        function render3D() {
+            const trace = {
+                x: selectedCandidatos.map(c => datos.metricas[c][3]), // Ideología
+                y: selectedCandidatos.map(c => datos.metricas[c][1]), // Capital
+                z: selectedCandidatos.map(c => datos.metricas[c][9]), // Resiliencia
+                mode: 'markers+text',
+                text: selectedCandidatos,
+                textposition: 'top center',
+                marker: {
+                    size: 15,
+                    color: selectedCandidatos.map(c => datos.colores[c]),
+                    line: {color: '#fff', width: 2}
+                },
+                type: 'scatter3d'
+            };
+            
+            const layout = {
+                margin: {l: 0, r: 0, t: 0, b: 0},
+                scene: {
+                    xaxis: {title: 'IDEOLOGÍA', backgroundcolor: 'rgba(0,0,0,0)', gridcolor: '#444'},
+                    yaxis: {title: 'CAPITAL', backgroundcolor: 'rgba(0,0,0,0)', gridcolor: '#444'},
+                    zaxis: {title: 'RESILIENCIA', backgroundcolor: 'rgba(0,0,0,0)', gridcolor: '#444'},
+                    bgcolor: 'rgba(0,0,0,0)'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#cbd5e1', size: 12}
+            };
+            
+            Plotly.newPlot('plot3d', [trace], layout, {responsive: true});
+        }
+
+        // ============= INSIGHTS =============
+        function renderInsights() {
+            const topCandidato = selectedCandidatos.reduce((a, b) => {
+                const scoreA = datos.metricas[a].reduce((x, y) => x + y, 0);
+                const scoreB = datos.metricas[b].reduce((x, y) => x + y, 0);
+                return scoreA > scoreB ? a : b;
+            });
+            
+            const topScore = (datos.metricas[topCandidato].reduce((a, b) => a + b, 0) / 11).toFixed(2);
+            
+            const panel = document.getElementById('insightsPanel');
+            panel.innerHTML = `
+                <div class="dimension-indicator">
+                    <div class="text-sm text-gray-400">🏆 LÍDER</div>
+                    <div class="text-2xl font-bold text-blue-400">${topCandidato}</div>
+                    <div class="text-xs text-gray-500 mt-2">Score promedio: ${topScore} / 1.0</div>
+                </div>
+                <div class="dimension-indicator">
+                    <div class="text-sm text-gray-400">👥 CANDIDATOS COMPARADOS</div>
+                    <div class="text-2xl font-bold text-cyan-400">${selectedCandidatos.length}</div>
+                    <div class="text-xs text-gray-500 mt-2">de ${datos.candidatos.length} disponibles</div>
+                </div>
+                <div class="dimension-indicator">
+                    <div class="text-sm text-gray-400">📊 DIMENSIONES</div>
+                    <div class="text-2xl font-bold text-green-400">11</div>
+                    <div class="text-xs text-gray-500 mt-2">Análisis multidimensional completo</div>
+                </div>
+            `;
+        }
+
+        // ============= RENDER PRINCIPAL =============
+        function render() {
+            renderRadar();
+            renderInsights();
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Environment Configuration for Production
+APP_NAME=Aratio
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://aratio.mrmtech.net
+
+# Database
+DB_HOST=auth-db690.hstgr.io
+DB_PORT=3306
+DB_NAME=u156469157_aratio_v1
+DB_USER=u156469157_aratio_v1
+DB_PASS=15zxCeBbvgsR
+DB_CHARSET=utf8mb4
+
+# Security
+SECURITY_KEY=5f8d2a1c9e3b476085142398561234567890abcdef1234567890abcdef123456
+SESSION_LIFETIME=7200
+SESSION_NAME=ARATIO_SESSION
+
+# Upload
+UPLOAD_MAX_SIZE=5242880
+UPLOAD_ALLOWED_TYPES=jpg,jpeg,png,pdf,xlsx,xls,csv
+UPLOAD_PATH=uploads
+
+# Cache
+CACHE_ENABLED=true
+CACHE_LIFETIME=3600
+
+# API
+API_ENABLED=true
+API_VERSION=v1
+API_KEY=aratio_secret_token_2025

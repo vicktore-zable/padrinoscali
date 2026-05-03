@@ -1,0 +1,46 @@
+# Archivos temporales de deploy y migración
+deploy_jac_dashboard_map.ps1
+deploy_jac_module.ps1
+deploy_jac_portal.ps1
+deploy_jac_remaining.ps1
+deploy_jac_v1_7_complete.ps1
+deploy_migrate.ps1
+deploy_migration_v1_7.ps1
+deploy_rebuild.ps1
+cleanup_migrate.ps1
+tmp_cleanup.ps1
+tmp_upload_diag.ps1
+tmp_*.ps1
+
+# Scripts de migración one-shot
+migrate_jac.php
+migrate_jac_planchas.php
+migrate_jac_v1_7.php
+rebuild_jac_v1_7.php
+diag_territorios.php
+mod_jac/migrate_v1_7_1.php
+
+# Archivos de debug y test
+mod_colab/public/debug-*.php
+mod_colab/public/test-*.php
+mod_colab/public/diagnostico.php
+mod_colab/test-root.php
+mod_colab/src/Views/logs/
+
+# Configs de entorno local (no sobrescribir prod)
+config/
+diaD_dist/config/config.php
+mod_colab/config/config.php
+mod_lider/config/config.php
+
+# Caché y backups generados
+backups/
+public_html/cache/
+*.cache
+
+# Archivos temporales del editor
+*.tmp
+*.bak
+
+# Logs y caché local
+*.log

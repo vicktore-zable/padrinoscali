@@ -1,0 +1,159 @@
+<?php
+/**
+ * Vista de Perfil
+ */
+?>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Mi Perfil</h1>
+        <p class="text-gray-600">Configura tu perfil y preferencias de seguridad</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Información del Perfil -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Información Personal -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Información Personal</h2>
+                </div>
+                <div class="p-6">
+                    <form method="POST" action="/profile/update">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                                <input type="text" value="<?= htmlspecialchars($user['usuario']) ?>" readonly
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Usuario</label>
+                                <select name="tipo_usuario" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <?php foreach (TIPOS_USUARIO as $key => $value): ?>
+                                        <option value="<?= $key ?>" <?= $user['tipo_usuario'] === $key ? 'selected' : '' ?>>
+                                            <?= $value ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    <?= $user['activo'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' ?>">
+                                    <?= $user['activo'] ? 'Activo' : 'Inactivo' ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                Actualizar Perfil
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cambiar Contraseña -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Cambiar Contraseña</h2>
+                </div>
+                <div class="p-6">
+                    <form method="POST" action="/profile/change-password">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contraseña Actual</label>
+                                <input type="password" name="old_password" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nueva Contraseña</label>
+                                <input type="password" name="new_password" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Confirmar Nueva Contraseña</label>
+                                <input type="password" name="confirm_password" required
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                Cambiar Contraseña
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Lateral -->
+        <div class="space-y-6">
+            <!-- Actividad Reciente -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Actividad Reciente</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-gray-900">Último acceso</p>
+                                <p class="text-xs text-gray-500">
+                                    <?= $user['ultimo_acceso'] ? date('d/m/Y H:i', strtotime($user['ultimo_acceso'])) : 'Nunca' ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seguridad -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Seguridad</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- 2FA -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">Autenticación de Dos Factores</h3>
+                            <p class="text-xs text-gray-500">Añade una capa extra de seguridad</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                <?= $user['require_2fa'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
+                                <?= $user['require_2fa'] ? 'Habilitado' : 'Deshabilitado' ?>
+                            </span>
+                            <a href="/profile/2fa" class="text-blue-600 hover:text-blue-800 text-sm">
+                                Configurar
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sesiones -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">Sesiones Activas</h3>
+                            <p class="text-xs text-gray-500">Gestiona tus sesiones activas</p>
+                        </div>
+                        <a href="/profile/sessions" class="text-blue-600 hover:text-blue-800 text-sm">
+                            Ver todas (<?= count($activeSessions) ?>)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

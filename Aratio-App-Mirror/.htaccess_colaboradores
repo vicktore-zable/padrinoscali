@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Redirección de inscripción a aratio principal
+RewriteRule ^inscripcion/?$ https://aratio.mrmtech.net/inscripcion [R=301,L]
+
+# Redirección de registro-lider a aratio principal
+RewriteRule ^registro-lider/?$ https://aratio.mrmtech.net/inscripcion [R=301,L]

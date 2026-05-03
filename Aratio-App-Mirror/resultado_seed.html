@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Seed Jaimito el Cartero</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #FF00FF; }
+        .success { color: green; padding: 10px; background: #e8f5e9; border-left: 4px solid green; margin: 10px 0; }
+        .error { color: red; padding: 10px; background: #ffebee; border-left: 4px solid red; margin: 10px 0; }
+        .info { color: #0066cc; padding: 10px; background: #e3f2fd; border-left: 4px solid #0066cc; margin: 10px 0; }
+        .step { padding: 10px; margin: 10px 0; border-left: 4px solid #FFD700; background: #fffde7; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #FF00FF; color: white; }
+        .progress { background: #e0e0e0; height: 30px; border-radius: 4px; overflow: hidden; margin: 20px 0; }
+        .progress-bar { background: #FF00FF; height: 100%; line-height: 30px; color: white; text-align: center; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+<div class='container'><h1>🎭 Generación de Datos de Prueba - Jaimito el Cartero</h1><div class='info'><strong>Campaña:</strong> Jaimito el Cartero<br><strong>Total de usuarios:</strong> 100<br><strong>Ubicación:</strong> Cali, Valle del Cauca</div><div class='step'>📡 Conectando a la base de datos...</div><div class='success'>✅ Conexión exitosa a la base de datos</div><div class='step'>🔍 Verificando campaña existente...</div><div class='info'>ℹ️ Campaña encontrada: <strong>jaimito</strong> (ID: 4)</div><div class='progress'><div class='progress-bar' id='progress' style='width:0%'>0%</div></div><script>function updateProgress(p){document.getElementById('progress').style.width=p+'%';document.getElementById('progress').innerHTML=p+'%';}</script><div class='step'>📝 Ejecutando Parte 1: Líderes (22 usuarios)...</div><div class='success'>✅ Parte 1 completada - 9 statements ejecutados</div><script>updateProgress(33);</script><div class='step'>📝 Ejecutando Parte 2: Simpatizantes 1-30...</div><div class='success'>✅ Parte 2 completada - 0 statements ejecutados</div><script>updateProgress(66);</script><div class='step'>📝 Ejecutando Parte 3: Simpatizantes 31-78...</div><div class='success'>✅ Parte 3 completada - 0 statements ejecutados</div><script>updateProgress(100);</script><h2 style='color: #FF00FF;'>📊 Resumen de Ejecución</h2><div class='success'><h3>✅ Proceso Completado Exitosamente</h3><p><strong>Total de colaboradores en la campaña: 0</strong></p></div><h3>Distribución por Nivel de Liderazgo</h3><div class='error'>❌ Error de base de datos: SQLSTATE[42S22]: Column not found: 1054 Unknown column &#039;nivel_liderazgo&#039; in &#039;SELECT&#039;</div></div></body></html>

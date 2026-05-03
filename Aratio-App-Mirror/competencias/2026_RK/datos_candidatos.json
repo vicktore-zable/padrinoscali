@@ -1,0 +1,181 @@
+{
+  "candidatos": [
+    "REYES KURI (Valle)",
+    "LEYVA RIZZO (N. Santander)",
+    "AGUDELO (MIRA-Antioquia)",
+    "GUEVARA (MIRA-Valle)",
+    "VIRGÜEZ (MIRA-Bogotá)",
+    "J.S. GÓMEZ (Caldas)",
+    "M.L. VILLALBA (Huila)",
+    "R. DÍAZ GRANADOS (Magdalena/Bolívar)",
+    "ROBLEDO (Dignidad)",
+    "JENNIFER PEDRAZA"
+  ],
+  "dimensiones": {
+    "1. IDENTIDAD": {
+      "indicadores": ["Origen territorial", "Generación política", "Trayectoria cargo", "Edad actual"],
+      "datos": {
+        "REYES KURI (Valle)": ["Palmira-Valle (familiar)", "2ª (Motoa/Reyes)", "Concejal → Sec. Gral. → Rep.", "45 años"],
+        "LEYVA RIZZO (N. Santander)": ["Ocaña-N.Santander (empresarial)", "1ª (autohecho)", "Diputado → Fundación", "44 años"],
+        "AGUDELO (MIRA-Antioquia)": ["Medellín-Antioquia (empresarial)", "2ª (empresarial)", "Senadora → Ministra", "42 años"],
+        "GUEVARA (MIRA-Valle)": ["Cali-Valle (empresarial)", "1ª (construido)", "Senador → Candidato presidencial", "49 años"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Bogotá (religioso-familiar)", "2ª (Piraquive)", "Senador (heredero)", "38 años"],
+        "J.S. GÓMEZ (Caldas)": ["Manizales-Caldas (empresarial café)", "3ª (Gómez)", "Diputado → Rep. Vicepresidente", "46 años"],
+        "M.L. VILLALBA (Huila)": ["Neiva-Huila (dinastía política)", "2ª (padre gobernador)", "Asesora → Candidata Senado", "~38 años"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Magdalena/Bolívar (territorial)", "1ª/2ª (construido)", "Dirigente NL → Candidato", "~45 años"],
+        "ROBLEDO (Dignidad)": ["Ibagué-Tolima (académico)", "1ª (docente)", "Senador → Candidato presidencial", "68 años"],
+        "JENNIFER PEDRAZA": ["Bogotá (académico-social)", "1ª (militante)", "Consejera → Representante", "38 años"]
+      }
+    },
+    "2. CAPITAL": {
+      "indicadores": ["Capital heredado (0-1)", "Capital construido (0-1)", "Clientela estructural (0-1)", "Reputación técnica (0-1)"],
+      "datos": {
+        "REYES KURI (Valle)": ["0.7", "0.6", "0.8", "0.65"],
+        "LEYVA RIZZO (N. Santander)": ["0.2", "0.7", "0.8", "0.55"],
+        "AGUDELO (MIRA-Antioquia)": ["0.8", "0.7", "0.7", "0.7"],
+        "GUEVARA (MIRA-Valle)": ["0.3", "0.8", "0.6", "0.8"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["0.9", "0.6", "0.9", "0.5"],
+        "J.S. GÓMEZ (Caldas)": ["0.85", "0.75", "0.8", "0.7"],
+        "M.L. VILLALBA (Huila)": ["0.9", "0.6", "0.85", "0.55"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["0.4", "0.7", "0.7", "0.5"],
+        "ROBLEDO (Dignidad)": ["0.2", "0.9", "0.85", "0.9"],
+        "JENNIFER PEDRAZA": ["0.1", "0.65", "0.6", "0.7"]
+      }
+    },
+    "3. TRAYECTORIA": {
+      "indicadores": ["Tipo de ascenso", "Resiliencia (0-1)", "Puestos clave", "Patrones clave"],
+      "datos": {
+        "REYES KURI (Valle)": ["Ascenso territorial", "0.75", "Concejal, Sec. Gral., Rep.", "Reconstrucción, colocación aliados, reformista"],
+        "LEYVA RIZZO (N. Santander)": ["Territorial empresarial", "0.8", "Diputado, Fundación", "Oportunista (renunció a diputado)"],
+        "AGUDELO (MIRA-Antioquia)": ["Empresarial político (salto)", "0.85", "Senadora, Ministra", "Tecnocracia empresarial"],
+        "GUEVARA (MIRA-Valle)": ["Territorial-empresarial", "0.9", "Senador, candidato presidencial", "Negociador pragmático"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Heredado religioso", "0.8", "Senador (heredero)", "Conservadurismo religioso"],
+        "J.S. GÓMEZ (Caldas)": ["Empresarial-gremial", "0.7", "Vicepresidente Cámara, Rep.", "Gestión gremial-territorial"],
+        "M.L. VILLALBA (Huila)": ["Dinástico departamental", "0.6", "Asesora gobernación, líder juvenil", "Capital familiar"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Territorial partidario", "0.65", "Dirigente NL", "Movilización de bases"],
+        "ROBLEDO (Dignidad)": ["Académico-militante", "0.95", "Senador, candidato presidencial", "Liderazgo ideológico puro"],
+        "JENNIFER PEDRAZA": ["Militante social", "0.7", "Consejera, Representante", "Militancia base educación"]
+      }
+    },
+    "4. IDEOLOGÍA": {
+      "indicadores": ["Eje económico", "Eje social", "Flexibilidad (0-1)", "Alineación partidaria"],
+      "datos": {
+        "REYES KURI (Valle)": ["Centro-derecha reformista", "Centro-progresista", "0.85", "Nuevo Liberalismo (coalición)"],
+        "LEYVA RIZZO (N. Santander)": ["Centro-derecha empresarial", "Pragmático territorial", "0.6", "Cambio Radical → Nuevo Liberalismo"],
+        "AGUDELO (MIRA-Antioquia)": ["Centro-derecha empresarial", "Conservadora moderada", "0.75", "MIRA (coalición gobierno)"],
+        "GUEVARA (MIRA-Valle)": ["Centro-derecha pragmática", "Conservadora moderada", "0.85", "MIRA (independiente)"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Centro-derecha religiosa", "Conservadora religiosa", "0.5", "MIRA (heredero)"],
+        "J.S. GÓMEZ (Caldas)": ["Centro-derecha liberal", "Centro-progresista", "0.7", "Nuevo Liberalismo"],
+        "M.L. VILLALBA (Huila)": ["Liberal tradicional", "Conservadora moderada", "0.5", "Nuevo Liberalismo (potencial)"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Centro-derecha liberal", "Pragmático regional", "0.6", "Nuevo Liberalismo"],
+        "ROBLEDO (Dignidad)": ["Izquierda democrática", "Progresista radical", "0.4", "Dignidad & Compromiso"],
+        "JENNIFER PEDRAZA": ["Izquierda progresista", "Progresista radical", "0.5", "Dignidad & Compromiso"]
+      }
+    },
+    "5. LEGISLATIVA": {
+      "indicadores": ["Productividad", "Especialización", "Influencia bancada (0-1)"],
+      "datos": {
+        "REYES KURI (Valle)": ["Moderada (1 ley aprobada)", "Descentralización, salud, modernización", "0.6"],
+        "LEYVA RIZZO (N. Santander)": ["Baja-moderada (gestión asamblea)", "Infraestructura, seguridad, Catatumbo", "0.5"],
+        "AGUDELO (MIRA-Antioquia)": ["Alta (4 leyes industria)", "Industria, formalización, emprendimiento", "0.7"],
+        "GUEVARA (MIRA-Valle)": ["Alta (6 leyes microcréditos)", "Microcréditos, anticorrupción, justicia", "0.8"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Baja", "Educación, familia, valores", "0.5"],
+        "J.S. GÓMEZ (Caldas)": ["Moderada", "Café, agro, descentralización", "0.6"],
+        "M.L. VILLALBA (Huila)": ["- (candidata)", "Desarrollo Huila", "0.3"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["- (dirigente)", "Movilización territorial, educación", "0.4"],
+        "ROBLEDO (Dignidad)": ["Muy alta (30 leyes)", "Minería ambiental, salud, anticorrupción", "0.9"],
+        "JENNIFER PEDRAZA": ["Moderada (debutante)", "Educación pública, juventud", "0.5"]
+      }
+    },
+    "6. REDES": {
+      "indicadores": ["Tipo de red", "Densidad regional (0-1)", "Densidad nacional (0-1)", "Aliados estratégicos"],
+      "datos": {
+        "REYES KURI (Valle)": ["Híbrido tradicional-moderno", "0.9", "0.4", "Gaviristas, Fajardismo, empresarios Valle"],
+        "LEYVA RIZZO (N. Santander)": ["Territorial empresarial", "0.8", "0.3", "Miguel Uribe, microempresarios NL"],
+        "AGUDELO (MIRA-Antioquia)": ["Empresarial-gubernamental", "0.6", "0.9", "Gutiérrez, empresarios Uribe, iglesia MIRA"],
+        "GUEVARA (MIRA-Valle)": ["Empresarial-transversal", "0.7", "0.85", "Empresarios, MIRA histórico, verdes"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Religiosa-familiar", "0.5", "0.6", "Familia Piraquive, iglesias"],
+        "J.S. GÓMEZ (Caldas)": ["Empresarial-gremial", "0.9", "0.5", "Empresarios Caldas, gremios, NL"],
+        "M.L. VILLALBA (Huila)": ["Dinástico departamental", "0.9", "0.4", "Familia Villalba, NL, empresarios Huila"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Territorial partidario", "0.7", "0.5", "NL costeño, microempresarios"],
+        "ROBLEDO (Dignidad)": ["Académica-social", "0.8", "0.95", "Académicos, ecologistas, ingenieros"],
+        "JENNIFER PEDRAZA": ["Militante estudiantil", "0.5", "0.6", "Robledo, movimiento estudiantil, educadores"]
+      }
+    },
+    "7. RECURSOS": {
+      "indicadores": ["Votación histórica", "Proyección votos 2026", "Fuente financiamiento", "Independencia (0-1)"],
+      "datos": {
+        "REYES KURI (Valle)": ["41,228 (2018, Rep.)", "25k-60k (con alianza)", "Empresariado Valle (café, azúcar)", "0.5"],
+        "LEYVA RIZZO (N. Santander)": ["22,792 (2023, Dip.)", "20k-60k (apuesta)", "Microempresarios NL, MIRA", "0.6"],
+        "AGUDELO (MIRA-Antioquia)": ["65,410 (2022, Senado)", "No compite en Valle", "Empresarios Antioquia, iglesia MIRA", "0.6"],
+        "GUEVARA (MIRA-Valle)": ["72,880 (2018, Senado)", "COMPETE EN VALLE", "Empresarios Valle, microcréditos MIRA", "0.8"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["58,900 (2022, Senado)", "No compite en Valle", "Red MIRA, diezmos", "0.4"],
+        "J.S. GÓMEZ (Caldas)": ["25,421 (2022, Cámara)", "30k-80k", "Empresarios café, gremios, NL", "0.7"],
+        "M.L. VILLALBA (Huila)": ["- (candidata)", "30k-80k", "Red Villalba, empresarios Huila", "0.4"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["- (dirigente)", "20k-60k", "Microempresarios NL", "0.6"],
+        "ROBLEDO (Dignidad)": ["81,000 (2018, Senado)", "90k-130k (nacional)", "Microdonaciones, intelectuales", "0.9"],
+        "JENNIFER PEDRAZA": ["29,729 (2022, Cámara)", "40k-80k (si a Robledo)", "Movimiento estudiantil, microdonaciones", "0.8"]
+      }
+    },
+    "8. GESTIÓN": {
+      "indicadores": ["Estilo de gestión", "Logros tangibles", "Riesgo corrupción"],
+      "datos": {
+        "REYES KURI (Valle)": ["Reformista administrativo", "Historias clínicas electrónicas, Reforma Cali", "Bajo-moderado"],
+        "LEYVA RIZZO (N. Santander)": ["Oportunista territorial", "8 años Asamblea (gestión)", "Moderado (renuncia temprana)"],
+        "AGUDELO (MIRA-Antioquia)": ["Tecnocracia empresarial", "Ministra Industria (2024), 4 leyes", "Bajo-moderado"],
+        "GUEVARA (MIRA-Valle)": ["Negociador pragmático", "Reforma microcréditos, 6 leyes", "Bajo"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Pastoral administrativa", "Poco protagonismo", "Bajo"],
+        "J.S. GÓMEZ (Caldas)": ["Gestor gremial-territorial", "Vicepresidencia Cámara, reforma cafetera (trámite)", "Bajo"],
+        "M.L. VILLALBA (Huila)": ["Dinastía de gestión", "Gestión Gobernación Huila", "Moderado (nepotismo)"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Movilizador territorial", "Construcción bases NL", "Bajo-moderado"],
+        "ROBLEDO (Dignidad)": ["Liderazgo ideológico", "300+ proyectos, 30 leyes aprobadas", "Bajo (impecable)"],
+        "JENNIFER PEDRAZA": ["Militante base", "Proyectos educación pública, liderazgo estudiantil", "Bajo (transparente)"]
+      }
+    },
+    "9. COMUNICACIÓN": {
+      "indicadores": ["Discurso principal", "Imagen pública", "Control medios (0-1)", "Agenda-setting (0-1)"],
+      "datos": {
+        "REYES KURI (Valle)": ["Modernización vs centralismo bogotano", "Tecnócrata con raíces tradicionales", "0.5", "0.55"],
+        "LEYVA RIZZO (N. Santander)": ["Rescatar Colombia del desgobierno", "Líder territorial opositor", "0.3", "0.4"],
+        "AGUDELO (MIRA-Antioquia)": ["Empresarios son motor del país", "Empresaria exitosa", "0.7", "0.6"],
+        "GUEVARA (MIRA-Valle)": ["El que la hace, la paga", "Paladín anticorrupción", "0.8", "0.7"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Valores y familia", "Heredero religioso", "0.4", "0.3"],
+        "J.S. GÓMEZ (Caldas)": ["Caldas merece más", "Empresario gremial eficiente", "0.5", "0.5"],
+        "M.L. VILLALBA (Huila)": ["Continuidad y renovación Huila", "Princesa política Huila", "0.4", "0.3"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Magdalena/Bolívar con NL", "Líder territorial comprometido", "0.3", "0.3"],
+        "ROBLEDO (Dignidad)": ["Oligarquía vs. pueblo", "Profesor incorruptible", "0.9", "0.95"],
+        "JENNIFER PEDRAZA": ["Educación pública gratuita, digna y de calidad", "Líder estudiantil, lucha por educación", "0.7", "0.6"]
+      }
+    },
+    "10. RESILIENCIA": {
+      "indicadores": ["Fracasos electorales", "Blancabilidad (0-1)", "Exposición riesgo"],
+      "datos": {
+        "REYES KURI (Valle)": ["2 (2010, 2014)", "0.7", "Moderada"],
+        "LEYVA RIZZO (N. Santander)": ["0", "0.5", "Alta (renuncia temprana)"],
+        "AGUDELO (MIRA-Antioquia)": ["0", "0.8", "Moderada (ministro visible)"],
+        "GUEVARA (MIRA-Valle)": ["1 (candidato presidencial 2018)", "0.9", "Baja (experto en sortear crisis)"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["0", "0.9", "Baja (heredero)"],
+        "J.S. GÓMEZ (Caldas)": ["0", "0.6", "Moderada (debutante)"],
+        "M.L. VILLALBA (Huila)": ["0", "0.7", "Moderada (nepotismo)"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["0", "0.5", "Moderada"],
+        "ROBLEDO (Dignidad)": ["0", "0.95", "Alta (persecución política)"],
+        "JENNIFER PEDRAZA": ["0 (debutante)", "0.7", "Baja (perfil limpio)"]
+      }
+    },
+    "11. PROYECCIÓN": {
+      "indicadores": ["Objetivo 2026", "Votos proyecto 2026", "Techo político", "Vulnerabilidades", "Oportunidades"],
+      "datos": {
+        "REYES KURI (Valle)": ["Senado", "25k-60k (con alianza)", "Alto regional / Nacional moderado", "Percepción 'político de familia', sin base nacional", "Experiencia gestión, redes transversales"],
+        "LEYVA RIZZO (N. Santander)": ["Senado (cabeza lista NL)", "20k-60k (apuesta)", "Nacional incierto", "Sin visibilidad nacional, renuncia temprana", "Liderazgo territorial, oposición Petro"],
+        "AGUDELO (MIRA-Antioquia)": ["Consolidar Industria", "No compite en Valle", "Vicepresidencia / Presidente", "Percepción 'élite', dependencia Uribe", "Ministro, empresariado, agenda formalización"],
+        "GUEVARA (MIRA-Valle)": ["Candidato presidencial (probable)", "COMPETE EN VALLE", "Presidente", "Percepción 'solo opositor', no construye", "Experiencia, credibilidad, microempresarios"],
+        "VIRGÜEZ (MIRA-Bogotá)": ["Consolidar herencia MIRA", "No compete en Valle", "Senador (líder MIRA)", "Sombra del padre, falta autonomía", "Fortaleza MIRA, red religiosa"],
+        "J.S. GÓMEZ (Caldas)": ["Senado (cabeza lista NL)", "30k-80k", "Senador / Gobernador", "Sin base nacional, debutante", "Liderazgo Caldas, coalición 2026"],
+        "M.L. VILLALBA (Huila)": ["Senado (candidata dinástica)", "30k-80k", "Senadora / Gobernadora", "Nepotismo, falta autonomía", "Capital familiar Huila, NL"],
+        "R. DÍAZ GRANADOS (Magdalena/Bolívar)": ["Senado (dirigente territorial)", "20k-60k", "Senador / Representante", "Sin visibilidad nacional", "Territorio costeño disponible"],
+        "ROBLEDO (Dignidad)": ["Tercera candidatura presidencial", "90k-130k (nacional)", "Presidente (tercera vía)", "Edad, agotamiento electoral", "Movimiento sólido, Petro agota"],
+        "JENNIFER PEDRAZA": ["Senado (si Robledo no corre)", "40k-80k (si va con Robledo)", "Senador / Posible candidata presidencial (2030)", "Dependencia Robledo, sin estructura territorial propia", "Juventud, movimiento educativo, credibilidad moral"]
+      }
+    }
+  }
+}

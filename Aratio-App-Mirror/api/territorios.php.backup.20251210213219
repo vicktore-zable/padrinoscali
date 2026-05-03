@@ -1,0 +1,135 @@
+<?php
+/**
+ * API REST para Territorios
+ * Endpoints para obtener la jerarquía territorial en cascada
+ *
+ * Jerarquía de 5 niveles:
+ * 1. Departamento
+ * 2. Municipio
+ * 3. Tipo_territorio (Urbano, Rural, Comuna, Localidad, etc.)
+ * 4. Territorio (Comuna 1, Localidad 5, etc.)
+ * 5. Barrio
+ */
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+require_once __DIR__ . '/../config/config.php';
+
+// Solo permitir método GET
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+    exit;
+}
+
+try {
+    $db = getDB();
+
+    // Obtener parámetros de la query string
+    $accion = $_GET['accion'] ?? 'departamentos';
+    $departamento = $_GET['departamento'] ?? null;
+    $municipio = $_GET['municipio'] ?? null;
+    $tipo_territorio = $_GET['tipo_territorio'] ?? null;
+    $territorio = $_GET['territorio'] ?? null;
+
+    switch ($accion) {
+        case 'departamentos':
+            // Obtener lista única de departamentos
+            $stmt = $db->query("SELECT DISTINCT departamento FROM territorios WHERE departamento IS NOT NULL AND departamento != '' ORDER BY departamento");
+            $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            break;
+
+        case 'municipios':
+            // Obtener municipios de un departamento
+            if (!$departamento) {
+                throw new Exception('Departamento requerido');
+            }
+            $stmt = $db->prepare("SELECT DISTINCT municipio FROM territorios WHERE departamento = ? AND municipio IS NOT NULL AND municipio != '' ORDER BY municipio");
+            $stmt->execute([$departamento]);
+            $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            break;
+
+        case 'tipos_territorio':
+            // Obtener tipos de territorio de un municipio
+            if (!$departamento || !$municipio) {
+                throw new Exception('Departamento y municipio requeridos');
+            }
+            $stmt = $db->prepare("SELECT DISTINCT Tipo_territorio FROM territorios WHERE departamento = ? AND municipio = ? AND Tipo_territorio IS NOT NULL AND Tipo_territorio != '' ORDER BY Tipo_territorio");
+            $stmt->execute([$departamento, $municipio]);
+            $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            break;
+
+        case 'territorios':
+            // Obtener territorios de un tipo de territorio
+            if (!$departamento || !$municipio || !$tipo_territorio) {
+                throw new Exception('Departamento, municipio y tipo de territorio requeridos');
+            }
+            $stmt = $db->prepare("SELECT DISTINCT Territorio FROM territorios WHERE departamento = ? AND municipio = ? AND Tipo_territorio = ? AND Territorio IS NOT NULL AND Territorio != '' ORDER BY Territorio");
+            $stmt->execute([$departamento, $municipio, $tipo_territorio]);
+            $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            break;
+
+        case 'barrios':
+            // Obtener barrios de un territorio
+            if (!$departamento || !$municipio || !$tipo_territorio || !$territorio) {
+                throw new Exception('Todos los niveles anteriores son requeridos');
+            }
+            $stmt = $db->prepare("SELECT DISTINCT barrio FROM territorios WHERE departamento = ? AND municipio = ? AND Tipo_territorio = ? AND Territorio = ? AND barrio IS NOT NULL AND barrio != '' ORDER BY barrio");
+            $stmt->execute([$departamento, $municipio, $tipo_territorio, $territorio]);
+            $data = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            break;
+
+        case 'completo':
+            // Obtener registro completo basado en filtros
+            $query = "SELECT id, departamento, municipio, Tipo_territorio, Territorio, barrio FROM territorios WHERE 1=1";
+            $params = [];
+
+            if ($departamento) {
+                $query .= " AND departamento = ?";
+                $params[] = $departamento;
+            }
+            if ($municipio) {
+                $query .= " AND municipio = ?";
+                $params[] = $municipio;
+            }
+            if ($tipo_territorio) {
+                $query .= " AND Tipo_territorio = ?";
+                $params[] = $tipo_territorio;
+            }
+            if ($territorio) {
+                $query .= " AND Territorio = ?";
+                $params[] = $territorio;
+            }
+
+            $query .= " ORDER BY departamento, municipio, Tipo_territorio, Territorio, barrio LIMIT 100";
+
+            $stmt = $db->prepare($query);
+            $stmt->execute($params);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            break;
+
+        default:
+            throw new Exception('Acción no válida');
+    }
+
+    echo json_encode([
+        'success' => true,
+        'data' => $data,
+        'count' => count($data)
+    ], JSON_UNESCAPED_UNICODE);
+
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
+}

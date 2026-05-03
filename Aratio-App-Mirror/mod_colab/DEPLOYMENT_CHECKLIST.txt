@@ -1,0 +1,306 @@
+================================================================================
+   CHECKLIST DE DEPLOYMENT A PRODUCCIÓN - SISTEMA A RATIO
+   Fecha: _______________  Hora inicio: _______  Hora fin: _______
+================================================================================
+
+PRE-DEPLOYMENT
+==============
+[ ] Verificar commit actual: git log --oneline -1
+    Debe mostrar: 757f9b0 Feature: Cascading geographic dropdowns and view fixes
+
+[ ] Verificar que no hay cambios pendientes: git status
+    Debe mostrar: "nothing to commit, working tree clean"
+
+[ ] Verificar .env.production existe y está configurado
+    Archivo: H:\Mi unidad\2025\5d\app\colaboradores\.env.production
+
+[ ] Crear backup de BD local
+    Comando: mysql -u root aratio > backup_local_$(date +%Y%m%d).sql
+
+[ ] Anotar credenciales:
+    SSH: u156469157@212.1.208.241 | Pass: sthLX6bJPoGh$
+    BD:  u156469157_aratio@auth-db690.hstgr.io | Pass: 15zxCeBbvgsR
+
+--------------------------------------------------------------------------------
+
+DEPLOYMENT (Método SSH)
+=======================
+[ ] Paso 1: Verificar conexión SSH
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html
+    ls -la
+    exit
+
+[ ] Paso 2: Ejecutar script de deployment
+    cd "H:/Mi unidad/2025/5d/app/colaboradores"
+    bash deploy.sh
+
+    ⏱️ Tiempo estimado: 2-5 minutos
+
+[ ] Paso 3: Verificar archivos copiados
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+    ls -la
+    # Verificar que existe: config/, public/, src/, .env
+    exit
+
+[ ] Paso 4: Importar base de datos
+    OPCIÓN A - Desde archivo seeds.sql:
+      scp database/seeds.sql u156469157@212.1.208.241:/tmp/
+      ssh u156469157@212.1.208.241
+      mysql -h auth-db690.hstgr.io -u u156469157_aratio -p15zxCeBbvgsR \
+            u156469157_aratio < /tmp/seeds.sql
+      exit
+
+    OPCIÓN B - Desde phpMyAdmin:
+      1. Login a hPanel: https://hpanel.hostinger.com
+      2. Abrir phpMyAdmin
+      3. Seleccionar DB: u156469157_aratio
+      4. Import → seeds.sql
+      5. Ejecutar
+
+    ⏱️ Tiempo estimado: 3-10 minutos
+
+[ ] Paso 5: Verificar y ajustar permisos
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+
+    # Crear directorios si no existen
+    mkdir -p storage/logs storage/cache cache public/uploads
+
+    # Configurar permisos
+    chmod -R 755 .
+    chmod -R 775 storage storage/logs storage/cache cache public/uploads
+    chmod 600 .env
+
+    # Verificar permisos
+    ls -ld storage
+    ls -ld cache
+    ls -l .env
+
+    exit
+
+--------------------------------------------------------------------------------
+
+DEPLOYMENT (Método FTP - Si SSH falla)
+=======================================
+[ ] Ejecutar script FTP
+    bash deploy_ftp.sh
+    ⏱️ Tiempo estimado: 5-15 minutos
+
+[ ] Configurar permisos manualmente desde hPanel File Manager
+    - storage/: 775
+    - cache/: 775
+    - .env: 600
+
+[ ] Importar BD desde phpMyAdmin (ver OPCIÓN B arriba)
+
+--------------------------------------------------------------------------------
+
+POST-DEPLOYMENT
+===============
+[ ] Verificar que la aplicación carga
+    URL: https://aratio.mrmtech.net/mod_colab
+    Debe redirigir a: /login
+
+[ ] Test de Login
+    Usuario: admin
+    Password: Admin123!
+    Debe redirigir a: /dashboard
+
+[ ] Verificar Dashboard
+    [ ] Estadísticas cargan
+    [ ] Gráficos se muestran
+    [ ] Top líderes aparece
+
+[ ] Verificar Colaboradores
+    [ ] Lista carga correctamente
+    [ ] Ver detalle funciona
+    [ ] Crear nuevo colaborador carga
+
+[ ] Verificar Dropdowns en Cascada
+    Ir a: /colaboradores/create
+    [ ] Departamento carga opciones
+    [ ] Seleccionar departamento → Municipio carga
+    [ ] Seleccionar municipio → Tipo carga
+    [ ] Territorios se ordenan numéricamente (Comuna 1,2,3...10)
+
+[ ] Verificar Filtro de Líderes
+    En crear colaborador:
+    [ ] Dropdown "Líder Directo" solo muestra perfiles con "Líder"
+
+[ ] Verificar Red de Seguidores
+    Ver detalle de colaborador con seguidores:
+    [ ] Tab "Red de Seguidores" existe
+    [ ] Grafo se visualiza correctamente
+    [ ] Estadísticas se calculan
+
+[ ] Verificar Curriculum
+    [ ] Ver curriculum funciona
+    [ ] Editar curriculum carga sin errores de sintaxis
+    [ ] Modales de experiencia/formación funcionan
+
+[ ] Verificar Reportes
+    [ ] Reportes cargan sin duplicar navbar/footer
+    [ ] Datos se muestran correctamente
+
+[ ] Verificar Usuarios (admin)
+    [ ] Lista de usuarios carga
+    [ ] Crear usuario funciona
+    [ ] Editar usuario funciona
+
+[ ] Verificar Logs
+    [ ] Logs de auditoría cargan
+    [ ] No hay duplicación de navbar/footer
+
+--------------------------------------------------------------------------------
+
+VERIFICACIONES DE SEGURIDAD
+============================
+[ ] HTTPS activo (candado verde en navegador)
+
+[ ] APP_DEBUG=false en .env
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+    grep APP_DEBUG .env
+    # Debe mostrar: APP_DEBUG=false
+    exit
+
+[ ] Rate limiting funciona
+    Intentar login con password incorrecto 6 veces
+    Debe bloquear después de 5 intentos
+
+[ ] CSRF tokens funcionan
+    Abrir formulario, inspeccionar HTML
+    Debe tener: <input type="hidden" name="csrf_token" value="...">
+
+[ ] Sesión expira correctamente
+    Login → Esperar 30 minutos sin actividad
+    Debe redirigir a /login
+
+[ ] No hay información sensible en logs
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+    tail -50 storage/logs/app.log
+    # No debe haber passwords ni tokens
+    exit
+
+--------------------------------------------------------------------------------
+
+VERIFICACIONES DE BASE DE DATOS
+================================
+[ ] Conexión funciona
+    Login exitoso confirma esto
+
+[ ] Triggers están activos
+    Crear nuevo colaborador → Verificar en logs de auditoría
+    Debe aparecer registro del INSERT
+
+[ ] Stored procedures funcionan
+    Ver red de seguidores funciona → confirma sp_obtener_red_jerarquica
+
+[ ] Datos de prueba existen
+    Dashboard debe mostrar estadísticas > 0
+    Lista de colaboradores debe tener registros
+
+--------------------------------------------------------------------------------
+
+MONITOREO Y LOGS
+================
+[ ] Ver logs de aplicación
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+    tail -50 storage/logs/app.log
+    tail -50 storage/logs/security.log
+    # No debe haber errores críticos
+    exit
+
+[ ] Ver logs de Apache (si hay acceso)
+    /var/log/apache2/error.log
+    # No debe haber 500 errors
+
+--------------------------------------------------------------------------------
+
+PROBLEMAS ENCONTRADOS
+======================
+Problema #1: _____________________________________________________________
+Solución: ________________________________________________________________
+________________________________________________________________________
+
+Problema #2: _____________________________________________________________
+Solución: ________________________________________________________________
+________________________________________________________________________
+
+Problema #3: _____________________________________________________________
+Solución: ________________________________________________________________
+________________________________________________________________________
+
+--------------------------------------------------------------------------------
+
+ROLLBACK (Solo si es necesario)
+================================
+[ ] Opción 1: Deshabilitar sitio temporalmente
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html
+    mv mod_colab mod_colab_broken
+    # Crear página de mantenimiento
+    exit
+
+[ ] Opción 2: Restaurar desde backup de BD
+    mysql -h auth-db690.hstgr.io -u u156469157_aratio -p15zxCeBbvgsR \
+          u156469157_aratio < backup_YYYYMMDD.sql
+
+[ ] Opción 3: Revertir código desde GitHub
+    ssh u156469157@212.1.208.241
+    cd /home/domains/aratio.mrmtech.net/public_html/mod_colab
+    git reset --hard HEAD~1  # O commit específico
+    exit
+
+--------------------------------------------------------------------------------
+
+FINALIZACIÓN
+============
+[ ] Documentar deployment
+    Anotar: Fecha, hora, versión, problemas, soluciones
+
+[ ] Notificar a stakeholders
+    Deployment completado exitosamente
+
+[ ] Programar backup
+    Configurar cron job para backups diarios
+
+[ ] Configurar monitoreo
+    UptimeRobot, Google Analytics, etc.
+
+[ ] Actualizar documentación
+    Si hubo cambios o aprendizajes
+
+--------------------------------------------------------------------------------
+
+NOTAS ADICIONALES
+=================
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+________________________________________________________________________
+
+--------------------------------------------------------------------------------
+
+CONTACTOS DE EMERGENCIA
+========================
+Hostinger Support:
+  - Web: https://www.hostinger.com/support
+  - Chat disponible en hPanel
+
+GitHub Repository:
+  - https://github.com/vicktore/colaboradores-aratio
+
+================================================================================
+Deployment completado exitosamente: [ ] SÍ  [ ] NO  [ ] PARCIAL
+Requiere seguimiento: [ ] SÍ  [ ] NO
+Próxima acción: ___________________________________________________________
+================================================================================

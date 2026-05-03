@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Líderes - Aratio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#4f46e5', accent: '#FF00FF', navy: '#1e1b4b' }
+                }
+            }
+        }
+    </script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .hero-banner { background: linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%); position: relative; overflow: hidden; }
+        .hero-banner::after { content: ''; position: absolute; bottom: -50px; left: 0; right: 0; height: 100px; background: #f8fafc; border-radius: 50% 50% 0 0; }
+        .card-premium { @apply bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden transition-all duration-300; }
+        .input-premium { @apply w-full px-5 py-4 border-2 border-slate-200 rounded-2xl focus:border-accent focus:ring-0 bg-white transition-all outline-none font-medium text-slate-700; }
+        .label-premium { @apply block text-sm font-bold text-slate-800 mb-2 ml-1 flex items-center gap-2; }
+        .section-header { @apply flex items-center gap-4 mb-6; }
+        [x-cloak] { display: none !important; }
+        .area-pill { @apply px-4 py-2 rounded-full border-2 text-[11px] font-bold uppercase transition-all cursor-pointer select-none; }
+        
+        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.5s ease-out; }
+        .animate-slide-up { animation: slide-up 0.5s ease-out; }
+    </style>
+</head>
+<body x-data="liderForm()" x-init="init()">
+
+    <div class="hero-banner pt-16 pb-32 text-center text-white">
+        <div class="container mx-auto px-4 relative z-10">
+            <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter">Únete al Equipo Ganador</h1>
+            <p class="text-white/80 text-lg max-w-2xl mx-auto font-light leading-relaxed">Registro profesional para líderes y coordinadores de territorio.</p>
+        </div>
+    </div>
+
+    <main class="container mx-auto max-w-4xl px-4 -mt-16 pb-24 relative z-20">
+        <form @submit.prevent="submit()" class="space-y-6">
+            
+            <!-- 1. CAMPAÑA & LÍDER -->
+            <section class="card-premium p-8 md:p-10 animate-fade-in">
+                <div class="section-header">
+                    <i data-lucide="flag" class="w-6 h-6 text-accent"></i>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Selecciona tu Campaña</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="label-premium">Campaña de Destino *</label>
+                        <select x-model="form.campana_id" @change="resetLider()" required class="input-premium border-slate-900 border-[1px]">
+                            <option value="">-- Elige Campaña --</option>
+                                                        <option value="1">Alcaldia de Palmira 2028-2031</option>
+                                                        <option value="3">Alcaldía de Tangamandapio</option>
+                                                        <option value="2">CONCEJO DE YUMBO 2028-2031</option>
+                                                        <option value="4">Jaimito el Cartero</option>
+                                                    </select>
+                        <p class="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5 ml-1">
+                            <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            Al seleccionar la campaña, cargaremos los líderes disponibles.
+                        </p>
+                    </div>
+
+                    <div x-show="form.campana_id" x-cloak class="pt-6 border-t border-slate-50">
+                        <label class="label-premium">¿Quién te invitó? (Líder Referente)</label>
+                        <div class="relative">
+                            <i data-lucide="search" class="w-5 h-5 absolute left-5 top-4.5 text-slate-300"></i>
+                            <input type="text" x-model="searchLider" @input="buscarLideres()" placeholder="Busca por nombre del líder..." class="input-premium pl-12">
+                            <div x-show="lideresEncontrados.length > 0" class="absolute z-50 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-xl max-h-60 overflow-y-auto">
+                                <template x-for="l in lideresEncontrados" :key="l.documento">
+                                    <div @click="seleccionarLider(l)" class="p-4 hover:bg-indigo-50 cursor-pointer border-b last:border-0 group flex justify-between">
+                                        <div>
+                                            <p class="font-bold text-slate-800" x-text="l.nombres + ' ' + l.apellidos"></p>
+                                            <span class="text-[9px] px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded font-black uppercase" x-text="l.perfil"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="form.lider_directo" class="mt-4 p-4 bg-indigo-50 rounded-2xl flex items-center justify-between border border-indigo-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center"><i data-lucide="user-plus"></i></div>
+                        <div>
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">Referente Seleccionado</p>
+                            <h4 class="text-sm font-bold text-slate-800" x-text="nombreLiderSeleccionado"></h4>
+                        </div>
+                    </div>
+                    <button type="button" @click="resetLider()" class="p-2 text-slate-300 hover:text-red-500 transition-all"><i data-lucide="x"></i></button>
+                </div>
+            </section>
+
+            <!-- 2. DATOS PERSONALES -->
+            <section x-show="form.campana_id" x-cloak class="card-premium p-8 md:p-10 animate-slide-up">
+                <div class="section-header">
+                    <i data-lucide="user" class="w-6 h-6 text-accent"></i>
+                    <h2 class="text-xl font-bold text-slate-900">Datos Personales</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label class="label-premium">Nombres *</label><input type="text" x-model="form.nombres" required class="input-premium"></div>
+                    <div><label class="label-premium">Apellidos *</label><input type="text" x-model="form.apellidos" required class="input-premium"></div>
+                    <div><label class="label-premium">Documento Cédula *</label><input type="text" x-model="form.documento" required class="input-premium"></div>
+                    <div><label class="label-premium">WhatsApp *</label><input type="tel" x-model="form.telefono" required class="input-premium" placeholder="300 000 0000"></div>
+                </div>
+            </section>
+
+            <!-- 3. GEOGRAFÍA -->
+            <section x-show="form.campana_id" x-cloak class="card-premium p-8 md:p-10 animate-slide-up">
+                <div class="section-header">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-accent"></i>
+                    <h2 class="text-xl font-bold text-slate-900">Ubicación y Votación</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-5">
+                        <label class="label-premium">Departamento *</label>
+                        <select x-model="form.departamento" @change="loadMunicipios()" required class="input-premium bg-white">
+                            <option value="">-- Elige Depto --</option>
+                                                        <option value="VALLE DEL CAUCA">VALLE DEL CAUCA</option>
+                                                    </select>
+                        <label class="label-premium">Municipio *</label>
+                        <select x-model="form.municipio_info" @change="selectMunicipio()" required :disabled="!form.departamento" class="input-premium bg-white">
+                            <option value="">-- Elige Municipio --</option>
+                            <template x-for="m in listas.municipios" :key="m.cod_mpio">
+                                <option :value="JSON.stringify(m)" x-text="m.municipio"></option>
+                            </template>
+                        </select>
+                        <div x-show="listas.tipos.length > 0">
+                            <label class="label-premium">Zona (Comuna/Corregimiento)</label>
+                            <select x-model="form.tipo_territorio" @change="loadTerritorios()" class="input-premium bg-white">
+                                <option value="">-- Selecciona --</option>
+                                <template x-for="t in listas.tipos" :key="t">
+                                    <option :value="t" x-text="t"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div x-show="listas.territorios.length > 0">
+                            <label class="label-premium">Territorio / Barrio</label>
+                            <select x-model="form.barrio" class="input-premium font-bold text-indigo-600">
+                                <option value="">-- Selecciona --</option>
+                                <template x-for="ter in listas.territorios" :key="ter">
+                                    <option :value="ter" x-text="ter"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50/20 p-6 rounded-3xl border border-indigo-50">
+                        <label class="label-premium text-indigo-800">Puesto Oficial *</label>
+                        <select x-model="form.puesto_votacion" required :disabled="!form.cod_mpio" class="input-premium shadow-sm mb-4">
+                            <option value="">-- Busca tu puesto --</option>
+                            <template x-for="p in listas.puestos" :key="p">
+                                <option :value="p" x-text="p"></option>
+                            </template>
+                        </select>
+                        <label class="label-premium">Mesa</label>
+                        <input type="text" x-model="form.mesa_votacion" placeholder="0" class="input-premium">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. PERFIL PROFESIONAL -->
+            <section x-show="form.campana_id" x-cloak class="card-premium p-8 md:p-10 animate-slide-up">
+                <div class="section-header">
+                    <i data-lucide="book-open" class="w-6 h-6 text-accent"></i>
+                    <h2 class="text-xl font-bold text-slate-900">Perfil Profesional</h2>
+                </div>
+
+                <div class="space-y-8">
+                    <div>
+                        <label class="label-premium">Especialidades / Talentos</label>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="area in allAreas" :key="area">
+                                <div @click="toggleArea(area)" class="area-pill" :class="form.areas_interes.includes(area) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-slate-50 border-slate-100 text-slate-400'">
+                                    <span x-text="area"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-premium">Resumen Profesional</label>
+                        <textarea x-model="form.resumen_profesional" rows="3" class="input-premium" placeholder="Define tus capacidades..."></textarea>
+                    </div>
+                    <!-- Educación -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                            <h4 class="text-[11px] font-black text-slate-500 uppercase">Educación</h4>
+                            <button type="button" @click="addFormacion()" class="text-xs font-bold text-accent">+ Añadir</button>
+                        </div>
+                        <template x-for="(edu, index) in form.formaciones" :key="index">
+                            <div class="p-5 bg-slate-50 rounded-2xl relative border border-slate-100 animate-fade-in">
+                                <button type="button" @click="removeFormacion(index)" class="absolute top-4 right-4 text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input type="text" x-model="edu.titulo" placeholder="Título" class="input-premium py-2 text-sm bg-white">
+                                    <input type="text" x-model="edu.institucion" placeholder="Institución" class="input-premium py-2 text-sm bg-white">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. HABEAS DATA Y ENVÍO -->
+            <section x-show="form.campana_id" x-cloak class="card-premium p-8 md:p-10 border-2 border-accent/20 bg-accent/5 animate-slide-up">
+                <label class="flex items-start gap-5 cursor-pointer">
+                    <input type="checkbox" x-model="form.habeas_data" required class="mt-1 w-6 h-6 text-accent rounded-lg border-slate-300">
+                    <div class="flex-1">
+                        <h4 class="text-lg font-bold text-slate-800">Habeas Data *</h4>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">Autorizo el tratamiento de mis datos personales según la Ley 1581 de 2012 para fines de campaña y apoyo profesional.</p>
+                    </div>
+                </label>
+                <div class="mt-10">
+                    <button type="submit" :disabled="loading || !form.habeas_data" class="w-full py-5 bg-black text-white font-bold text-xl rounded-2xl shadow-xl transition-all disabled:opacity-30">
+                        <span x-show="!loading">Finalizar Registro</span>
+                        <span x-show="loading">Procesando...</span>
+                    </button>
+                    <p class="text-center mt-6 text-[10px] font-black text-slate-300 uppercase tracking-widest">Powered by Aratio Intelligent Systems</p>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <footer class="mt-10 py-12 text-center relative z-20">
+        <p class="text-[10px] font-black uppercase text-slate-300 tracking-[0.4em] mb-4">Aratio Intelligent Systems</p>
+        <span class="px-5 py-2 bg-white border border-slate-100 text-slate-400 text-[10px] font-bold rounded-full shadow-sm">
+            Digital Version: 2.6.5-gold        </span>
+    </footer>
+
+    <!-- Modal Success -->
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
+        <div class="bg-white rounded-[2.5rem] p-12 max-w-sm w-full text-center shadow-2xl animate-scale-in">
+            <div class="w-20 h-20 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check" class="w-10 h-10"></i></div>
+            <h2 class="text-2xl font-black mb-3">¡Registro Completado!</h2>
+            <p class="text-slate-500 mb-8 font-medium">Has completado tu vinculación con éxito. ¡Bienvenido al equipo!</p>
+            <button @click="location.href='/'" class="w-full py-4 bg-black text-white rounded-2xl font-bold transition-all">Siguiente</button>
+        </div>
+    </div>
+
+<script>
+function liderForm() {
+    return {
+        loading: false,
+        successModal: false,
+        searchLider: '',
+        lideresEncontrados: [],
+        nombreLiderSeleccionado: '',
+        allAreas: ['Gestión Territorial', 'Logística', 'Comunicaciones', 'Redes Sociales', 'Electoral', 'Jurídico', 'Sistemas IT', 'Finanzas', 'Prensa', 'Poblacional', 'Publicidad'],
+        form: { 
+            campana_id: '', nombres: '', apellidos: '', tipo_documento: 'CC', documento: '', fecha_nacimiento: '',
+            departamento: '', municipio: '', municipio_info: '', cod_mpio: '', 
+            tipo_territorio: '', territorio: '', barrio: '',
+            puesto_votacion: '', mesa_votacion: '',
+            lider_directo: '', email: '', telefono: '', genero: '', nivel_participacion: 'Lider',
+            resumen_profesional: '', formaciones: [], experiencias: [], areas_interes: [], habeas_data: false, habilidades: ''
+        },
+        listas: { municipios: [], tipos: [], territorios: [], puestos: [] },
+        init() { lucide.createIcons(); },
+        async buscarLideres() {
+            if (this.searchLider.length < 3) { this.lideresEncontrados = []; return; }
+            const res = await fetch(`?action=lideres&campana_id=${this.form.campana_id}&search=${encodeURIComponent(this.searchLider)}`);
+            const data = await res.json();
+            if (data.success) { this.lideresEncontrados = data.data; setTimeout(() => lucide.createIcons(), 10); }
+        },
+        seleccionarLider(l) { this.form.lider_directo = l.documento; this.nombreLiderSeleccionado = `${l.nombres} ${l.apellidos}`; this.searchLider = ''; this.lideresEncontrados = []; },
+        resetLider() { this.form.lider_directo = ''; this.nombreLiderSeleccionado = ''; this.searchLider = ''; this.lideresEncontrados = []; },
+        async loadMunicipios() {
+            this.listas.municipios = []; this.form.municipio_info = ''; this.resetGeo();
+            const res = await fetch(`?action=municipios&departamento=${encodeURIComponent(this.form.departamento)}`);
+            const data = await res.json();
+            if(data.success) this.listas.municipios = data.data;
+        },
+        resetGeo() {
+            this.form.municipio = ''; this.form.cod_mpio = ''; this.form.tipo_territorio = ''; this.form.territorio = ''; this.form.barrio = '';
+            this.listas.tipos = []; this.listas.territorios = []; this.listas.puestos = [];
+        },
+        async selectMunicipio() {
+            if(!this.form.municipio_info) return;
+            const m = JSON.parse(this.form.municipio_info);
+            this.form.municipio = m.municipio;
+            this.form.cod_mpio = m.cod_mpio;
+            this.loadGeo('tipos');
+            this.loadPuestos();
+        },
+        async loadGeo(tipo) {
+            let url = `?action=geo_cascada&cod_mpio=${this.form.cod_mpio}`;
+            if(tipo === 'territorios') { url += `&tipo=${encodeURIComponent(this.form.tipo_territorio)}`; }
+            const res = await fetch(url);
+            const data = await res.json();
+            if(data.success) {
+                if(tipo === 'tipos') this.listas.tipos = data.data;
+                if(tipo === 'territorios') this.listas.territorios = data.data;
+            }
+        },
+        loadTerritorios() { this.loadGeo('territorios'); },
+        async loadPuestos() {
+            const res = await fetch(`?action=puestos&cod_mpio=${this.form.cod_mpio}`);
+            const data = await res.json();
+            if(data.success) this.listas.puestos = data.data;
+        },
+        toggleArea(area) {
+            if(this.form.areas_interes.includes(area)) this.form.areas_interes = this.form.areas_interes.filter(a => a !== area);
+            else this.form.areas_interes.push(area);
+        },
+        addFormacion() { this.form.formaciones.push({titulo: '', institucion: ''}); setTimeout(() => lucide.createIcons(), 10); },
+        removeFormacion(i) { this.form.formaciones.splice(i, 1); },
+        async submit() {
+            this.loading = true;
+            try {
+                const res = await fetch('', { method: 'POST', body: JSON.stringify(this.form) });
+                const data = await res.json();
+                if (data.success) this.successModal = true; else alert(data.message);
+            } catch (e) { alert('Error de red'); }
+            this.loading = false;
+        }
+    }
+}
+</script>
+<style>
+    .animate-scale-in { animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes scale-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>
+</body>
+</html>

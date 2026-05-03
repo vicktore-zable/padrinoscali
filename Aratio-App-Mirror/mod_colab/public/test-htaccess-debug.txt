@@ -1,0 +1,19 @@
+# Test .htaccess con debug
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Habilitar log de rewrite (solo si tienes acceso al httpd.conf)
+    # RewriteLog "/tmp/rewrite.log"
+    # RewriteLogLevel 9
+
+    # Debug: Guardar REQUEST_URI en variable de entorno
+    RewriteRule .* - [E=ORIGINAL_URI:%{REQUEST_URI}]
+
+    # Si el archivo o directorio existe, servirlo directamente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Si no existe, redirigir todo a index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

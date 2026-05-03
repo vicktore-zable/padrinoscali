@@ -1,0 +1,12 @@
+Última actualización: 2026-03-10
+Versión: 1.4.1 - Gestión de Usuarios y Enrutamiento de Elecciones
+
+Cambios Principales:
+- Gestión de Usuarios: aislamiento de datos y acciones de edición por campaña activa.
+- Accesibilidad en Panel: orden de tabla de usuarios, jerarquía de roles e interactividad modal.
+- Navegación: Corrección de solapamiento de rutas entre el módulo de Elecciones (dashboard) y la vista administrativa pública.
+- Referencias Anteriores (1.4.0): Módulo Día D, optimización del registro Simpatizante/Líder y refactorización del frontend Aratio.
+
+Estado:
+- Local: ✅ Funcional
+- Producción: ✅ Desplegado

@@ -1,0 +1,87 @@
+# =====================================================
+# GITIGNORE - Sistema de Gestión de Colaboradores
+# =====================================================
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.production
+
+# Composer
+/vendor/
+composer.lock
+composer.phar
+
+# Node modules
+/node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+/storage/logs/*.log
+/storage/logs/*.txt
+*.log
+
+# Cache
+/storage/cache/*
+!storage/cache/.gitkeep
+/cache/*
+!cache/.gitkeep
+
+# Uploads
+/public/uploads/*
+!public/uploads/.gitkeep
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Claude Code settings
+.claude/settings.local.json
+
+# PHP
+*.php~
+.phpunit.result.cache
+
+# Archivos temporales
+/tmp/
+/temp/
+*.tmp
+
+# Backups
+*.bak
+*.backup
+*.sql.gz
+
+# Build files
+/build/
+/dist/
+
+# CSS compilado (si usas Tailwind CLI)
+/public/assets/css/tailwind.css
+/public/assets/css/*.min.css
+/public/css/output.css
+
+# JS minificado y bundleado
+/public/assets/js/*.min.js
+/public/js/bundle.js
+/public/js/bundle.js.map
+
+# Archivos de prueba
+/tests/_output/
+
+# Documentación generada
+/docs/generated/
+
+# Keep directory structure
+!.gitkeep

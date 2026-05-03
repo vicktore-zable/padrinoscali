@@ -1,0 +1,241 @@
+Schema for 'usuarios' table:
+Array
+(
+    [Field] => id
+    [Type] => int(11)
+    [Null] => NO
+    [Key] => PRI
+    [Default] => 
+    [Extra] => auto_increment
+)
+
+Array
+(
+    [Field] => usuario
+    [Type] => varchar(50)
+    [Null] => YES
+    [Key] => UNI
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => nombre
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => email
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => UNI
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => nombres
+    [Type] => varchar(100)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => apellidos
+    [Type] => varchar(100)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => password
+    [Type] => varchar(255)
+    [Null] => NO
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => telefono
+    [Type] => varchar(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => rol
+    [Type] => enum('super-admin','admin-campana','coordinador','colaborador','veedor')
+    [Null] => NO
+    [Key] => MUL
+    [Default] => colaborador
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => tipo_usuario
+    [Type] => varchar(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => consulta
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => colaborador_id
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => documento_colaborador
+    [Type] => varchar(20)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => avatar_url
+    [Type] => varchar(500)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => estado
+    [Type] => enum('activo','inactivo','suspendido')
+    [Null] => NO
+    [Key] => MUL
+    [Default] => activo
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => ultimo_acceso
+    [Type] => datetime
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => created_at
+    [Type] => timestamp
+    [Null] => NO
+    [Key] => 
+    [Default] => current_timestamp()
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => updated_at
+    [Type] => timestamp
+    [Null] => NO
+    [Key] => 
+    [Default] => current_timestamp()
+    [Extra] => on update current_timestamp()
+)
+
+Array
+(
+    [Field] => activo
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 1
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => intentos_fallidos
+    [Type] => int(11)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => bloqueado_hasta
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => require_2fa
+    [Type] => tinyint(1)
+    [Null] => YES
+    [Key] => 
+    [Default] => 0
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => token_2fa
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => reset_token
+    [Type] => varchar(255)
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+
+Array
+(
+    [Field] => reset_token_expira
+    [Type] => timestamp
+    [Null] => YES
+    [Key] => 
+    [Default] => 
+    [Extra] => 
+)
+

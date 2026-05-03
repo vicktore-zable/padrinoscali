@@ -1,0 +1,703 @@
+<?php
+/**
+ * Modelo Usuario
+ * Gestión de usuarios, autenticación y sesiones
+ *
+ * @package App\Models
+ * @author Sistema de Gestión de Colaboradores
+ * @version 1.0
+ */
+
+namespace App\Models;
+
+use App\Utils\Logger;
+
+class Usuario {
+    /**
+     * Nombre de la tabla
+     */
+    const TABLE = 'usuarios';
+
+    /**
+     * Instancia de Database
+     * @var \Database
+     */
+    private \Database $db;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        $this->db = \Database::getInstance();
+    }
+
+    /**
+     * Obtener todos los usuarios
+     *
+     * @param int $page
+     * @param int $perPage
+     * @param array $filters Filtros opcionales (tipo_usuario, documento_colaborador, etc.)
+     * @return array
+     */
+    public function getAll(int $page = 1, int $perPage = 25, array $filters = []): array {
+        $offset = ($page - 1) * $perPage;
+
+        $where = $this->buildFilters($filters);
+
+        $sql = "SELECT u.*,
+                        CONCAT(c.nombres, ' ', c.apellidos) as colaborador_nombre
+                FROM " . self::TABLE . " u
+                LEFT JOIN colaboradores c ON u.documento_colaborador = c.documento";
+
+        if (!empty($where['where'])) {
+            $sql .= " WHERE " . $where['where'];
+        }
+
+        $sql .= " ORDER BY u.created_at DESC LIMIT ? OFFSET ?";
+        $params = array_merge($where['params'], [$perPage, $offset]);
+
+        return $this->db->fetchAll($sql, $params);
+    }
+
+    /**
+     * Obtener usuario por ID
+     *
+     * @param int $id
+     * @return array|null
+     */
+    public function getById(int $id): ?array {
+        $sql = "SELECT u.*,
+                       CONCAT(c.nombres, ' ', c.apellidos) as colaborador_nombre
+                FROM " . self::TABLE . " u
+                LEFT JOIN colaboradores c ON u.documento_colaborador = c.documento
+                WHERE u.id = ?";
+
+        return $this->db->fetchOne($sql, [$id]);
+    }
+
+    /**
+     * Obtener usuario por nombre de usuario
+     *
+     * @param string $usuario
+     * @return array|null
+     */
+    public function getByUsuario(string $usuario): ?array {
+        $sql = "SELECT * FROM " . self::TABLE . " WHERE usuario = ?";
+        return $this->db->fetchOne($sql, [$usuario]);
+    }
+
+    /**
+     * Obtener usuario por email
+     *
+     * @param string $email
+     * @return array|null
+     */
+    public function getByEmail(string $email): ?array {
+        $sql = "SELECT * FROM " . self::TABLE . " WHERE email = ?";
+        return $this->db->fetchOne($sql, [$email]);
+    }
+
+    /**
+     * Crear usuario
+     *
+     * @param array $data
+     * @return int|false
+     */
+    public function create(array $data) {
+        // Validar que usuario no exista
+        if ($this->existsByUsuario($data['usuario'])) {
+            throw new \Exception('El nombre de usuario ya está en uso');
+        }
+
+        // Validar que email no exista
+        if ($this->existsByEmail($data['email'])) {
+            throw new \Exception('El email ya está registrado');
+        }
+
+        // Hashear contraseña
+        if (isset($data['password'])) {
+            $data['password'] = $this->hashPassword($data['password']);
+        }
+
+        return $this->db->insert(self::TABLE, $data);
+    }
+
+    /**
+     * Actualizar usuario
+     *
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public function update(int $id, array $data): bool {
+        if (!$this->exists($id)) {
+            throw new \Exception('El usuario no existe');
+        }
+
+        // Validar usuario único si se cambia
+        if (isset($data['usuario'])) {
+            $current = $this->getById($id);
+            if ($data['usuario'] !== $current['usuario']) {
+                if ($this->existsByUsuario($data['usuario'])) {
+                    throw new \Exception('El nombre de usuario ya está en uso');
+                }
+            }
+        }
+
+        // Validar email único si se cambia
+        if (isset($data['email'])) {
+            $current = $this->getById($id);
+            if ($data['email'] !== $current['email']) {
+                if ($this->existsByEmail($data['email'])) {
+                    throw new \Exception('El email ya está registrado');
+                }
+            }
+        }
+
+        // Hashear contraseña si se proporciona
+        if (isset($data['password']) && !empty($data['password'])) {
+            $data['password'] = $this->hashPassword($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        // Remover campos no actualizables
+        unset($data['id'], $data['created_at']);
+
+        $result = $this->db->update(self::TABLE, $data, 'id = ?', [$id]);
+        return $result > 0;
+    }
+
+    /**
+     * Eliminar usuario
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function delete(int $id): bool {
+        $result = $this->db->delete(self::TABLE, 'id = ?', [$id]);
+        return $result > 0;
+    }
+
+    /**
+     * Verificar si existe por ID
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function exists(int $id): bool {
+        return $this->db->exists(self::TABLE, 'id = ?', [$id]);
+    }
+
+    /**
+     * Verificar si existe por usuario
+     *
+     * @param string $usuario
+     * @return bool
+     */
+    public function existsByUsuario(string $usuario): bool {
+        return $this->db->exists(self::TABLE, 'usuario = ?', [$usuario]);
+    }
+
+    /**
+     * Verificar si existe por email
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function existsByEmail(string $email): bool {
+        return $this->db->exists(self::TABLE, 'email = ?', [$email]);
+    }
+
+    /**
+     * Crear token de restablecimiento de contraseña
+     *
+     * @param int $userId
+     * @param string $token
+     * @return bool
+     */
+    public function createPasswordResetToken(int $userId, string $token): bool {
+        $expiresAt = date('Y-m-d H:i:s', time() + 3600); // 1 hora
+        $result = $this->db->update(self::TABLE, [
+            'reset_token' => $token,
+            'reset_token_expira' => $expiresAt
+        ], 'id = ?', [$userId]);
+        return $result > 0;
+    }
+
+    /**
+     * Verificar token de restablecimiento
+     *
+     * @param string $token
+     * @return int|null ID del usuario si el token es válido
+     */
+    public function verifyPasswordResetToken(string $token): ?int {
+        $sql = "SELECT id FROM " . self::TABLE . "
+                WHERE reset_token = ?
+                  AND reset_token_expira > NOW()";
+
+        $result = $this->db->fetchOne($sql, [$token]);
+        return $result ? (int)$result['id'] : null;
+    }
+
+    /**
+     * Invalidar token de restablecimiento
+     *
+     * @param string $token
+     * @return bool
+     */
+    public function invalidatePasswordResetToken(string $token): bool {
+        $result = $this->db->update(self::TABLE, [
+            'reset_token' => null,
+            'reset_token_expira' => null
+        ], 'reset_token = ?', [$token]);
+        return $result > 0;
+    }
+
+    /**
+     * Autenticar usuario
+     *
+     * @param string $usuario
+     * @param string $password
+     * @return array|false Datos del usuario o false
+     */
+    public function authenticate(string $usuario, string $password) {
+        $user = $this->getByUsuario($usuario);
+
+        if (!$user) {
+            return false;
+        }
+
+        // Verificar si está bloqueado
+        if ($this->isBlocked($user)) {
+            throw new \Exception('Usuario bloqueado temporalmente. Intente más tarde.');
+        }
+
+        // Verificar si está activo
+        if (!$user['activo']) {
+            throw new \Exception('Usuario inactivo. Contacte al administrador.');
+        }
+
+        // Verificar contraseña
+        if (!password_verify($password, $user['password'])) {
+            $this->incrementFailedAttempts($user['id']);
+            return false;
+        }
+
+        // Reset intentos fallidos
+        $this->resetFailedAttempts($user['id']);
+
+        // Actualizar último acceso
+        $this->updateLastAccess($user['id']);
+
+        // No retornar password
+        unset($user['password']);
+
+        return $user;
+    }
+
+    /**
+     * Verificar si usuario está bloqueado
+     *
+     * @param array $user
+     * @return bool
+     */
+    public function isBlocked(array $user): bool {
+        if (empty($user['bloqueado_hasta'])) {
+            return false;
+        }
+
+        $bloqueadoHasta = strtotime($user['bloqueado_hasta']);
+        return $bloqueadoHasta > time();
+    }
+
+    /**
+     * Incrementar intentos fallidos
+     *
+     * @param int $userId
+     * @return void
+     */
+    private function incrementFailedAttempts(int $userId): void {
+        $sql = "UPDATE " . self::TABLE . "
+                SET intentos_fallidos = intentos_fallidos + 1,
+                    bloqueado_hasta = CASE
+                        WHEN intentos_fallidos + 1 >= ? THEN DATE_ADD(NOW(), INTERVAL ? SECOND)
+                        ELSE bloqueado_hasta
+                    END
+                WHERE id = ?";
+
+        $this->db->query($sql, [
+            RATE_LIMIT_CONFIG['login_attempts'],
+            RATE_LIMIT_CONFIG['login_time_window'],
+            $userId
+        ]);
+    }
+
+    /**
+     * Resetear intentos fallidos
+     *
+     * @param int $userId
+     * @return void
+     */
+    private function resetFailedAttempts(int $userId): void {
+        $this->db->update(self::TABLE, [
+            'intentos_fallidos' => 0,
+            'bloqueado_hasta' => null
+        ], 'id = ?', [$userId]);
+    }
+
+    /**
+     * Actualizar último acceso
+     *
+     * @param int $userId
+     * @return void
+     */
+    private function updateLastAccess(int $userId): void {
+        $this->db->update(self::TABLE, [
+            'ultimo_acceso' => date('Y-m-d H:i:s')
+        ], 'id = ?', [$userId]);
+    }
+
+    /**
+     * Hashear contraseña
+     *
+     * @param string $password
+     * @return string
+     */
+    private function hashPassword(string $password): string {
+        return password_hash($password, PASSWORD_BCRYPT, [
+            'cost' => PASSWORD_CONFIG['cost']
+        ]);
+    }
+
+    /**
+     * Cambiar contraseña
+     *
+     * @param int $userId
+     * @param string $oldPassword
+     * @param string $newPassword
+     * @return bool
+     */
+    public function changePassword(int $userId, string $oldPassword, string $newPassword): bool {
+        $user = $this->getById($userId);
+
+        if (!$user) {
+            throw new \Exception('Usuario no encontrado');
+        }
+
+        // Verificar contraseña actual
+        if (!password_verify($oldPassword, $user['password'])) {
+            throw new \Exception('La contraseña actual es incorrecta');
+        }
+
+        // Actualizar contraseña
+        $hashedPassword = $this->hashPassword($newPassword);
+        $result = $this->db->update(self::TABLE, [
+            'password' => $hashedPassword
+        ], 'id = ?', [$userId]);
+
+        return $result > 0;
+    }
+
+    /**
+     * Resetear contraseña (admin)
+     *
+     * @param int $userId
+     * @param string $newPassword
+     * @return bool
+     */
+    public function resetPassword(int $userId, string $newPassword): bool {
+        $hashedPassword = $this->hashPassword($newPassword);
+        $result = $this->db->update(self::TABLE, [
+            'password' => $hashedPassword,
+            'intentos_fallidos' => 0,
+            'bloqueado_hasta' => null
+        ], 'id = ?', [$userId]);
+
+        return $result > 0;
+    }
+
+    /**
+     * Activar/Desactivar usuario
+     *
+     * @param int $userId
+     * @param bool $activo
+     * @return bool
+     */
+    public function setActivo(int $userId, bool $activo): bool {
+        $result = $this->db->update(self::TABLE, [
+            'activo' => $activo
+        ], 'id = ?', [$userId]);
+
+        return $result > 0;
+    }
+
+    /**
+     * Habilitar/Deshabilitar 2FA
+     *
+     * @param int $userId
+     * @param bool $require2FA
+     * @param string|null $token
+     * @return bool
+     */
+    public function set2FA(int $userId, bool $require2FA, ?string $token = null): bool {
+        $data = [
+            'require_2fa' => $require2FA
+        ];
+
+        if ($token !== null) {
+            $data['token_2fa'] = $token;
+        }
+
+        $result = $this->db->update(self::TABLE, $data, 'id = ?', [$userId]);
+        return $result > 0;
+    }
+
+    /**
+     * Crear sesión
+     *
+     * @param int $userId
+     * @param string $ip
+     * @param string $userAgent
+     * @return string Token de sesión
+     */
+    public function createSession(int $userId, string $ip, string $userAgent): string {
+        Logger::debug('[DEBUG USUARIO] Creando sesión para usuario', [
+            'user_id' => $userId,
+            'ip' => $ip,
+            'user_agent' => $userAgent
+        ]);
+
+        $token = bin2hex(random_bytes(32));
+        $expiresIn = gmdate('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime']); // gmdate = UTC, igual que MySQL
+
+        Logger::debug('[DEBUG USUARIO] Datos de sesión a insertar', [
+            'token' => $token,
+            'expires_in' => $expiresIn,
+            'lifetime_config' => SESSION_CONFIG['lifetime'] ?? 'not_defined'
+        ]);
+
+        $result = $this->db->insert('sesiones', [
+            'usuario_id' => $userId,
+            'token_sesion' => $token,
+            'ip_address' => $ip,
+            'user_agent' => $userAgent,
+            'expira_en' => $expiresIn
+        ]);
+
+        Logger::debug('[DEBUG USUARIO] Resultado de inserción de sesión', [
+            'insert_result' => $result
+        ]);
+
+        return $token;
+    }
+
+    /**
+     * Verificar sesión
+     *
+     * @param string $token
+     * @return array|null Usuario si la sesión es válida
+     */
+    public function verifySession(string $token): ?array {
+        Logger::debug('[DEBUG USUARIO] Verificando sesión con token', [
+            'token' => $token,
+            'token_length' => strlen($token)
+        ]);
+
+        $sql = "SELECT s.*, u.*
+                FROM sesiones s
+                INNER JOIN " . self::TABLE . " u ON s.usuario_id = u.id
+                WHERE s.token_sesion = ?
+                  AND s.expira_en > UTC_TIMESTAMP()
+                  AND u.activo = TRUE";
+
+        Logger::debug('[DEBUG USUARIO] Ejecutando consulta de verificación', [
+            'sql' => $sql,
+            'params' => [$token]
+        ]);
+
+        $result = $this->db->fetchOne($sql, [$token]);
+
+        Logger::debug('[DEBUG USUARIO] Resultado de verificación de sesión', [
+            'session_found' => !empty($result),
+            'user_id' => $result['usuario_id'] ?? null,
+            'session_data' => $result ? array_keys($result) : null
+        ]);
+
+        if ($result) {
+            // Actualizar última actividad
+            $updateResult = $this->db->update('sesiones', [
+                'ultima_actividad' => gmdate('Y-m-d H:i:s'), // UTC
+                'expira_en' => gmdate('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime']) // UTC
+            ], 'token_sesion = ?', [$token]);
+
+            Logger::debug('[DEBUG USUARIO] Actualizada última actividad de sesión', [
+                'update_result' => $updateResult
+            ]);
+
+            unset($result['password']);
+        } else {
+            Logger::warning('[DEBUG USUARIO] Sesión no válida o expirada', [
+                'token' => $token
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cerrar sesión
+     *
+     * @param string $token
+     * @return bool
+     */
+    public function destroySession(string $token): bool {
+        $result = $this->db->delete('sesiones', 'token_sesion = ?', [$token]);
+        return $result > 0;
+    }
+
+    /**
+     * Cerrar todas las sesiones de un usuario
+     *
+     * @param int $userId
+     * @return bool
+     */
+    public function destroyAllSessions(int $userId): bool {
+        $result = $this->db->delete('sesiones', 'usuario_id = ?', [$userId]);
+        return $result > 0;
+    }
+
+    /**
+     * Obtener sesiones activas de un usuario
+     *
+     * @param int $userId
+     * @return array
+     */
+    public function getActiveSessions(int $userId): array {
+        $sql = "SELECT * FROM sesiones
+                WHERE usuario_id = ?
+                  AND expira_en > UTC_TIMESTAMP()
+                ORDER BY ultima_actividad DESC";
+
+        return $this->db->fetchAll($sql, [$userId]);
+    }
+
+    /**
+     * Validar datos de usuario
+     *
+     * @param array $data
+     * @param bool $isUpdate
+     * @return array Errores encontrados
+     */
+    public function validate(array $data, bool $isUpdate = false): array {
+        $errors = [];
+
+        // Usuario
+        if (!$isUpdate || isset($data['usuario'])) {
+            if (empty($data['usuario'])) {
+                $errors['usuario'] = 'El nombre de usuario es requerido';
+            } elseif (strlen($data['usuario']) < 4) {
+                $errors['usuario'] = 'El nombre de usuario debe tener al menos 4 caracteres';
+            } elseif (strlen($data['usuario']) > 50) {
+                $errors['usuario'] = 'El nombre de usuario no puede exceder 50 caracteres';
+            } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $data['usuario'])) {
+                $errors['usuario'] = 'El nombre de usuario solo puede contener letras, números y guión bajo';
+            }
+        }
+
+        // Email
+        if (!$isUpdate || isset($data['email'])) {
+            if (empty($data['email'])) {
+                $errors['email'] = 'El email es requerido';
+            } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = 'El email no es válido';
+            } elseif (strlen($data['email']) > 100) {
+                $errors['email'] = 'El email no puede exceder 100 caracteres';
+            }
+        }
+
+        // Contraseña (solo en creación o si se proporciona en actualización)
+        if (!$isUpdate || (!empty($data['password']))) {
+            if (!$isUpdate && empty($data['password'])) {
+                $errors['password'] = 'La contraseña es requerida';
+            } elseif (!empty($data['password'])) {
+                if (strlen($data['password']) < PASSWORD_CONFIG['min_length']) {
+                    $errors['password'] = 'La contraseña debe tener al menos ' . PASSWORD_CONFIG['min_length'] . ' caracteres';
+                }
+
+                if (PASSWORD_CONFIG['require_uppercase'] && !preg_match('/[A-Z]/', $data['password'])) {
+                    $errors['password'] = 'La contraseña debe contener al menos una mayúscula';
+                }
+
+                if (PASSWORD_CONFIG['require_lowercase'] && !preg_match('/[a-z]/', $data['password'])) {
+                    $errors['password'] = 'La contraseña debe contener al menos una minúscula';
+                }
+
+                if (PASSWORD_CONFIG['require_number'] && !preg_match('/[0-9]/', $data['password'])) {
+                    $errors['password'] = 'La contraseña debe contener al menos un número';
+                }
+
+                if (PASSWORD_CONFIG['require_special'] && !preg_match('/[@$!%*?&]/', $data['password'])) {
+                    $errors['password'] = 'La contraseña debe contener al menos un carácter especial (@$!%*?&)';
+                }
+            }
+        }
+
+        // Tipo de usuario
+        if (!$isUpdate || isset($data['tipo_usuario'])) {
+            if (empty($data['tipo_usuario'])) {
+                $errors['tipo_usuario'] = 'El tipo de usuario es requerido';
+            } elseif (!array_key_exists($data['tipo_usuario'], TIPOS_USUARIO)) {
+                $errors['tipo_usuario'] = 'El tipo de usuario seleccionado no es válido';
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Construir filtros SQL para usuarios
+     *
+     * @param array $filters
+     * @return array ['where' => string, 'params' => array]
+     */
+    private function buildFilters(array $filters): array {
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['tipo_usuario'])) {
+            $conditions[] = "u.tipo_usuario = ?";
+            $params[] = $filters['tipo_usuario'];
+        }
+
+        if (!empty($filters['activo'])) {
+            $conditions[] = "u.activo = ?";
+            $params[] = $filters['activo'];
+        }
+
+        if (!empty($filters['documento_colaborador'])) {
+            $conditions[] = "u.documento_colaborador = ?";
+            $params[] = $filters['documento_colaborador'];
+        }
+
+        if (!empty($filters['lider_documento'])) {
+            // Filtrar usuarios que son colaboradores asociados a un líder específico
+            $conditions[] = "u.documento_colaborador IN (
+                SELECT documento FROM colaboradores
+                WHERE lider_directo = ?
+                OR documento IN (
+                    SELECT documento FROM colaboradores WHERE lider_directo IN (
+                        SELECT documento FROM colaboradores WHERE lider_directo = ?
+                    )
+                )
+            )";
+            $params[] = $filters['lider_documento'];
+            $params[] = $filters['lider_documento'];
+        }
+
+        return [
+            'where' => implode(' AND ', $conditions),
+            'params' => $params
+        ];
+    }
+}

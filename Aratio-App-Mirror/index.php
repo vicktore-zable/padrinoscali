@@ -55,7 +55,18 @@ if (isset($_GET['page']) && in_array($_GET['page'], $portalPages)) {
 }
 
 // Global Auth for main Aratio system
-$excludeAuth = []; // Main system pages that don't need auth (if any)
+$excludeAuth = ['landing', 'dashboard_organizaciones_publico']; // Public pages
+
+// Default to landing if not logged in and no specific page requested
+if (!isset($_GET['page']) && !isset($_SESSION['user_id'])) {
+    $pagina = 'landing';
+}
+
+if ($pagina === 'landing') {
+    require_once __DIR__ . '/landing.php';
+    exit;
+}
+
 if (!in_array($pagina, $excludeAuth)) {
     requireAuth();
 }
@@ -73,6 +84,12 @@ if (!empty($_GET['campana'])) {
     $_SESSION['campana_activa'] = $_GET['campana'];
 }
 $campanaActivaId = $_SESSION['campana_activa'] ?? ($campanas[0]['id'] ?? null);
+
+// BUG FIX: persistir en sesión si se usó el fallback (primera campaña)
+// Sin esto, páginas como colaboradores_red.php leen NULL de la sesión
+if ($campanaActivaId && empty($_SESSION['campana_activa'])) {
+    $_SESSION['campana_activa'] = $campanaActivaId;
+}
 
 foreach ($campanas as $campana) {
     if ($campana['id'] == $campanaActivaId) {
@@ -95,11 +112,6 @@ $paginasPermitidas = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aratio - Sistema de Gestión Electoral</title>
-
-    <!-- Google Fonts: Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -111,28 +123,7 @@ $paginasPermitidas = [
                         primary: '<?= COLOR_PRIMARY ?>',
                         secondary: '<?= COLOR_SECONDARY ?>',
                         accent: '<?= COLOR_ACCENT ?>',
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
                     }
-                }
-            }
-        }
-    </script>
-    
-    <script>
-        function appData() {
-            return {
-                sidebarOpen: false,
-                init() {
-                    lucide.createIcons();
-                    document.querySelectorAll('aside a').forEach(link => {
-                        link.addEventListener('click', () => {
-                            if (window.innerWidth < 1024) {
-                                this.sidebarOpen = false;
-                            }
-                        });
-                    });
                 }
             }
         }
@@ -183,10 +174,6 @@ $paginasPermitidas = [
         
         .btn-primary {
             @apply px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium hover:opacity-90 transition active:scale-95;
-            border-bottom: 4px solid rgba(0,0,0,0.3) !important;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 900;
         }
 
         .btn-secondary {
@@ -244,7 +231,7 @@ $paginasPermitidas = [
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary via-primary to-secondary rounded-2xl shadow-lg shadow-primary/20 flex items-center justify-center">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
                         <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
@@ -310,41 +297,49 @@ $paginasPermitidas = [
 
     <!-- Sidebar -->
     <aside 
-        class="sidebar fixed top-0 left-0 h-full bg-[#0f172a] border-r border-white/5 z-50 pt-20 shadow-2xl"
+        class="sidebar fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 pt-20"
         :class="{ 'open': sidebarOpen }"
     >
         <div class="p-6 h-full overflow-y-auto">
             <!-- Navegación Principal -->
             <div class="mb-6">
-                <h4 class="text-gray-500/80 mb-3 px-4 text-[10px] tracking-widest uppercase font-bold">Navegación Principal</h4>
+                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">Navegación Principal</h4>
                 <nav class="space-y-1">
-                    <a href="?page=dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         <span class="text-sm">Dashboard</span>
                     </a>
-                    <a href="?page=colaboradores" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'colaboradores' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=colaboradores" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'colaboradores' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="users" class="w-5 h-5"></i>
                         <span class="text-sm">Colaboradores</span>
                     </a>
-                    <a href="?page=donaciones" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'donaciones' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=donaciones" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'donaciones' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="dollar-sign" class="w-5 h-5"></i>
                         <span class="text-sm">Donaciones</span>
                     </a>
-                    <a href="?page=eventos" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'eventos' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=eventos" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'eventos' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="calendar" class="w-5 h-5"></i>
                         <span class="text-sm">Eventos</span>
                     </a>
-                    <a href="?page=acciones" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'acciones' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=acciones" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'acciones' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="map-pin" class="w-5 h-5"></i>
                         <span class="text-sm">Acciones Comunitarias</span>
                     </a>
-                    <a href="?page=compromisos" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'compromisos' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=compromisos" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'compromisos' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="handshake" class="w-5 h-5"></i>
                         <span class="text-sm">Compromisos</span>
                     </a>
-                    <a href="?page=reportes" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'reportes' ? 'bg-gradient-to-r from-primary/30 to-secondary/10 text-white border-l-4 border-secondary font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white transition-all' ?>">
+                    <a href="?page=reportes" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'reportes' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
                         <span class="text-sm">Reportes</span>
+                    </a>
+                    <a href="?page=actividad_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'actividad_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="camera" class="w-5 h-5"></i>
+                        <span class="text-sm">Monitor Digital</span>
+                    </a>
+                    <a href="?page=mapa_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'mapa_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span class="text-sm">Mapa de Gestión</span>
                     </a>
                 </nav>
             </div>
@@ -417,6 +412,27 @@ $paginasPermitidas = [
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function appData() {
+            return {
+                sidebarOpen: false,
+                
+                init() {
+                    // Inicializar Lucide icons
+                    lucide.createIcons();
+                    
+                    // Cerrar sidebar al hacer clic en enlaces en móvil
+                    document.querySelectorAll('aside a').forEach(link => {
+                        link.addEventListener('click', () => {
+                            if (window.innerWidth < 1024) {
+                                this.sidebarOpen = false;
+                            }
+                        });
+                    });
+                }
+            }
+        }
+    </script>
     <!-- QRCode.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </body>

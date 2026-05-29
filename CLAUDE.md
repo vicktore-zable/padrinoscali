@@ -1,6 +1,6 @@
-# CLAUDE.md — Constitución del Agente: Edison Giraldo Campaign System
+# CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 1.0 | Proyecto: edisongiraldo.com | Cali, Colombia 2027*
+*Versión: 2.0 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 
@@ -16,9 +16,9 @@
 
 ## 🎯 Contexto del Proyecto
 
-- **Cliente**: Edison Giraldo — Candidato político, Cali 2027
-- **Plataforma**: Sistema Multi-Campaña (PHP + MySQL) desplegado en Hostinger
-- **URL Producción**: https://edisongiraldo.com/
+- **Cliente**: Padrinos Cali — Programa de Liderazgo Social
+- **Plataforma**: Sistema de Gestión Social (PHP + MySQL) desplegado en Hostinger
+- **URL Producción**: https://edisongiraldo.com/aratio/ (migrando a padrinoscali.org)
 - **URL Preview**: https://navajowhite-goose-984880.hostingersite.com/aratio/
 - **Stack**: PHP 8+, MySQL, Alpine.js / Vanilla JS, CSS moderno
 
@@ -54,10 +54,10 @@ F:\xampp2\htdocs\aratio\
 
 | Agente          | Rol                                       | Activar con                  |
 | --------------- | ----------------------------------------- | ---------------------------- |
-| `estratega`     | Análisis territorial y electoral Cali    | Decisiones estratégicas     |
-| `comunicador`   | Mensajes de campaña y contenido          | Generación de contenido     |
-| `auditor`       | Critic — validación política y factual | Revisión de todo output     |
-| `desarrollador` | Código PHP/MySQL/JS                      | Tareas técnicas del sistema |
+| `estratega`     | Análisis territorial y social Cali        | Decisiones estratégicas      |
+| `comunicador`   | Mensajes de campaña y contenido           | Generación de contenido      |
+| `auditor`       | Critic — validación de contenido          | Revisión de todo output      |
+| `desarrollador` | Código PHP/MySQL/JS                       | Tareas técnicas del sistema  |
 
 ---
 
@@ -81,18 +81,9 @@ py notebook_agent.py review <archivo_o_texto>
 
 ## 🎯 Estado del Proyecto
 
-- **Git**: ✅ Inicializado (1 commit)
-- **Producción**: https://edisongiraldo.com/
+- **Git**: ✅ Inicializado
+- **Producción**: https://edisongiraldo.com/aratio/ (temporal)
 - **Preview**: https://navajowhite-goose-984880.hostingersite.com/aratio/
 - **XAMPP local**: F:\xampp2\htdocs\aratio\ (cambios pendientes sin commit)
 - **DB**: 15 tablas en producción (u577647812_aratio)
-
-### Detalles de SSH
-
-**IP:157.173.208.254**
-
-**Puerto:65002**
-
-**Nombre de usuario:u577647812**
-
-password EDG$v6xSHUWhjrxE
+- **Dominio futuro**: padrinoscali.org

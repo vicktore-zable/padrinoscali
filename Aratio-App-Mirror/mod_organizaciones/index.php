@@ -184,7 +184,7 @@ $isIncluded = true;
             </div>
         </header>
 
-        <div class="<?= $section === 'dashboard' ? '' : 'p-6 lg:p-8' ?> flex-1 bg-slate-50/50">
+        <div class="p-6 lg:p-8 flex-1 bg-slate-50/50">
             <?php 
                 if ($section === 'dashboard') {
                     $isIncluded = true;

@@ -11,21 +11,21 @@ Los siguientes archivos han sido modificados y están listos para subir a produc
 
 ### 1. **PublicController.php**
 - **Ruta local**: `mod_colab\src\Controllers\PublicController.php`
-- **Ruta remota**: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/src/Controllers/PublicController.php`
+- **Ruta remota**: `/domains/aratio.mrmtech.net/public_html/mod_colab/src/Controllers/PublicController.php`
 - **Cambios**: 
   - Lógica para crear curriculum de líderes
   - Procesamiento de datos de CV
 
 ### 2. **inscripcion_simpatizante.php**
 - **Ruta local**: `mod_colab\src\Views\public\inscripcion_simpatizante.php`
-- **Ruta remota**: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/src/Views/public/inscripcion_simpatizante.php`
+- **Ruta remota**: `/domains/aratio.mrmtech.net/public_html/mod_colab/src/Views/public/inscripcion_simpatizante.php`
 - **Cambios**:
   - Selector dinámico de puestos de votación
   - Método `loadPuestos()` en JavaScript
 
 ### 3. **registro_lider.php**
 - **Ruta local**: `mod_colab\src\Views\public\registro_lider.php`
-- **Ruta remota**: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/src/Views/public/registro_lider.php`
+- **Ruta remota**: `/domains/aratio.mrmtech.net/public_html/mod_colab/src/Views/public/registro_lider.php`
 - **Cambios**:
   - Selector dinámico de puestos de votación
   - Sección completa de curriculum (experiencia, formación, participación política)
@@ -33,7 +33,7 @@ Los siguientes archivos han sido modificados y están listos para subir a produc
 
 ### 4. **web.php** (Sin cambios, pero verificar)
 - **Ruta local**: `mod_colab\routes\web.php`
-- **Ruta remota**: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/routes/web.php`
+- **Ruta remota**: `/domains/aratio.mrmtech.net/public_html/mod_colab/routes/web.php`
 - **Estado**: Ya tiene las rutas necesarias
 
 ---
@@ -44,15 +44,15 @@ Los siguientes archivos han sido modificados y están listos para subir a produc
 1. Abrir WinSCP
 2. Crear nueva sesión:
    - **Protocolo**: FTP
-   - **Host**: 157.173.208.254
+   - **Host**: 212.1.208.241
    - **Puerto**: 21
-   - **Usuario**: u577647812
-   - **Contraseña**: E=j$`01yHi^?XfpoM@|CD"5H4
+   - **Usuario**: u156469157.aratio.mrmtech.net
+   - **Contraseña**: sthLX6bJPoGh
 
 ### Paso 2: Conectar y Navegar
 1. Conectar al servidor
 2. En el panel derecho (remoto), navegar a:
-   `/domains/edisongiraldo.com/public_html/aratio/mod_colab/`
+   `/domains/aratio.mrmtech.net/public_html/mod_colab/`
 
 ### Paso 3: Subir Archivos
 1. En el panel izquierdo (local), navegar a:
@@ -84,7 +84,7 @@ winscp.com /script=upload-winscp.txt
 3. Ir a "File Manager"
 
 ### Paso 2: Navegar y Subir
-1. Navegar a: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/`
+1. Navegar a: `/domains/aratio.mrmtech.net/public_html/mod_colab/`
 2. Subir cada archivo a su carpeta correspondiente
 
 ---
@@ -95,7 +95,7 @@ Después de subir los archivos, verificar que todo funcione:
 
 ### 1. Probar Registro de Simpatizantes
 ```
-URL: https://edisongiraldo.com/aratio/registro-simpatizante
+URL: https://colaboradores.aratio.mrmtech.net/registro-simpatizante
 
 Verificar:
 ✓ Se ve la interfaz bonita
@@ -106,7 +106,7 @@ Verificar:
 
 ### 2. Probar Registro de Líderes
 ```
-URL: https://edisongiraldo.com/aratio/registro-lider
+URL: https://colaboradores.aratio.mrmtech.net/registro-lider
 
 Verificar:
 ✓ Se ve la interfaz bonita
@@ -176,7 +176,7 @@ H:\Mi unidad\2025\5d\app\Multi-Campaign Management System\mod_colab\
 
 Si encuentras algún problema después de subir:
 
-1. Verificar logs en: `/domains/edisongiraldo.com/public_html/aratio/mod_colab/storage/logs/`
+1. Verificar logs en: `/domains/aratio.mrmtech.net/public_html/mod_colab/storage/logs/`
 2. Verificar permisos de archivos (deben ser 644)
 3. Limpiar caché del navegador
 

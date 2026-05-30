@@ -375,10 +375,10 @@ También se necesitan los endpoints API en `/api/`:
 
 ## 📞 CONTACTO
 
-**Sistema Aratio — Edison Giraldo**
-- Email: aratio@edisongiraldo.com
-- Web: https://edisongiraldo.com/aratio
-- Documentación: https://edisongiraldo.com/aratio/documentacion
+**Sistema Aratio**
+- Email: soporte@aratio.com
+- Web: https://aratio.com
+- Documentación: https://docs.aratio.com
 
 ---
 

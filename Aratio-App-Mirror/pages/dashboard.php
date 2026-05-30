@@ -189,7 +189,7 @@ if ($campanaActiva) {
     <?php else: ?>
 
         <!-- Stats Grid Premium -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <!-- RECAUDACIÓN -->
             <div class="glass-card p-6 rounded-3xl transition-transform hover:-translate-y-1">
                 <div class="flex items-center justify-between mb-6">
@@ -260,6 +260,33 @@ if ($campanaActiva) {
                         <?= $diasRestantes ?>
                     </p>
                     <p class="text-xs text-white/70 font-medium">Días para la victoria</p>
+                </div>
+            </div>
+
+            <!-- INSTAGRAM (NUEVO) -->
+            <?php
+            $jsonPath = BASE_PATH . '/storage/instagram_data.json';
+            $igStats = ['total_publicaciones' => 0, 'publicaciones_relevantes' => 0];
+            if (file_exists($jsonPath)) {
+                $igData = json_decode(file_get_contents($jsonPath), true);
+                $igStats = $igData['estadisticas'] ?? $igStats;
+            }
+            ?>
+            <div class="glass-card p-6 rounded-3xl transition-transform hover:-translate-y-1 group cursor-pointer" onclick="location.href='?page=actividad_instagram'">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-12 h-12 bg-pink-50 rounded-2xl flex items-center justify-center border border-pink-100 group-hover:bg-pink-100 transition-colors">
+                        <i data-lucide="camera" class="w-6 h-6 text-pink-600"></i>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Digital</span>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-3xl font-black text-[#002244] stat-value">
+                        <?= $igStats['total_publicaciones'] ?>
+                    </p>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-pink-600"><?= $igStats['publicaciones_relevantes'] ?></span>
+                        <span class="text-xs text-gray-500 font-medium">acciones detectadas</span>
+                    </div>
                 </div>
             </div>
         </div>

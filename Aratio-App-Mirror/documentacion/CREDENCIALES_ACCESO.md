@@ -1,58 +1,122 @@
-# 🔐 CREDENCIALES DE ACCESO - Sistema Aratio (Edison Giraldo)
+# 🔐 CREDENCIALES DE ACCESO - Sistema Aratio
 
-**Última actualización**: Mayo de 2026
-**Sistema**: Aratio v2.4.0
-**URL Producción**: https://edisongiraldo.com/aratio/
-**URL Preview**: https://navajowhite-goose-984880.hostingersite.com/aratio/
-**Estado Acceso**: ✅ Verificado y funcional (SSH/DB)
-
----
-
-## 🚀 CREDENCIALES ACTUALES (PRODUCCIÓN)
-
-### 👤 Usuario Administrador
-- **Email**: aratio@edisongiraldo.com
-- **Password**: Admin123!
-- **URL Login**: https://edisongiraldo.com/aratio/login.php
-
-### 🗄️ Base de Datos (Hostinger)
-- **Host**: localhost (interno) / auth-db690.hstgr.io (externo)
-- **Usuario**: u577647812_aratio
-- **Password**: v6xSHUWhjrxE
-- **Base de datos**: u577647812_aratio
-
-### 🖥️ SSH / SFTP
-- **Host**: 157.173.208.254
-- **Puerto**: 65002
-- **Usuario**: u577647812
-- **Password**: E=j$`01yHi^?XfpoM@|CD"5H4
-
-### 📁 Rutas
-- **Raíz Web**: `/home/u577647812/domains/edisongiraldo.com/public_html/`
-- **Aratio**: `/home/u577647812/domains/edisongiraldo.com/public_html/aratio/`
+**Fecha**: 17 de Marzo de 2026 (Última verificación)
+**Sistema**: Aratio - Multi-Campaign Management System v1.6.0
+**URL**: https://aratio.mrmtech.net
+**Estado Acceso**: ✅ SSH y FTP verificados y funcionales
 
 ---
 
-## 📜 CREDENCIALES LEGACY (aratio.mrmtech.net)
-*Estas credenciales corresponden al entorno de desarrollo original o campañas anteriores.*
+## 👤 USUARIO ADMINISTRADOR
 
-### Login Web (Old)
-- URL: https://aratio.mrmtech.net/login.php
-- Email: admin@aratio.mrmtech.net
-- Password: Admin123!
+### Login Web (Aratio Central)
+```
+URL: https://aratio.mrmtech.net/login.php
+Email: admin@aratio.mrmtech.net
+Password: Admin123!
+Rol: super-admin
+```
 
-### Base de Datos (Old)
-- Host: auth-db690.hstgr.io
-- Usuario: u156469157_aratio_v1
-- Password: 15zxCeBbvgsR
-- DB: u156469157_aratio_v1
+---
 
-### SSH/FTP (Old)
-- Host: 212.1.208.241
-- Puerto SSH: 65002
-- Puerto FTP: 21
-- Usuario: u156469157
-- Password: sthLX6bJPoGh$
+## 🏘️ PORTAL JAC — Usuarios de Prueba
+
+### Login Portal JAC (Independiente)
+```
+URL: https://aratio.mrmtech.net/mod_jac/login.php
+```
+
+| Usuario | Email | Password | Campaña | Rol |
+|---|---|---|---|---|
+| Jaimito el Cartero | `jaimito@tangamandapio.com` | `Jaimito2026!` | #4 — Jaimito el Cartero | admin-campana |
+
+### URLs del Portal JAC
+```
+Mapa Público (sin login): https://aratio.mrmtech.net/JAC?view=dashboard
+Gestión Privada:          https://aratio.mrmtech.net/JAC?view=gestion
+Login Independiente:      https://aratio.mrmtech.net/mod_jac/login.php
+```
+
+---
+
+## 🗄️ BASE DE DATOS
+
+### MySQL / MariaDB
+```
+Host: auth-db690.hstgr.io
+Puerto: 3306 (default)
+Usuario: u156469157_aratio_v1
+Password: 15zxCeBbvgsR
+Base de datos: u156469157_aratio_v1
+Versión: MariaDB 11.8.3-log
+```
+
+### Acceso desde Cliente MySQL
+```bash
+mysql -h auth-db690.hstgr.io -u u156469157_aratio_v1 -p15zxCeBbvgsR u156469157_aratio_v1
+```
+
+### phpMyAdmin
+```
+Acceder desde el panel de Hostinger:
+1. https://hpanel.hostinger.com
+2. Login con credenciales de Hostinger
+3. Ir a "Base de datos" → "phpMyAdmin"
+4. Seleccionar base de datos: u156469157_aratio_v1
+```
+
+---
+
+## 📁 FTP / SFTP
+
+### Acceso FTP
+```
+Host: ftp://212.1.208.241
+Puerto: 21
+Usuario: u156469157.aratio.mrmtech.net
+Password: sthLX6bJPoGh
+Directorio raíz: / (va directo a public_html)
+```
+
+### Cliente FTP Recomendado
+- **FileZilla**: https://filezilla-project.org/
+- **WinSCP**: https://winscp.net/
+- **Cyberduck**: https://cyberduck.io/
+
+---
+
+## 🐙 GITHUB
+
+### Repositorio Aratio
+```
+URL Perfil: https://github.com/vicktore
+URL Repo: https://github.com/vicktore/aratio.git
+Email: victorfabiocastro@gmail.com
+Username: vicktore
+```
+
+---
+
+## 🖥️ SSH
+
+### Acceso SSH
+```
+Host: 212.1.208.241
+Puerto: 65002 (¡IMPORTANTE! El puerto 22 está cerrado)
+Usuario: u156469157
+Password: sthLX6bJPoGh$
+Directorio web: /home/u156469157/domains/aratio.mrmtech.net/public_html
+```
+
+### Comando de Conexión
+```bash
+ssh -p 65002 u156469157@212.1.208.241
+```
+
+**⚠️ NOTA IMPORTANTE**: 
+- La contraseña SSH incluye el símbolo `$` al final: `sthLX6bJPoGh$`
+- La contraseña FTP NO incluye el `$`: `sthLX6bJPoGh`
+- Ambas credenciales fueron verificadas el 12/02/2026 ✅
 
 
 ### Comandos Útiles via SSH

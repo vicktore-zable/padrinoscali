@@ -3,7 +3,7 @@ import paramiko, sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 HOST="157.173.208.254"; PORT=65002; USER="u577647812"
-PASSWORD='E=j$`01yHi^?XfpoM@|CD"5H4'
+PASSWORD='EDG$v6xSHUWhjrxE'
 
 client = paramiko.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())

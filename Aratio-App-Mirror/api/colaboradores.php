@@ -1860,26 +1860,5 @@ function procesarFilaUnica($db, $data, $campanaId, $userId, $liderDocumento, &$r
         $resultado['exitosos']++;
     }
 }
-/**
- * Función para procesar y guardar imágenes en base64
- */
-function saveBase64Image($base64String, $prefix = 'colab_') {
-    if (!$base64String || strpos($base64String, 'data:image/') !== 0) return null;
+// La función saveBase64Image ha sido movida a config/config.php para uso global
 
-    $pattern = '/^data:image\/(?P<extension>jpeg|jpg|png|gif);base64,(?P<data>.+)$/';
-    if (!preg_match($pattern, $base64String, $match)) return null;
-
-    $extension = $match['extension'];
-    $data = base64_decode($match['data']);
-    $filename = $prefix . uniqid() . '.' . $extension;
-    $uploadDir = UPLOAD_PATH . 'colaboradores/';
-
-    if (!is_dir($uploadDir)) {
-        mkdir($uploadDir, 0755, true);
-    }
-
-    if (file_put_contents($uploadDir . $filename, $data)) {
-        return 'uploads/colaboradores/' . $filename;
-    }
-    return null;
-}

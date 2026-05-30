@@ -14,10 +14,10 @@ https://winscp.net/eng/download.php
 1. Abrir WinSCP
 2. Configurar conexión:
    - **Protocolo**: FTP
-   - **Host**: 157.173.208.254
+   - **Host**: 212.1.208.241
    - **Puerto**: 21
-   - **Usuario**: u577647812
-   - **Contraseña**: E=j$`01yHi^?XfpoM@|CD"5H4
+   - **Usuario**: u156469157.aratio.mrmtech.net
+   - **Contraseña**: sthLX6bJPoGh
 
 ### Paso 3: Descargar Archivos
 1. En el panel derecho (servidor), navega a `/public_html`
@@ -105,8 +105,8 @@ Para saber si tus archivos locales están actualizados:
 
 ```powershell
 # Descargar PublicController.php de producción
-curl -u "u577647812:E=j$`01yHi^?XfpoM@|CD\"5H4" `
-  ftp://157.173.208.254/src/Controllers/PublicController.php `
+curl -u "u156469157.aratio.mrmtech.net:sthLX6bJPoGh" `
+  ftp://212.1.208.241/src/Controllers/PublicController.php `
   -o PublicController_produccion.php
 
 # Comparar con el local

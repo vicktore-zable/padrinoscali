@@ -7,6 +7,27 @@
 // Variables de la página
 $pageTitle = "Red Jerárquica";
 $campanaId = $_SESSION['campana_activa'] ?? null;
+
+// Si no hay campaña activa pero hay un root_doc, intentamos recuperarla
+if (!$campanaId && isset($_GET['root_doc'])) {
+    $db = getDB();
+    $stmt = $db->prepare("
+        SELECT c.campana_id, cam.nombre as campana_nombre 
+        FROM colaboradores c 
+        JOIN campanas cam ON c.campana_id = cam.id 
+        WHERE c.documento = ? 
+        LIMIT 1
+    ");
+    $stmt->execute([$_GET['root_doc']]);
+    $result = $stmt->fetch();
+    
+    if ($result) {
+        $campanaId = $result['campana_id'];
+        $_SESSION['campana_activa'] = $campanaId;
+        $_SESSION['campana_nombre'] = $result['campana_nombre'];
+    }
+}
+
 $campanaName = $_SESSION['campana_nombre'] ?? 'Sin campaña';
 
 if (!$campanaId) {

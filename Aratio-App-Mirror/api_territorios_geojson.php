@@ -43,8 +43,9 @@ try {
 
     // Parámetros de filtrado
     $municipio = $_GET['municipio'] ?? null;
-    $territorio = $_GET['territorio'] ?? null; // Ej: "Comuna 1"
+    $territorio = $_GET['territorio'] ?? null; // Ej: "Comuna 1" o "Comuna 01"
     $tipo = $_GET['tipo'] ?? null;             // Ej: "Urbano" o "Rural"
+    $barrio = $_GET['barrio'] ?? null;         // Ej: "Aguacatal"
 
     if (!$municipio) {
         echo json_encode([
@@ -72,8 +73,17 @@ try {
     $params = [$municipio];
 
     if ($territorio) {
-        $sql .= " AND Territorio = ?";
+        // Limpiamos el territorio para que coincida "Comuna 1" con "Comuna 01" si fuera necesario
+        // Usamos LIKE para mayor flexibilidad
+        $sql .= " AND (Territorio = ? OR Territorio LIKE ?)";
         $params[] = $territorio;
+        $cleanTerritorio = str_replace(' 0', ' ', $territorio);
+        $params[] = "%$cleanTerritorio%";
+    }
+
+    if ($barrio) {
+        $sql .= " AND barrio = ?";
+        $params[] = $barrio;
     }
 
     if ($tipo) {

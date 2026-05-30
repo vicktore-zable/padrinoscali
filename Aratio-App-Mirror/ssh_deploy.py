@@ -6,20 +6,27 @@ HOST = "157.173.208.254"
 PORT = 65002
 USER = "u577647812"
 REMOTE_PATH = "/home/u577647812/domains/edisongiraldo.com/public_html/aratio"
-LOCAL_PATH = r"H:\Mi unidad\2025\5d\app\Multi-Campaign Management System"
+LOCAL_PATH = os.getcwd()
+PASSWORD_FILE = os.path.join(LOCAL_PATH, "tmp_ssh_pass.txt")
 
 ITEMS = [
     "root_config.php",
     "index.php",
+    "landing.php",
     "login.php",
     "logout.php",
     ".htaccess",
     "api",
+    "config",
     "includes",
     "pages",
     "assets",
     "mod_colab",
     "mod_jac",
+    "mod_organizaciones",
+    "api_territorios_geojson.php",
+    "registro-lider.php",
+    "registro_simpatizante.php",
     "public",
     "public_html",
 ]
@@ -49,10 +56,7 @@ def should_exclude(filename):
 
 
 def main():
-    with open(
-        r"H:\Mi unidad\2025\5d\app\Multi-Campaign Management System\tmp_ssh_pass.txt",
-        "r",
-    ) as f:
+    with open(PASSWORD_FILE, "r") as f:
         password = f.read().strip()
 
     print("Conectando al servidor...")

@@ -15,10 +15,16 @@ import json
 import re
 import time
 import sys
+import io
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
 from dataclasses import dataclass, asdict
+
+# Forzar UTF-8 en consola Windows
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # Intentar importar dependencias con manejo de errores
 try:
@@ -91,6 +97,21 @@ class InstagramScraper:
             'evento': ['evento', 'celebración', 'festival', 'encuentro', 'foro', 'conversatorio'],
             'gestion': ['gestión', 'logro', 'avance', 'resultado', 'cumplimiento', 'meta']
         }
+
+    def _update_status(self, status_file: Optional[str], status: str, message: str, current: int = 0, total: int = 0):
+        if not status_file:
+            return
+        try:
+            with open(status_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'status': status,
+                    'message': message,
+                    'current': current,
+                    'total': total,
+                    'timestamp': time.time()
+                }, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[ERROR] No se pudo escribir status file: {e}")
 
     def _init_selenium(self):
         """Inicializa navegador Chrome con Selenium"""
@@ -223,14 +244,17 @@ class InstagramScraper:
         """Extrae menciones @ del texto"""
         return re.findall(r'@(\w+)', texto)
 
-    def scrape_selenium(self, max_posts: int = 100) -> List[Publicacion]:
+    def scrape_selenium(self, max_posts: int = 100, since_date: Optional[str] = None, status_file: Optional[str] = None) -> List[Publicacion]:
         """Extrae publicaciones usando Selenium (método más robusto)"""
+        self._update_status(status_file, 'running', 'Iniciando navegador Chrome...', 0, max_posts)
         if not self._init_selenium():
+            self._update_status(status_file, 'failed', 'No se pudo iniciar Chrome Selenium.', 0, max_posts)
             return []
 
         publicaciones = []
 
         try:
+            self._update_status(status_file, 'running', f'Navegando al perfil de @{self.username}...', 0, max_posts)
             print(f"[INFO] Navegando a {self.url}")
             self.driver.get(self.url)
             time.sleep(self.delay * 2) # Más tiempo para la carga inicial
@@ -245,19 +269,52 @@ class InstagramScraper:
 
             # Scroll para cargar publicaciones
             print(f"[INFO] Cargando publicaciones (scroll)...")
-            last_height = self.driver.execute_script("return document.body.scrollHeight")
             scrolls = 0
-            max_scrolls = 3 # Suficiente para 10-20 posts
+            max_scrolls = 60 if since_date else 10
+            height_stable_count = 0
+            last_post_count = 0
 
             while scrolls < max_scrolls:
+                self._update_status(status_file, 'running', f'Cargando publicaciones (scroll {scrolls+1}/{max_scrolls})...', 0, max_posts)
+                
+                # Scroll gradual: baja en increments para activar lazy loading
+                for step in range(5):
+                    pixels = 500 + (step * 400)
+                    self.driver.execute_script(f"window.scrollTo(0, {pixels + scrolls * 2000});")
+                    time.sleep(0.3)
+                
+                # Scroll completo al final
                 self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(self.delay)
-                new_height = self.driver.execute_script("return document.body.scrollHeight")
-                if new_height == last_height:
-                    break
-                last_height = new_height
+
+                # Verificar cuantos posts hay ahora
+                current_items = self.driver.find_elements(By.CSS_SELECTOR, "a[href*='/p/'], a[href*='/reel/']")
+                current_post_count = len(current_items)
+
+                if current_post_count > last_post_count:
+                    height_stable_count = 0
+                    last_post_count = current_post_count
+                else:
+                    height_stable_count += 1
+                    # Si 3 scrolls seguidos sin nuevos posts, intentar scroll mas agresivo
+                    if height_stable_count >= 3:
+                        self.driver.execute_script("window.scrollTo(0, document.documentElement.scrollHeight);")
+                        time.sleep(2)
+                        self.driver.execute_script("window.scrollBy(0, -200); window.scrollBy(0, 200);")
+                        time.sleep(1)
+
                 scrolls += 1
-                print(f"  Scroll {scrolls}/{max_scrolls}...")
+                print(f"  Scroll {scrolls}/{max_scrolls} — Posts detectados: {current_post_count}")
+
+                # Si ya tenemos suficientes y no crece, salir temprano
+                if current_post_count >= max_posts and height_stable_count >= 5:
+                    print(f"[INFO] Ya se detectaron {current_post_count} posts. Suficiente.")
+                    break
+
+                # Si despues de 10 scrolls sin cambio, salir
+                if height_stable_count >= 10:
+                    print(f"[INFO] Sin nuevos posts tras {height_stable_count} intentos. Finalizando scroll.")
+                    break
 
             # Extraer enlaces y texto alternativo (caption parcial) de la cuadrícula
             print("[INFO] Extrayendo datos de la cuadrícula...")
@@ -280,21 +337,28 @@ class InstagramScraper:
                 except:
                     pass
                 
-                if texto_alt:
-                    extracted_data.append({
-                        'url': url,
-                        'texto_alt': texto_alt
-                    })
+                extracted_data.append({
+                    'url': url,
+                    'texto_alt': texto_alt,
+                    'has_img': bool(texto_alt)
+                })
                 
                 if len(extracted_data) >= max_posts:
                     break
 
             print(f"[INFO] Encontradas {len(extracted_data)} publicaciones en la cuadrícula")
+            # Si no se encontraron con alt text, igual procesar las URLs
+            if len(extracted_data) == 0 and len(seen_urls) > 0:
+                for url in list(seen_urls)[:max_posts]:
+                    extracted_data.append({'url': url, 'texto_alt': '', 'has_img': False})
+                print(f"[INFO] Usando {len(extracted_data)} URLs sin alt text")
+            self._update_status(status_file, 'running', f'Encontradas {len(extracted_data)} publicaciones. Analizando fechas...', 0, len(extracted_data))
 
             # Visitar cada publicación para intentar obtener la fecha exacta (si es posible)
             for i, data in enumerate(extracted_data, 1):
                 post_url = data['url']
                 try:
+                    self._update_status(status_file, 'running', f'Analizando post {i} de {len(extracted_data)}...', i, len(extracted_data))
                     print(f"  [{i}/{len(extracted_data)}] Analizando: {post_url}")
                     
                     # Usar el texto del alt como base
@@ -419,16 +483,26 @@ class InstagramScraper:
                     )
                     publicaciones.append(pub)
 
+                    # Filtro por fecha (evitar posts anteriores a since_date)
+                    # Omitimos romper el bucle para los primeros 3 posts (potenciales pinned posts)
+                    if since_date and fecha != "fecha_desconocida" and i > 3:
+                        if fecha < since_date:
+                            print(f"[INFO] Post con fecha {fecha} es anterior a {since_date}. Finalizando extracción.")
+                            break
+
                 except Exception as e:
                     print(f"  [ERROR] Fallo en publicación {post_url}: {e}")
                     continue
 
+        except Exception as e:
+            self._update_status(status_file, 'failed', f'Error crítico: {str(e)}')
+            raise e
         finally:
             self._cerrar_selenium()
 
         return publicaciones
 
-    def scrape_api(self, max_posts: int = 50) -> List[Publicacion]:
+    def scrape_api(self, max_posts: int = 50, since_date: Optional[str] = None, status_file: Optional[str] = None) -> List[Publicacion]:
         """Método alternativo usando requests (puede ser bloqueado por Instagram)"""
         publicaciones = []
 
@@ -500,14 +574,277 @@ class InstagramScraper:
 
         return publicaciones
 
-    def scrape(self, max_posts: int = 100, prefer_selenium: bool = True) -> List[Publicacion]:
+    def _extraer_user_id(self, html: str) -> Optional[str]:
+        """Extrae el user_id de la página HTML de Instagram"""
+        match = re.search(r'"user_id":"(\d+)"', html)
+        if match: return match.group(1)
+        match = re.search(r'"id":"(\d+)"', html)
+        if match: return match.group(1)
+        match = re.search(r'window\._sharedData\s*=\s*({.+?});</script>', html, re.DOTALL)
+        if match:
+            try:
+                data = json.loads(match.group(1))
+                uid = (data.get('entry_data', {}).get('ProfilePage', [{}])[0]
+                       .get('graphql', {}).get('user', {}).get('id'))
+                if uid: return str(uid)
+            except: pass
+        match = re.search(r'window\.__INITIAL_STATE__\s*=\s*({.+?});</script>', html, re.DOTALL)
+        if match:
+            try:
+                data = json.loads(match.group(1))
+                uid = data.get('user', {}).get('id')
+                if uid: return str(uid)
+            except: pass
+        return None
+
+    def _extraer_query_hash(self, html: str) -> Optional[str]:
+        known = [
+            "42323d64886122307be10013ad2dcc44",
+            "e769aa130647d2354c40ea6a439bfc08",
+        ]
+        for h in known:
+            if h in html: return h
+        return known[0]
+
+    def _node_to_publicacion(self, node: Dict) -> Optional[Publicacion]:
+        """Convierte un node de GraphQL a Publicacion"""
+        try:
+            timestamp = node.get('taken_at_timestamp', 0)
+            fecha = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d') if timestamp else "fecha_desconocida"
+            caption_edges = node.get('edge_media_to_caption', {}).get('edges', [])
+            texto = caption_edges[0].get('node', {}).get('text', '') if caption_edges else ''
+            shortcode = node.get('shortcode', '')
+            tipo_map = {'GraphImage': 'foto', 'GraphVideo': 'video', 'GraphSidecar': 'carrusel'}
+            analisis = self._analizar_texto(texto)
+            return Publicacion(
+                fecha=fecha,
+                fecha_raw=str(timestamp),
+                texto=texto,
+                hashtags=self._extraer_hashtags(texto),
+                menciones=self._extraer_menciones(texto),
+                url=f"https://www.instagram.com/p/{shortcode}/",
+                tipo=tipo_map.get(node.get('__typename', ''), 'foto'),
+                likes=node.get('edge_liked_by', {}).get('count'),
+                comentarios=node.get('edge_media_to_comment', {}).get('count'),
+                categoria=analisis['categoria'],
+                accion_detectada=analisis['accion_detectada'],
+                relevancia_politica=analisis['relevancia_politica']
+            )
+        except: return None
+
+    def fetch_all_posts_via_selenium(self, max_posts: int = 5000, status_file: Optional[str] = None) -> List[Publicacion]:
+        """
+        Usa Selenium para cargar el perfil, extraer user_id real,
+        luego pagina la API GraphQL con requests usando cookies frescas.
+        """
+        self._update_status(status_file, 'running', 'Iniciando Selenium para obtener sesión real...', 0, max_posts)
+        if not self._init_selenium():
+            self._update_status(status_file, 'failed', 'No se pudo iniciar Chrome.')
+            return []
+
+        publicaciones = []
+        user_id = None
+        seen = set()
+
+        try:
+            print(f"[INFO] Navegando a {self.url}")
+            self.driver.get(self.url)
+            time.sleep(self.delay * 2)
+
+            try:
+                btn = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Cerrar')] | //button[contains(text(), 'Close')]")
+                btn.click(); time.sleep(2)
+            except: pass
+
+            # Extraer cookies del driver para la session de requests
+            for c in self.driver.get_cookies():
+                self.session.cookies.set(c['name'], c['value'], domain=c.get('domain', '.instagram.com'))
+
+            page_source = self.driver.page_source
+            user_id = self._extraer_user_id(page_source)
+            query_hash = self._extraer_query_hash(page_source)
+
+            if not user_id:
+                print("[ERROR] No se pudo extraer user_id.")
+                return []
+
+            print(f"[INFO] User ID real: {user_id} | Query Hash: {query_hash}")
+            self._cerrar_selenium()
+            self.driver = None
+
+            # Ahora usar requests para paginar
+            self._update_status(status_file, 'running', f'User ID obtenido. Paginando API GraphQL...', 0, max_posts)
+            api_headers = {
+                'x-ig-app-id': '936619743392459',
+                'x-requested-with': 'XMLHttpRequest',
+                'referer': self.url,
+            }
+
+            # Probar el query_hash, si falla probar alternativos
+            hash_options = [query_hash, "42323d64886122307be10013ad2dcc44", "e769aa130647d2354c40ea6a439bfc08"]
+            working_hash = None
+
+            for h in hash_options:
+                test_vars = json.dumps({"id": user_id, "first": 12, "after": None}, separators=(',', ':'))
+                test_url = f"https://www.instagram.com/graphql/query/?query_hash={h}&variables={test_vars}"
+                tr = self.session.get(test_url, headers=api_headers)
+                if tr.status_code == 200:
+                    td = tr.json()
+                    if td.get('data', {}).get('user', {}).get('edge_owner_to_timeline_media'):
+                        working_hash = h
+                        print(f"[INFO] Query hash funciona: {h}")
+                        break
+                    # También puede devolver en 'data.user.edge_web_feed_timeline'
+                    if td.get('data', {}).get('user', {}).get('edge_web_feed_timeline'):
+                        working_hash = h
+                        print(f"[INFO] Query hash funciona (edge_web_feed): {h}")
+                        break
+
+            if not working_hash:
+                print("[ERROR] Ningún query_hash funciona. Usando Selenium scrolling.")
+                self._cerrar_selenium()
+                return self.scrape_selenium_monthly(max_posts, status_file=status_file)
+
+            query_hash = working_hash
+            after = None
+            has_next = True
+            page = 0
+            consecutive_empty = 0
+
+            while has_next and len(publicaciones) < max_posts and consecutive_empty < 3:
+                page += 1
+                self._update_status(status_file, 'running',
+                    f'Página {page} — {len(publicaciones)} posts obtenidos', 0, max_posts)
+                print(f"  [API {page}] Solicitando página...", end=" ")
+
+                variables = {"id": user_id, "first": 50, "after": after}
+                url = f"https://www.instagram.com/graphql/query/?query_hash={query_hash}&variables={json.dumps(variables, separators=(',', ':'))}"
+                resp = self.session.get(url, headers=api_headers, timeout=30)
+
+                if resp.status_code != 200:
+                    print(f"HTTP {resp.status_code}")
+                    consecutive_empty += 1
+                    time.sleep(2)
+                    continue
+
+                data = resp.json()
+                user_data = data.get('data', {}).get('user', {})
+                media = (user_data.get('edge_owner_to_timeline_media', {})
+                         or user_data.get('edge_web_feed_timeline', {}))
+                edges = media.get('edges', [])
+                page_info = media.get('page_info', {})
+
+                print(f"{len(edges)} posts")
+
+                new_count = 0
+                for edge in edges:
+                    node = edge.get('node', {})
+                    sc = node.get('shortcode', '')
+                    if sc in seen: continue
+                    seen.add(sc)
+                    pub = self._node_to_publicacion(node)
+                    if pub:
+                        publicaciones.append(pub)
+                        new_count += 1
+
+                if new_count == 0:
+                    consecutive_empty += 1
+                else:
+                    consecutive_empty = 0
+
+                after = page_info.get('end_cursor')
+                has_next = page_info.get('has_next_page', False)
+                time.sleep(0.3)
+
+            print(f"\n[INFO] Total: {len(publicaciones)} posts via API GraphQL")
+            return publicaciones
+
+        except Exception as e:
+            print(f"[ERROR] fetch_all_posts_via_selenium: {e}")
+            import traceback; traceback.print_exc()
+            return []
+
+        finally:
+            if self.driver:
+                self._cerrar_selenium()
+
+    def scrape_selenium_monthly(self, max_posts: int = 500, since_date: str = "2024-01-01", status_file: Optional[str] = None) -> List[Publicacion]:
+        """
+        Scraping mes a mes con Selenium.
+        Itera desde el mes actual hacia atrás hasta since_date.
+        Cada mes hace un pass independiente.
+        """
+        all_posts = []
+        seen = set()
+
+        # Calcular meses desde since_date hasta hoy
+        start = datetime.strptime(since_date, "%Y-%m-%d")
+        end = datetime.now()
+        months = []
+        c = start
+        while c < end:
+            if c.month == 12:
+                nxt = c.replace(year=c.year+1, month=1)
+            else:
+                nxt = c.replace(month=c.month+1)
+            months.append((c.strftime("%Y-%m-%d"), nxt.strftime("%Y-%m-%d")))
+            c = nxt
+
+        total = len(months)
+        self._update_status(status_file, 'running', f'Extracción mensual: {total} meses desde {since_date}', 0, max_posts)
+
+        for idx, (mes_inicio, mes_fin) in enumerate(months, 1):
+            mes_nombre = mes_inicio[:7]
+            print(f"\n{'='*50}")
+            print(f"[MES {idx}/{total}] {mes_nombre}")
+            print(f"{'='*50}")
+
+            self._update_status(status_file, 'running',
+                f'Procesando {mes_nombre} ({idx}/{total}) — {len(all_posts)} posts totales', 0, max_posts)
+
+            # Scraping para este mes: since=mes_inicio para cortar antes de este mes
+            posts_mes = self.scrape_selenium(
+                max_posts=200,
+                since_date=mes_inicio,
+                status_file=None
+            )
+
+            # Filtrar solo este mes
+            nuevos = 0
+            for p in posts_mes:
+                if p.url in seen: continue
+                # Solo posts de este mes
+                if p.fecha >= mes_inicio and p.fecha < mes_fin:
+                    all_posts.append(p)
+                    seen.add(p.url)
+                    nuevos += 1
+
+            print(f"  -> {nuevos} posts nuevos para {mes_nombre} (total: {len(all_posts)})")
+
+        print(f"\n[INFO] Total mensual: {len(all_posts)} posts")
+        return all_posts
+
+    def scrape(self, max_posts: int = 5000, prefer_selenium: bool = False, since_date: Optional[str] = None, status_file: Optional[str] = None, no_selenium_fallback: bool = False, monthly: bool = True) -> List[Publicacion]:
         """Método principal de extracción"""
-        if prefer_selenium and SELENIUM_AVAILABLE:
-            print("[INFO] Usando Selenium (método recomendado)")
-            return self.scrape_selenium(max_posts)
-        else:
-            print("[INFO] Usando método API/requests")
-            return self.scrape_api(max_posts)
+        if monthly:
+            print("[INFO] Modo: MES A MES desde 2024-01-01")
+            print("[INFO] Fase 1: Intentando API GraphQL (Selenium + requests)...")
+            posts = self.fetch_all_posts_via_selenium(max_posts, status_file)
+            if len(posts) >= 50:
+                print(f"[INFO] API obtenida: {len(posts)} posts. Organizando por mes...")
+                return posts
+            print(f"[INFO] API dio solo {len(posts)} posts. Fallback a Selenium mes a mes...")
+            return self.scrape_selenium_monthly(max_posts, since_date or "2024-01-01", status_file)
+
+        if not prefer_selenium:
+            print("[INFO] Intentando extracción vía API...")
+            posts = self.fetch_all_posts_via_selenium(max_posts, status_file)
+            if posts: return posts
+            if no_selenium_fallback: return []
+
+        if SELENIUM_AVAILABLE and not no_selenium_fallback:
+            return self.scrape_selenium(max_posts, since_date, status_file)
+        return self.scrape_api(max_posts, since_date, status_file)
 
 
 def generar_timeline(publicaciones: List[Publicacion]) -> Dict:
@@ -632,11 +969,14 @@ def exportar_markdown(data: Dict, output_path: str):
 def main():
     parser = argparse.ArgumentParser(description='Scraper de Instagram para timeline político')
     parser.add_argument('--username', default='edison_concejal', help='Usuario de Instagram')
-    parser.add_argument('--max-posts', type=int, default=100, help='Máximo de publicaciones a extraer')
+    parser.add_argument('--max-posts', type=int, default=300, help='Máximo de publicaciones a extraer')
     parser.add_argument('--output', default='timeline_concejal.json', help='Archivo JSON de salida')
     parser.add_argument('--markdown', default='timeline_concejal.md', help='Archivo Markdown de salida')
     parser.add_argument('--no-selenium', action='store_true', help='Forzar método requests (sin navegador)')
     parser.add_argument('--delay', type=float, default=3.0, help='Segundos de espera entre requests')
+    parser.add_argument('--since-date', default='2024-01-01', help='Fecha de inicio de extracción (YYYY-MM-DD)')
+    parser.add_argument('--status-file', default=None, help='Archivo de estado de sincronización')
+    parser.add_argument('--monthly', action='store_true', default=True, help='Modo mes a mes (default: True)')
 
     args = parser.parse_args()
 
@@ -645,12 +985,22 @@ def main():
     print("=" * 60)
 
     scraper = InstagramScraper(args.username, delay=args.delay)
-    publicaciones = scraper.scrape(
-        max_posts=args.max_posts,
-        prefer_selenium=not args.no_selenium
-    )
+    
+    try:
+        publicaciones = scraper.scrape(
+            max_posts=args.max_posts,
+            prefer_selenium=not args.no_selenium,
+            since_date=args.since_date,
+            status_file=args.status_file,
+            no_selenium_fallback=args.no_selenium,
+            monthly=args.monthly
+        )
+    except Exception as e:
+        scraper._update_status(args.status_file, 'failed', f'Excepción: {str(e)}')
+        sys.exit(1)
 
     if not publicaciones:
+        scraper._update_status(args.status_file, 'failed', 'No se pudieron extraer publicaciones. Verifica que el perfil sea público y Selenium funcione.')
         print("[ERROR] No se pudieron extraer publicaciones.")
         print("Sugerencias:")
         print("1. Verifica que el perfil sea PÚBLICO")
@@ -660,6 +1010,7 @@ def main():
         sys.exit(1)
 
     print(f"[OK] {len(publicaciones)} publicaciones extraídas")
+    scraper._update_status(args.status_file, 'running', 'Generando timeline...', len(publicaciones), len(publicaciones))
 
     # Generar timeline
     timeline_data = generar_timeline(publicaciones)
@@ -672,6 +1023,9 @@ def main():
 
     # Exportar Markdown
     exportar_markdown(timeline_data, args.markdown)
+    
+    # Escribir estado final completado
+    scraper._update_status(args.status_file, 'completed', 'Sincronización finalizada correctamente.', len(publicaciones), len(publicaciones))
 
     # Resumen en consola
     print("\n" + "=" * 60)

@@ -1,0 +1,160 @@
+{
+  "concejal": {
+    "username": "edison_concejal",
+    "nombre": "Edison Alberto Giraldo",
+    "ciudad": "Cali, Valle del Cauca",
+    "periodo": "2024-2027"
+  },
+  "estadisticas": {
+    "total_publicaciones": 5,
+    "periodos_cubiertos": [
+      "2026-04",
+      "fecha_d"
+    ],
+    "categorias": {
+      "obra": 3,
+      "reunion": 1,
+      "general": 1
+    },
+    "acciones_detectadas": {
+      "Seguimiento de obra": 1,
+      "Gestión administrativa": 1
+    },
+    "publicaciones_relevantes": 3
+  },
+  "timeline": {
+    "2026-04": [
+      {
+        "fecha": "2026-04-15",
+        "fecha_raw": "2026-04-15T00:09:47.000Z",
+        "texto": "¡Cali lleva años conviviendo con una montaña de escombros en plena avenida! 🤨\n\naunque la solución por una parte, si es cambiar la escombrera de ubicación, la apuesta de esta curul en el marco de la discusión del nuevo Plan de Ordenamiento Territorial, es cambiar todo el modelo. El plan en Cali debe dejar de ser botar escombros y empezar a aprovecharlos.\n\n¿Vos que opinas? Te leo. 🫡",
+        "hashtags": [],
+        "menciones": [],
+        "url": "https://www.instagram.com/edison_concejal/reel/DXIbE4jDHNf/",
+        "tipo": "video",
+        "likes": 1,
+        "comentarios": null,
+        "ubicacion": null,
+        "categoria": "general",
+        "accion_detectada": "",
+        "relevancia_politica": 0
+      },
+      {
+        "fecha": "2026-04-21",
+        "fecha_raw": "2026-04-21T23:26:36.000Z",
+        "texto": "Hoy tuvimos un encuentro muy especial entre quienes sostienen el centro todos los días y el Alcalde junto a su gabinete, con un propósito muy puntual: conocer los detalles de los proyectos estratégicos que se están gestando en el centro, pero principalmente el desarrollo de lo que será la obra más transformadora de la zona de renovación urbana: la Terminal Central del MIO.🚍\n\nAquí hay comerciantes que han resistido en el centro por décadas, es para ellos y para todos los que visitan y viven en el centro, para quienes nos pensamos e impulsamos sus transformaciones. ¡Esta será una ventana de oportunidades para ellos y para Cali!🔥",
+        "hashtags": [],
+        "menciones": [],
+        "url": "https://www.instagram.com/edison_concejal/p/DXaX-y3DM05/",
+        "tipo": "foto",
+        "likes": 1,
+        "comentarios": null,
+        "ubicacion": null,
+        "categoria": "obra",
+        "accion_detectada": "Seguimiento de obra",
+        "relevancia_politica": 6
+      },
+      {
+        "fecha": "2026-04-27",
+        "fecha_raw": "2026-04-27T23:23:16.000Z",
+        "texto": "¡Cali no tiene red de cicloinfraestructura, tiene trampas para los ciclistas! 😡\n\nA pesar de que se hacen más de 237,000 viajes a diario en bici, Cali, sólo cuenta con 165 km de infraestructura que no son una red conectada ni están en las condiciones para salvaguardar la vida de los ciclistas y no estamos hablando de los deportistas, sino de la gente que a diario usa la bici para llegar a su trabajo o a sus estudios. Por eso, en la discusión del POT en el @concejocali vamos a darle dientes a este subsistema con cuatro propuestas concretas.\n\n¿Cómo las ves?\n¡Te leo! 🫡",
+        "hashtags": [],
+        "menciones": [
+          "concejocali"
+        ],
+        "url": "https://www.instagram.com/edison_concejal/reel/DXpziOyjDfo/",
+        "tipo": "video",
+        "likes": 2,
+        "comentarios": null,
+        "ubicacion": null,
+        "categoria": "obra",
+        "accion_detectada": "",
+        "relevancia_politica": 7
+      },
+      {
+        "fecha": "2026-04-30",
+        "fecha_raw": "2026-04-30T23:33:16.000Z",
+        "texto": "Junto a estudiantes de Arquitectura de la @usbcali en cabeza de la Profe Adriana Mendoza y otros actores de ciudad, realizamos “Inercia Zero: sin obstáculos”, una intervención en el centro que convirtió la calle en una experiencia real de lo que viven miles de personas con movilidad reducida a diario en el espacio público. \n\nPor eso, realizamos un pacto por el peatón y por todos los que se mueven en condiciones desiguales: adultos mayores, personas con cualquier discapacidad y coches con bebés. Cali no puede seguir diseñándose para unos pocos.\n\n¡Mi compromiso será llevar esta discusión al POT!",
+        "hashtags": [],
+        "menciones": [
+          "usbcali"
+        ],
+        "url": "https://www.instagram.com/edison_concejal/p/DXxjVmxEVes/",
+        "tipo": "foto",
+        "likes": 1,
+        "comentarios": null,
+        "ubicacion": null,
+        "categoria": "obra",
+        "accion_detectada": "",
+        "relevancia_politica": 4
+      }
+    ],
+    "fecha_d": [
+      {
+        "fecha": "fecha_desconocida",
+        "fecha_raw": "2026-04-21T23:26:36.000Z",
+        "texto": "El Obrero también es centro y queremos que vuelva a ser el epicentro económico, turístico y cultural de la ciudad. Por eso, seguimos apostando a su territorio con formación para su gente. Esta es nuestra gestión. No solo desde el Concejo, sino desde el barrio. Queremos que sus comerciantes lleven sus negocios a otro nivel y estén a la altura de La Ruta de la Salsa porque son ellos los verdaderos protagonistas. 🧡🔥",
+        "hashtags": [],
+        "menciones": [],
+        "url": "https://www.instagram.com/edison_concejal/p/DXXwQQykdMp/",
+        "tipo": "foto",
+        "likes": null,
+        "comentarios": null,
+        "ubicacion": null,
+        "categoria": "reunion",
+        "accion_detectada": "Gestión administrativa",
+        "relevancia_politica": 8
+      }
+    ]
+  },
+  "lista_acciones": [
+    {
+      "fecha": "2026-04-21",
+      "accion": "Seguimiento de obra",
+      "descripcion": "Hoy tuvimos un encuentro muy especial entre quienes sostienen el centro todos los días y el Alcalde junto a su gabinete, con un propósito muy puntual: conocer los detalles de los proyectos estratégico...",
+      "categoria": "obra",
+      "relevancia": 6,
+      "url": "https://www.instagram.com/edison_concejal/p/DXaX-y3DM05/",
+      "engagement": {
+        "likes": 1,
+        "comentarios": null
+      }
+    },
+    {
+      "fecha": "2026-04-27",
+      "accion": "obra",
+      "descripcion": "¡Cali no tiene red de cicloinfraestructura, tiene trampas para los ciclistas! 😡\n\nA pesar de que se hacen más de 237,000 viajes a diario en bici, Cali, sólo cuenta con 165 km de infraestructura que no ...",
+      "categoria": "obra",
+      "relevancia": 7,
+      "url": "https://www.instagram.com/edison_concejal/reel/DXpziOyjDfo/",
+      "engagement": {
+        "likes": 2,
+        "comentarios": null
+      }
+    },
+    {
+      "fecha": "2026-04-30",
+      "accion": "obra",
+      "descripcion": "Junto a estudiantes de Arquitectura de la @usbcali en cabeza de la Profe Adriana Mendoza y otros actores de ciudad, realizamos “Inercia Zero: sin obstáculos”, una intervención en el centro que convirt...",
+      "categoria": "obra",
+      "relevancia": 4,
+      "url": "https://www.instagram.com/edison_concejal/p/DXxjVmxEVes/",
+      "engagement": {
+        "likes": 1,
+        "comentarios": null
+      }
+    },
+    {
+      "fecha": "fecha_desconocida",
+      "accion": "Gestión administrativa",
+      "descripcion": "El Obrero también es centro y queremos que vuelva a ser el epicentro económico, turístico y cultural de la ciudad. Por eso, seguimos apostando a su territorio con formación para su gente. Esta es nues...",
+      "categoria": "reunion",
+      "relevancia": 8,
+      "url": "https://www.instagram.com/edison_concejal/p/DXXwQQykdMp/",
+      "engagement": {
+        "likes": null,
+        "comentarios": null
+      }
+    }
+  ]
+}

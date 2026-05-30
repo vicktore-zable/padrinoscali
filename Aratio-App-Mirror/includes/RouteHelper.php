@@ -15,32 +15,16 @@ class RouteHelper {
             $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
             
-            // Ruta física de este archivo (en /includes/)
-            $thisFile = str_replace('\\', '/', __FILE__);
-            // Ruta física de la raíz del servidor
-            $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT'] ?? '');
+            // Detectar subcarpeta si existe (ej: /aratiopro/)
+            $scriptName = $_SERVER['SCRIPT_NAME'];
+            $dirName = dirname($scriptName);
             
-            // La raíz del proyecto es el padre de /includes/
-            $projectRoot = dirname(dirname($thisFile));
+            // Limpiar barras duplicadas y asegurar que termine en /
+            $baseDir = rtrim($dirName, '/\\') . '/';
             
-            if ($docRoot && stripos($projectRoot, $docRoot) === 0) {
-                // El baseDir es la diferencia entre docRoot y projectRoot
-                $baseDir = '/' . ltrim(substr($projectRoot, strlen($docRoot)), '/');
-                $baseDir = rtrim($baseDir, '/') . '/';
-            } else {
-                // Fallback: intentar inferir desde el script actual si realpath falla
-                $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-                $scriptFilename = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME'] ?? '');
-                
-                if ($scriptFilename && $scriptName && stripos($scriptFilename, $projectRoot) === 0) {
-                    $relativeScript = substr($scriptFilename, strlen($projectRoot));
-                    $baseDir = substr($scriptName, 0, strlen($scriptName) - strlen($relativeScript));
-                    $baseDir = rtrim($baseDir, '/') . '/';
-                } else {
-                    $baseDir = '/aratio/'; // Last resort fallback for this project
-                }
-            }
-            
+            // Si estamos en la raíz, evitar que sea solo / si se concatena luego
+            if ($baseDir === '//' || $baseDir === '\\') $baseDir = '/';
+
             self::$baseUrl = $protocol . $host . $baseDir;
         }
         return self::$baseUrl;

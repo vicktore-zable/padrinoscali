@@ -77,8 +77,30 @@ if (isset($isIncluded)) {
     </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Librerías de Mapas -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+
+    <!-- Carga secuencial obligatoria -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-measure@3.1.0/dist/leaflet-measure.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+    <style>
+    /* Personalización de herramientas espaciales */
+    .leaflet-control-measure {
+        border: none !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+        border-radius: 12px !important;
+    }
+    .leaflet-control-measure .leaflet-control-measure-toggle {
+        border-radius: 12px !important;
+        width: 34px !important;
+        height: 34px !important;
+        background-size: 16px 16px !important;
+    }
+    </style>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap');
         body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
@@ -401,6 +423,7 @@ document.addEventListener('alpine:init', () => {
         searchTerm: '',
         currentTime: '',
         isFullscreen: false,
+        initialBoundsSet: false,
         
         mapInstance: null,
         markerGroup: null,
@@ -450,18 +473,66 @@ document.addEventListener('alpine:init', () => {
         formatNum(n) { return new Intl.NumberFormat('es-CO').format(n); },
 
         initMap() {
+            // Mapas Base
+            const light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+            const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
             this.mapInstance = L.map('map', { 
                 zoomControl: false, 
                 scrollWheelZoom: false,
-                attributionControl: false
+                attributionControl: false,
+                layers: [light] // Capa inicial
             }).setView([3.6218, -76.3533], 9);
-            
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19
-            }).addTo(this.mapInstance);
             
             this.markerGroup = L.layerGroup().addTo(this.mapInstance);
             this.geoLayerGroup = L.featureGroup().addTo(this.mapInstance);
+
+            // Control de Capas
+            const baseMaps = {
+                "<span class='text-xs font-bold text-slate-600'>Mapa Claro</span>": light,
+                "<span class='text-xs font-bold text-slate-600'>Satélite</span>": satellite,
+                "<span class='text-xs font-bold text-slate-600'>Modo Oscuro</span>": dark
+            };
+
+            const overlays = {
+                "<span class='text-xs font-bold text-primary'>Entidades (Puntos)</span>": this.markerGroup,
+                "<span class='text-xs font-bold text-primary'>Polígonos Territoriales</span>": this.geoLayerGroup
+            };
+
+            L.control.layers(baseMaps, overlays, { 
+                position: 'topright',
+                collapsed: true 
+            }).addTo(this.mapInstance);
+
+            // 1. Herramienta de Localización (GPS)
+            L.control.locate({
+                position: 'topleft',
+                strings: { title: "Mostrar mi ubicación" },
+                flyTo: true,
+                keepCurrentZoomLevel: false,
+                circleStyle: { color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.15 },
+                markerStyle: { color: '#3b82f6', fillColor: '#3b82f6' }
+            }).addTo(this.mapInstance);
+
+            // 2. Herramienta de Medición (Regla)
+            const measureControl = new L.Control.Measure({
+                position: 'topleft',
+                primaryLengthUnit: 'meters',
+                secondaryLengthUnit: 'kilometers',
+                primaryAreaUnit: 'sqmeters',
+                secondaryAreaUnit: 'hectares',
+                activeColor: '#f97316',
+                completedColor: '#ea580c',
+                localization: 'es'
+            });
+            measureControl.addTo(this.mapInstance);
+
+            // 3. Escala
+            L.control.scale({ imperial: false, position: 'bottomright' }).addTo(this.mapInstance);
+
+            // 4. Control de Zoom
+            L.control.zoom({ position: 'topleft' }).addTo(this.mapInstance);
             
             this.mapInstance.on('moveend', () => {
                 this.updateVisibleStats();
@@ -548,33 +619,70 @@ document.addEventListener('alpine:init', () => {
                 }
 
                 // Cargar capa de polígonos GeoJSON
-                if (this.filters.municipio) {
-                    let geoQuery = `../api_territorios_geojson.php?municipio=${encodeURIComponent(this.filters.municipio)}`;
-                    if (this.filters.tipo_territorio) geoQuery += `&tipo=${encodeURIComponent(this.filters.tipo_territorio)}`;
-                    if (this.filters.sector) geoQuery += `&territorio=${encodeURIComponent(this.filters.sector)}`;
-                    
-                    const geoRes = await fetch(geoQuery);
-                    const geoJson = await geoRes.json();
-                    
-                    this.geoLayerGroup.clearLayers();
-                    if (geoJson.features && geoJson.features.length > 0) {
-                        const newLayer = L.geoJSON(geoJson, {
-                            style: (feature) => ({
-                                fillColor: feature.properties.Tipo_territorio === 'Urbano' ? '#FF00FF' : '#ae9454',
-                                weight: 1,
+                // Si no hay municipio seleccionado, intentamos cargar CALI por defecto para que el mapa no se vea vacío
+                let municipioParaGeo = this.filters.municipio || 'CALI';
+                
+                let geoQuery = `api_territorios_geojson.php?municipio=${encodeURIComponent(municipioParaGeo)}`;
+                if (this.filters.tipo_territorio) geoQuery += `&tipo=${encodeURIComponent(this.filters.tipo_territorio)}`;
+                if (this.filters.sector) geoQuery += `&territorio=${encodeURIComponent(this.filters.sector)}`;
+                if (this.filters.barrio) geoQuery += `&barrio=${encodeURIComponent(this.filters.barrio)}`;
+                
+                console.log("Cargando polígonos:", geoQuery);
+                const geoRes = await fetch(geoQuery);
+                const geoJson = await geoRes.json();
+                console.log("Respuesta GeoJSON:", geoJson);
+                
+                this.geoLayerGroup.clearLayers();
+                if (geoJson.features && geoJson.features.length > 0) {
+                    const newLayer = L.geoJSON(geoJson, {
+                        style: (feature) => {
+                            const color = this.getColorByComuna(feature.properties.Territorio);
+                            return {
+                                fillColor: color,
+                                weight: 1.5,      // Borde un poco más grueso
                                 opacity: 1,
                                 color: 'white',
-                                dashArray: '3',
-                                fillOpacity: 0.2
-                            })
-                        });
-                        this.geoLayerGroup.addLayer(newLayer);
-                        if (!this.mapData.length || !this.markerGroup.getLayers().length) {
-                             this.mapInstance.fitBounds(newLayer.getBounds(), { padding: [20, 20], maxZoom: 16 });
+                                dashArray: '4, 4', // Líneas punteadas más cortas para definición
+                                fillOpacity: 0.45  // Un poco más de relleno para el contraste
+                            };
+                        },
+                        onEachFeature: (feature, layer) => {
+                            layer.bindPopup(`
+                                <div class="p-4 font-sans min-w-[200px]">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-3 h-3 rounded-full" style="background-color: ${this.getColorByComuna(feature.properties.Territorio)}"></div>
+                                        <h4 class="text-xs font-black text-primary uppercase tracking-tighter">${feature.properties.Territorio || 'Comuna'}</h4>
+                                    </div>
+                                    <h3 class="text-sm font-black text-slate-800 uppercase leading-none mb-1">${feature.properties.barrio || 'Barrio'}</h3>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase">${feature.properties.Municipio}</p>
+                                    <hr class="my-3 border-gray-100">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="bg-slate-50 p-2 rounded-lg">
+                                            <span class="block text-[8px] font-black text-slate-400 uppercase">Tipo</span>
+                                            <span class="text-[10px] font-black text-primary">${feature.properties.Tipo_territorio}</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg text-right">
+                                            <span class="block text-[8px] font-black text-slate-400 uppercase">ID</span>
+                                            <span class="text-[10px] font-black text-primary">#${feature.properties.id}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                            layer.on('mouseover', function (e) {
+                                this.setStyle({ fillOpacity: 0.7, weight: 2 });
+                            });
+                            layer.on('mouseout', function (e) {
+                                this.setStyle({ fillOpacity: 0.4, weight: 1 });
+                            });
                         }
+                    });
+                    this.geoLayerGroup.addLayer(newLayer);
+                    
+                    // Solo ajustamos bounds si el usuario cambió el filtro o si es la carga inicial
+                    if (this.filters.municipio || (this.mapData.length === 0 && !this.initialBoundsSet)) {
+                        this.mapInstance.fitBounds(newLayer.getBounds(), { padding: [40, 40], maxZoom: 16 });
+                        this.initialBoundsSet = true;
                     }
-                } else {
-                    this.geoLayerGroup.clearLayers();
                 }
 
             } catch (e) { console.error(e); }
@@ -730,6 +838,26 @@ document.addEventListener('alpine:init', () => {
         getMarkerColorHexByType(tipo) {
             const colors = { JAC: '#3b82f6', Deporte: '#f97316', Cultura: '#ec4899', Ambiente: '#10b981', Social: '#8b5cf6', Otro: '#64748b' };
             return colors[tipo] || '#64748b';
+        },
+
+        getColorByComuna(comuna) {
+            if (!comuna) return '#64748b';
+            
+            // Paleta de colores de alto contraste (Vibrantes)
+            const palette = [
+                '#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', 
+                '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', 
+                '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', 
+                '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080'
+            ];
+            
+            // Generar un índice basado en el nombre de la comuna
+            let hash = 0;
+            for (let i = 0; i < comuna.length; i++) {
+                hash = comuna.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % palette.length;
+            return palette[index];
         }
 
     }));

@@ -12,26 +12,8 @@ try {
         case 'puestos':
             // Fetch Puestos for "Yumbo" or the active territory
             // As per specs: puestos_votacion: id, nombre, municipio, coordenadas, mesas[]
-            $municipio = $_GET['municipio'] ?? '';
-            $q = trim($_GET['q'] ?? '');
-            
-            $sql = "SELECT id, puesto as nombre, municipio, latitud, longitud FROM puestos_votacion WHERE 1=1";
-            $params = [];
-            
-            if ($municipio) {
-                $sql .= " AND municipio = ?";
-                $params[] = $municipio;
-            }
-            
-            if ($q) {
-                $sql .= " AND puesto LIKE ?";
-                $params[] = "%$q%";
-            }
-            
-            $sql .= " ORDER BY puesto ASC";
-            
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
+            // We'll just fetch all or where municipio='Yumbo'
+            $stmt = $db->query("SELECT id, puesto as nombre, municipio, latitud, longitud FROM puestos_votacion ORDER BY puesto ASC");
             $puestos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode(['success' => true, 'data' => $puestos]);
             break;

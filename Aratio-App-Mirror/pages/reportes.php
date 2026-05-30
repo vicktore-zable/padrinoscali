@@ -612,7 +612,7 @@ function reportesData() {
             this.geo.municipios = [];
             if (!this.geo.departamento) return;
             try {
-                const r = await fetch('/aratio/territorios/municipios-cascada?departamento=' + encodeURIComponent(this.geo.departamento));
+                const r = await fetch('/territorios/municipios-cascada?departamento=' + encodeURIComponent(this.geo.departamento));
                 const d = await r.json();
                 if (d.success) this.geo.municipios = d.data;
             } catch(e) { console.error(e); }
@@ -625,7 +625,7 @@ function reportesData() {
             this.geo.zonas = [];
             if (!this.geo.municipio) return;
             try {
-                const r = await fetch('/aratio/territorios/tipos?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio));
+                const r = await fetch('/territorios/tipos?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio));
                 const d = await r.json();
                 if (d.success) this.geo.zonas = d.data;
             } catch(e) { console.error(e); }
@@ -637,7 +637,7 @@ function reportesData() {
             this.geo.barrios = [];
             if (!this.geo.zona) return;
             try {
-                const r = await fetch('/aratio/territorios/territorios?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio) + '&tipo=' + encodeURIComponent(this.geo.zona));
+                const r = await fetch('/territorios/territorios?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio) + '&tipo=' + encodeURIComponent(this.geo.zona));
                 const d = await r.json();
                 if (d.success) this.geo.barrios = d.data;
             } catch(e) { console.error(e); }
@@ -654,7 +654,7 @@ function reportesData() {
             params.append('campana_id', '<?= $campanaId ?>');
             
             try {
-                const response = await fetch('/aratio/?api=colaboradores_list&' + params);
+                const response = await fetch('/?api=colaboradores_list&' + params);
                 const data = await response.json();
                 if (data.colaboradores) {
                     this.geo.colaboradores = data.colaboradores;

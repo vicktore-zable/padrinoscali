@@ -26,7 +26,7 @@ date_default_timezone_set('America/Bogota');
 // localhost / 127.0.0.1 = desarrollo | else = producción Hostinger
 // Detección de entorno: localhost / aratio.edisongiraldo.com = desarrollo | else = producción Hostinger
 $currentHost = $_SERVER['HTTP_HOST'] ?? '';
-$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', '127.0.0.1', 'aratio.edisongiraldo.com']);
+$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', 'edisongiraldo.localhost', '127.0.0.1', 'aratio.edisongiraldo.com']);
 
 // Si estamos en CLI, verificar si es el entorno de Hostinger por la ruta absoluta
 if (php_sapi_name() === 'cli') {
@@ -44,7 +44,7 @@ if (php_sapi_name() === 'cli') {
 if ($isLocal) {
     // Desarrollo local — apunta a la misma DB de Hostinger para pruebas
     // Si estamos en Windows XAMPP, se conecta remoto a Hostinger
-    define('DB_HOST', '157.173.208.254'); 
+    define('DB_HOST', 'srv1540.hstgr.io'); 
     define('DB_NAME', 'u577647812_aratio');
     define('DB_USER', 'u577647812_aratio');
     define('DB_PASS', 'v6xSHUWhjrxE');

@@ -49,26 +49,27 @@ Multi-Campaign Management System/
 
 ### Producción (Hostinger)
 
-**Dominio**: `edisongiraldo.com/aratio`
-**IP**: `157.173.208.254`
+**Dominio**: `aratio.mrmtech.net`
+**IP**: `212.1.208.241`
 
 | Recurso | Host | Usuario | Password | Base de Datos |
 |---------|------|---------|----------|---------------|
-| **Aratio Core** | `157.173.208.254` | `u577647812_aratio` | `E=j$`01yHi^?XfpoM@|CD"5H4` | `u577647812_aratio` |
+| **Aratio Core** | `auth-db690.hstgr.io` | `u156469157_aratio_v1` | `15zxCeBbvgsR` | `u156469157_aratio_v1` |
+| **Colaboradores (Legacy)** | `auth-db690.hstgr.io` | `u156469157_aratio` | `15zxCeBbvgsR` | `u156469157_aratio` |
 
 **Acceso SSH / SFTP**:
-- **Puerto**: `65002`
-- **Usuario**: `u577647812`
-- **Host**: `157.173.208.254`
-- **Comando**: `ssh -p 65002 u577647812@157.173.208.254`
+- **Puerto**: `65002` (Crucial: puerto 22 cerrado)
+- **Usuario**: `u156469157`
+- **Password**: `sthLX6bJPoGh$`
+- **Comando**: `ssh -p 65002 u156469157@212.1.208.241`
 
 ### Desarrollo Local
-- **URL**: `http://localhost/aratio`
-- **DB Local**: `u577647812_aratio` (root/sin pass)
-- **Simulación**: Autenticación puenteada para desarrollo rápido.
+- **URL**: `http://localhost` o `http://aratio.localhost`
+- **DB Local**: `u156469157_aratio_v1` (root/sin pass)
+- **Simulación**: Autenticación puenteada en React para desarrollo rápido.
 
 ### Credenciales Admin Sistema
-- **Email**: `admin@edisongiraldo.com`
+- **Email**: `admin@aratio.mrmtech.net`
 - **Password**: `Admin123!`
 - **Rol**: `super-admin`
 
@@ -122,10 +123,10 @@ Se desplegaron los módulos de colaboradores mediante curl SFTP al puerto 65002.
 ### Comandos Útiles
 ```bash
 # Conexión SSH Producción
-ssh -p 65002 u577647812@157.173.208.254
+ssh -p 65002 u156469157@212.1.208.241
 
 # Subir archivo rápido (curl)
-curl -k -T archivo.php "sftp://u577647812:E=j$`01yHi^?XfpoM@|CD\"5H4@157.173.208.254:65002/home/u577647812/domains/edisongiraldo.com/public_html/aratio/"
+curl -k -T archivo.php "sftp://u156469157:sthLX6bJPoGh$@212.1.208.241:65002/home/u156469157/domains/aratio.mrmtech.net/public_html/"
 ```
 
 ---

@@ -637,10 +637,10 @@ ini_set('error_log', '/path/to/php-error.log');
 
 ## 📞 SOPORTE Y CONTACTO
 
-**Email**: aratio@edisongiraldo.com  
+**Email**: soporte@aratio.com  
 **WhatsApp**: +57 300 123 4567  
-**Sitio Web**: https://edisongiraldo.com/aratio  
-**Documentación**: https://edisongiraldo.com/aratio/documentacion
+**Sitio Web**: https://aratio.com  
+**Documentación**: https://docs.aratio.com
 
 ---
 

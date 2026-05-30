@@ -4,47 +4,6 @@ Todas las actualizaciones destacadas del proyecto se documentan en este archivo.
 
 ---
 
-## [2.5.0] - 2026-05-02
-### 📑 Auditoría de Documentación y Credenciales
-- **Corrección de Enlaces Globales**: Actualización masiva de enlaces en `README.md`, `DOCUMENTACION.md` y guías técnicas para apuntar al dominio de producción definitivo (`edisongiraldo.com/aratio`).
-- **Actualización de Credenciales**:
-    - Reestructuración de `CREDENCIALES_ACCESO.md` para separar credenciales de producción actuales de las de sistemas legados (`aratio.mrmtech.net`).
-    - Actualización de accesos SSH/SFTP (Puerto 65002) y credenciales de base de datos (`u577647812_aratio`).
-- **Guías de Sincronización**: Actualización de la `GUIA_SINCRONIZAR_PRODUCCION.md` e `INSTRUCCIONES_SUBIR_HOSTINGER.md` con las rutas, IPs y comandos `curl` correctos para el nuevo entorno.
-- **Constitución de Agente**: Sincronización de `CLAUDE.md` con los datos de producción reales de la campaña Edison Giraldo.
-- **Limpieza de Referencias Obsoletas**: Eliminación de referencias a dominios de prueba (`mrmtech.net`) en toda la documentación técnica principal.
-
----
-
-## [2.4.0] - 2026-05-01
-### 🎓 Sistema de Gestión de Curriculum y Red Avanzada
-- **Módulo de Curriculum**: Implementación de una nueva arquitectura de datos para el seguimiento detallado de colaboradores.
-    - **Nueva Tabla `curriculum`**: Almacenamiento dinámico en formato JSON para Experiencia Laboral, Formación Académica y Participación Política.
-    - **Metadatos Sociales**: Seguimiento de hijos (edades/discapacidad), equipo de fútbol y práctica deportiva.
-- **Visualización de Red 2.0**:
-    - **Recursividad con CTEs**: Implementadas consultas recursivas (`WITH RECURSIVE`) para cargar jerarquías profundas de forma eficiente.
-    - **Focus & Lazy Loading**: Capacidad de hacer zoom en un nodo específico (`root_doc`) para visualizar únicamente su red descendente.
-    - **Estadísticas de Red**: Desglose automático por territorio (barrios) y conteo de red total (Directos + Indirectos).
-- **Historial y Auditoría**:
-    - **Trazabilidad de Líderes**: Nuevo sistema de registro de cambios de liderazgo con motivos y usuario responsable.
-    - **Reevaluación de Potencial**: Historial de cambios en datos potenciales e históricos para análisis de crecimiento.
-- **UI Premium para Colaboradores**:
-    - **Interfaz por Pestañas**: Organización de la vista de detalle en: General, Seguidores, Historial, Curriculum y Acciones.
-    - **Formularios Dinámicos**: Uso avanzado de Alpine.js para la gestión de arreglos dinámicos en el curriculum sin recargas de página.
-
----
-
-## [2.3.0] - 2026-04-25
-### 📅 Módulo de Eventos: Carga Inicial de Producción
-- **Creación de Eventos en Producción**: Insertados los dos primeros eventos oficiales en la base de datos de producción (`157.173.208.254`) para la campaña de Edison Giraldo.
-- **Eventos Registrados**:
-    - *Gran Lanzamiento de Campaña - Comuna 2*: Mitin masivo programado para el 10 de mayo de 2026 en el Parque de la Comuna 2.
-    - *Diálogos Ciudadanos - Sector Comercio*: Reunión estratégica programada para el 15 de mayo de 2026 en la Cámara de Comercio de Cali.
-- **Georreferenciación**: Configuración automática de Departamento (Valle del Cauca) y Municipio (Cali) para asegurar visibilidad en los reportes territoriales y filtros de la UI.
-- **Automatización de Admin**: Desarrollo y ejecución de scripts de Python para inserción directa y enriquecimiento de datos en la tabla `eventos`, superando las limitaciones de acceso por UI.
-
----
-
 ## [2.2.0] - 2026-04-19
 ### 🛡️ Estabilización y Arquitectura Multi-Instancia
 - **Refactorización de Configuración**: Implementada carga segura en `config/config.php` (Core) mediante bloques `if (!defined(...))` para permitir sobreescritura desde `root_config.php`.

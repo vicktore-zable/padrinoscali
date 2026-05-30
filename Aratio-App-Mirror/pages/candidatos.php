@@ -287,7 +287,7 @@ try {
 
             async cargarDepartamentos() {
                 try {
-                    const response = await fetch('/aratio/api/territorios.php?accion=departamentos');
+                    const response = await fetch('/api/territorios.php?accion=departamentos');
                     const result = await response.json();
                     if (result.success) this.listas.departamentos = result.data;
                 } catch (error) {
@@ -303,7 +303,7 @@ try {
                 
                 this.loadingMunicipios = true;
                 try {
-                    const response = await fetch(`/aratio/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.form.departamento)}`);
+                    const response = await fetch(`/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.form.departamento)}`);
                     const result = await response.json();
                     if (result.success) this.listas.municipios = result.data;
                 } catch (error) {
@@ -359,7 +359,7 @@ try {
                 this.loading = true;
                 const method = this.form.id ? 'PUT' : 'POST';
                 try {
-                    const response = await fetch('/aratio/api/candidatos.php', {
+                    const response = await fetch('/api/candidatos.php', {
                         method: method,
                         headers: {
                             'Content-Type': 'application/json',
@@ -385,7 +385,7 @@ try {
             async eliminar(id) {
                 if (!confirm('¿Estás seguro de eliminar este candidato?\n\nEsta acción no se puede deshacer.')) return;
                 try {
-                    const response = await fetch(`/aratio/api/candidatos.php?id=${id}`, {
+                    const response = await fetch(`/api/candidatos.php?id=${id}`, {
                         method: 'DELETE',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     });

@@ -3,11 +3,12 @@
  * ARATIO - Sistema de Gestión de Campaña Edison Giraldo
  * Archivo de Configuración Principal
  *
- * PRODUCCIÓN: edisongiraldo.com/aratio/
+ * PRODUCCIÓN: padrinoscali.org/aratio/ (migrado 2026-06-01)
+ * LEGACY:     edisongiraldo.com/aratio/
  * SERVIDOR:   157.173.208.254:65002
  * DB:         u577647812_aratio (Hostinger)
- * SSH:        Clave ED25519 (sin password)
- * Última actualización: 2026-05-02
+ * SSH:        Clave ED25519 (instalada en servidor)
+ * Última actualización: 2026-06-01
  */
 
 // =============================================
@@ -49,14 +50,14 @@ define('DB_CHARSET', 'utf8mb4');
 // =============================================
 // CONFIGURACIÓN DE LA APLICACIÓN
 // =============================================
-define('APP_NAME', 'Aratio — Edison Giraldo');
+define('APP_NAME', 'Aratio — Padrinos Cali');
 define('APP_VERSION', '2.0.0');
 define('APP_SUBPATH', '/aratio'); // Subdirectorio en producción
 
 define('APP_URL',
     $isLocal
         ? 'http://' . ($_SERVER['HTTP_HOST'] ?? 'localhost:8012') . '/aratio'
-        : 'https://edisongiraldo.com/aratio'
+        : 'https://padrinoscali.org/aratio'
 );
 define('APP_ENV', $isLocal ? 'development' : 'production');
 
@@ -100,8 +101,8 @@ define('SMTP_HOST', 'smtp.hostinger.com');
 define('SMTP_PORT', 465);
 define('SMTP_USER', 'admin@aratio.mrmtech.net');
 define('SMTP_PASS', 'tu_password_email'); // Configurar después
-define('SMTP_FROM', 'admin@aratio.mrmtech.net');
-define('SMTP_FROM_NAME', 'Sistema Aratio — Edison Giraldo');
+define('SMTP_FROM', 'admin@padrinoscali.org');
+define('SMTP_FROM_NAME', 'Sistema Aratio — Padrinos Cali');
 
 // =============================================
 // RUTAS DEL SISTEMA

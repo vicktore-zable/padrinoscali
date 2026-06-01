@@ -18,8 +18,8 @@
 
 - **Cliente**: Padrinos Cali — Programa de Liderazgo Social
 - **Plataforma**: Sistema de Gestión Social (PHP + MySQL) desplegado en Hostinger
-- **URL Producción**: https://edisongiraldo.com/aratio/ (migrando a padrinoscali.org)
-- **URL Preview**: https://navajowhite-goose-984880.hostingersite.com/aratio/
+- **URL Producción**: https://padrinoscali.org/aratio/ (migrado 2026-06-01)
+- **URL Legacy**: https://edisongiraldo.com/aratio/
 - **Stack**: PHP 8+, MySQL, Alpine.js / Vanilla JS, CSS moderno
 
 ---

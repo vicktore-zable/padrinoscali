@@ -19,3 +19,21 @@ Thumbs.db
 
 # XAMPP local
 F:/xampp2/
+
+# Node
+node_modules/
+package.json
+package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# Temp
+nul
+~$*
+*.tmp
+
+# Fuentes (datos sensibles)
+fuentes/*.xlsx

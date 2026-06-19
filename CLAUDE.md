@@ -1,6 +1,6 @@
 # CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 2.6.0 | Proyecto: padrinoscali.org | Cali, Colombia*
+*Versión: 2.7.0 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 
@@ -75,6 +75,13 @@ py notebook_agent.py research "Análisis territorial Comuna X Cali"
 
 # Revisión crítica de contenido
 py notebook_agent.py review <archivo_o_texto>
+
+# === Instagram Sync ===
+# Login manual (cuando cookies expiren — ~1-2 semanas)
+python instagram_login.py
+
+# Scraping completo (@edison_concejal)
+python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthly
 ```
 
 ---
@@ -96,6 +103,47 @@ py notebook_agent.py review <archivo_o_texto>
 ---
 
 ## 📋 Changelog
+
+### v2.7.0 (2026-06-19) — Instagram Sync: API v1 + Cookies
+
+**Problema**: El scraper de Instagram (`instagram_scraper.py`) usaba GraphQL `query_hash` (API deprecada que ya no devuelve JSON) y Selenium scrolling. Instagram ahora redirige a login incluso para perfiles públicos. Datos congelados desde mayo 2026 (235 posts).
+
+**Solución**: Migración a API v1 oficial de Instagram + login manual con cookies.
+
+| Cambio | Detalle |
+|--------|---------|
+| API | GraphQL deprecado → `/api/v1/feed/user/{id}/` con paginación `next_max_id` |
+| Auth | Selenium headless (bloqueado) → Login manual + cookies persistentes |
+| Parseo | Nuevo `_item_to_publicacion()` para estructura de API v1 |
+| Script | Nuevo `instagram_login.py` — helper de login con perfil Chrome |
+| Output | 686 posts extraídos (vs 235 anteriores), desde 2018-02 hasta 2026-06-19 |
+
+**Archivos modificados**:
+
+| Archivo | Cambio |
+|---------|--------|
+| `instagram_scraper.py` | API v1 pagination + cookie loading + `_item_to_publicacion()` |
+| `instagram_login.py` | **NUEVO** — Login helper con perfil Chrome real |
+| `timeline_concejal.md` | Regenerado con 686 posts |
+| `storage/maestro_instagram.json` | Subido a producción (715 KB) |
+| `storage/instagram_data.json` | Subido a producción (715 KB) |
+
+**Flujo actual**:
+```
+1. python instagram_login.py   ← Abre Chrome con perfil real, guarda cookies
+2. python instagram_scraper.py  ← Carga cookies, extrae user_id via Selenium,
+                                   pagina API v1 con requests (~58 páginas)
+3. Output: storage/instagram_data.json + timeline_concejal.md
+4. Subir a producción: maestro_instagram.json
+```
+
+**Notas técnicas**:
+- Instagram ahora bloquea scraping sin sesión activa (incluso perfiles públicos)
+- Las cookies de Instagram duran ~1-2 semanas antes de expirar
+- API v1 `/feed/user/` devuelve 12 items por página, paginación con `next_max_id`
+- Perfil de Chrome se usa para login manual (evita detección de bot)
+- `--monthly` ya no es necesario (API v1 obtiene todos los posts de una sola pasada)
+- `--visible` opcional para debuggear; por defecto headless
 
 ### v2.6.0 (2026-06-19) — Fix Edición Colaborador + Geografía
 

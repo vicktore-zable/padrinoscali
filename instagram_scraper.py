@@ -16,6 +16,7 @@ import re
 import time
 import sys
 import io
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -254,6 +255,21 @@ class InstagramScraper:
         publicaciones = []
 
         try:
+            # Cargar cookies guardadas si existen
+            cookies_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Aratio-App-Mirror', 'storage', '.cookies', 'instagram_cookies.json')
+            if os.path.exists(cookies_file):
+                print(f"[INFO] Cargando cookies desde: {cookies_file}")
+                with open(cookies_file, 'r', encoding='utf-8') as f:
+                    saved_cookies = json.load(f)
+                self.driver.get("https://www.instagram.com/")
+                time.sleep(2)
+                for c in saved_cookies:
+                    try:
+                        self.driver.add_cookie(c)
+                    except:
+                        pass
+                print(f"[INFO] {len(saved_cookies)} cookies cargadas")
+
             self._update_status(status_file, 'running', f'Navegando al perfil de @{self.username}...', 0, max_posts)
             print(f"[INFO] Navegando a {self.url}")
             self.driver.get(self.url)
@@ -632,10 +648,41 @@ class InstagramScraper:
             )
         except: return None
 
+    def _item_to_publicacion(self, item: Dict) -> Optional[Publicacion]:
+        """Convierte un item de API v1 a Publicacion"""
+        try:
+            timestamp = item.get('taken_at', 0)
+            fecha = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d') if timestamp else "fecha_desconocida"
+            caption = item.get('caption', {})
+            texto = caption.get('text', '') if caption else ''
+            pk = item.get('pk', '')
+            code = item.get('code', '')
+            if not code and pk:
+                code = str(pk)
+            media_type = item.get('media_type', 1)
+            tipo_map = {1: 'foto', 2: 'video', 8: 'carrusel'}
+            tipo = tipo_map.get(media_type, 'foto')
+            analisis = self._analizar_texto(texto)
+            return Publicacion(
+                fecha=fecha,
+                fecha_raw=str(timestamp),
+                texto=texto,
+                hashtags=self._extraer_hashtags(texto),
+                menciones=self._extraer_menciones(texto),
+                url=f"https://www.instagram.com/p/{code}/",
+                tipo=tipo,
+                likes=item.get('like_count', 0),
+                comentarios=item.get('comment_count', 0),
+                categoria=analisis['categoria'],
+                accion_detectada=analisis['accion_detectada'],
+                relevancia_politica=analisis['relevancia_politica']
+            )
+        except: return None
+
     def fetch_all_posts_via_selenium(self, max_posts: int = 5000, status_file: Optional[str] = None) -> List[Publicacion]:
         """
         Usa Selenium para cargar el perfil, extraer user_id real,
-        luego pagina la API GraphQL con requests usando cookies frescas.
+        luego pagina la API v1 con requests usando cookies frescas.
         """
         self._update_status(status_file, 'running', 'Iniciando Selenium para obtener sesión real...', 0, max_posts)
         if not self._init_selenium():
@@ -647,6 +694,22 @@ class InstagramScraper:
         seen = set()
 
         try:
+            # Cargar cookies guardadas si existen (para evitar login)
+            cookies_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Aratio-App-Mirror', 'storage', '.cookies', 'instagram_cookies.json')
+            if os.path.exists(cookies_file):
+                print(f"[INFO] Cargando cookies desde: {cookies_file}")
+                with open(cookies_file, 'r', encoding='utf-8') as f:
+                    saved_cookies = json.load(f)
+                # Primero navegar a instagram.com para poder setear cookies
+                self.driver.get("https://www.instagram.com/")
+                time.sleep(2)
+                for c in saved_cookies:
+                    try:
+                        self.driver.add_cookie(c)
+                    except:
+                        pass
+                print(f"[INFO] {len(saved_cookies)} cookies cargadas")
+
             print(f"[INFO] Navegando a {self.url}")
             self.driver.get(self.url)
             time.sleep(self.delay * 2)
@@ -668,58 +731,40 @@ class InstagramScraper:
                 print("[ERROR] No se pudo extraer user_id.")
                 return []
 
-            print(f"[INFO] User ID real: {user_id} | Query Hash: {query_hash}")
+            print(f"[INFO] User ID real: {user_id}")
             self._cerrar_selenium()
             self.driver = None
 
-            # Ahora usar requests para paginar
-            self._update_status(status_file, 'running', f'User ID obtenido. Paginando API GraphQL...', 0, max_posts)
+            # Usar API v1 /feed/user/ (reemplaza GraphQL deprecado)
+            self._update_status(status_file, 'running', f'User ID obtenido. Paginando API v1...', 0, max_posts)
             api_headers = {
                 'x-ig-app-id': '936619743392459',
                 'x-requested-with': 'XMLHttpRequest',
                 'referer': self.url,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             }
 
-            # Probar el query_hash, si falla probar alternativos
-            hash_options = [query_hash, "42323d64886122307be10013ad2dcc44", "e769aa130647d2354c40ea6a439bfc08"]
-            working_hash = None
-
-            for h in hash_options:
-                test_vars = json.dumps({"id": user_id, "first": 12, "after": None}, separators=(',', ':'))
-                test_url = f"https://www.instagram.com/graphql/query/?query_hash={h}&variables={test_vars}"
-                tr = self.session.get(test_url, headers=api_headers)
-                if tr.status_code == 200:
-                    td = tr.json()
-                    if td.get('data', {}).get('user', {}).get('edge_owner_to_timeline_media'):
-                        working_hash = h
-                        print(f"[INFO] Query hash funciona: {h}")
-                        break
-                    # También puede devolver en 'data.user.edge_web_feed_timeline'
-                    if td.get('data', {}).get('user', {}).get('edge_web_feed_timeline'):
-                        working_hash = h
-                        print(f"[INFO] Query hash funciona (edge_web_feed): {h}")
-                        break
-
-            if not working_hash:
-                print("[ERROR] Ningún query_hash funciona. Usando Selenium scrolling.")
-                self._cerrar_selenium()
-                return self.scrape_selenium_monthly(max_posts, status_file=status_file)
-
-            query_hash = working_hash
-            after = None
-            has_next = True
+            max_id = None
             page = 0
             consecutive_empty = 0
 
-            while has_next and len(publicaciones) < max_posts and consecutive_empty < 3:
+            while len(publicaciones) < max_posts and consecutive_empty < 3:
                 page += 1
+                feed_url = f"https://www.instagram.com/api/v1/feed/user/{user_id}/?count=12"
+                if max_id:
+                    feed_url += f"&max_id={max_id}"
+
                 self._update_status(status_file, 'running',
                     f'Página {page} — {len(publicaciones)} posts obtenidos', 0, max_posts)
-                print(f"  [API {page}] Solicitando página...", end=" ")
+                print(f"  [API v1 {page}] Solicitando página...", end=" ")
 
-                variables = {"id": user_id, "first": 50, "after": after}
-                url = f"https://www.instagram.com/graphql/query/?query_hash={query_hash}&variables={json.dumps(variables, separators=(',', ':'))}"
-                resp = self.session.get(url, headers=api_headers, timeout=30)
+                try:
+                    resp = self.session.get(feed_url, headers=api_headers, timeout=30)
+                except Exception as e:
+                    print(f"Error: {e}")
+                    consecutive_empty += 1
+                    time.sleep(2)
+                    continue
 
                 if resp.status_code != 200:
                     print(f"HTTP {resp.status_code}")
@@ -727,36 +772,47 @@ class InstagramScraper:
                     time.sleep(2)
                     continue
 
-                data = resp.json()
-                user_data = data.get('data', {}).get('user', {})
-                media = (user_data.get('edge_owner_to_timeline_media', {})
-                         or user_data.get('edge_web_feed_timeline', {}))
-                edges = media.get('edges', [])
-                page_info = media.get('page_info', {})
+                try:
+                    data = resp.json()
+                except:
+                    print("Respuesta no JSON")
+                    consecutive_empty += 1
+                    time.sleep(2)
+                    continue
 
-                print(f"{len(edges)} posts")
+                items = data.get('items', [])
+                more_available = data.get('more_available', False)
+                max_id = data.get('next_max_id')
 
+                print(f"{len(items)} items (more: {more_available})")
+
+                if not items:
+                    consecutive_empty += 1
+                    if not more_available:
+                        print("[INFO] No más items disponibles.")
+                        break
+                    time.sleep(1)
+                    continue
+
+                consecutive_empty = 0
                 new_count = 0
-                for edge in edges:
-                    node = edge.get('node', {})
-                    sc = node.get('shortcode', '')
-                    if sc in seen: continue
-                    seen.add(sc)
-                    pub = self._node_to_publicacion(node)
-                    if pub:
+                for item in items:
+                    pub = self._item_to_publicacion(item)
+                    if pub and pub.url not in seen:
+                        seen.add(pub.url)
                         publicaciones.append(pub)
                         new_count += 1
 
                 if new_count == 0:
                     consecutive_empty += 1
-                else:
-                    consecutive_empty = 0
 
-                after = page_info.get('end_cursor')
-                has_next = page_info.get('has_next_page', False)
-                time.sleep(0.3)
+                if not more_available or not max_id:
+                    print("[INFO] Fin del feed.")
+                    break
 
-            print(f"\n[INFO] Total: {len(publicaciones)} posts via API GraphQL")
+                time.sleep(0.5)
+
+            print(f"\n[INFO] Total: {len(publicaciones)} posts via API v1")
             return publicaciones
 
         except Exception as e:
@@ -977,6 +1033,7 @@ def main():
     parser.add_argument('--since-date', default='2024-01-01', help='Fecha de inicio de extracción (YYYY-MM-DD)')
     parser.add_argument('--status-file', default=None, help='Archivo de estado de sincronización')
     parser.add_argument('--monthly', action='store_true', default=True, help='Modo mes a mes (default: True)')
+    parser.add_argument('--visible', action='store_true', help='Abrir Chrome visible (no headless) para debugging')
 
     args = parser.parse_args()
 
@@ -984,7 +1041,7 @@ def main():
     print("INSTAGRAM POLITICAL TIMELINE SCRAPER")
     print("=" * 60)
 
-    scraper = InstagramScraper(args.username, delay=args.delay)
+    scraper = InstagramScraper(args.username, headless=not args.visible, delay=args.delay)
     
     try:
         publicaciones = scraper.scrape(

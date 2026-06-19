@@ -88,7 +88,7 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 
 ## 🎯 Estado del Proyecto
 
-- **Versión**: v2.5.0 (Portal del Líder — Mejoras Visuales + Perfil Independiente)
+- **Versión**: v2.7.0 (Instagram Sync — API v1 + Cookies)
 - **Git**: ✅ Inicializado
 - **Producción**: https://padrinoscali.org/aratio/ ✅ (DNS propagado)
 - **Legacy**: https://edisongiraldo.com/aratio/

@@ -64,6 +64,8 @@ class Publicacion:
     likes: Optional[int] = None
     comentarios: Optional[int] = None
     ubicacion: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     # Campos derivados del análisis
     categoria: str = "general"
     accion_detectada: str = ""
@@ -662,6 +664,10 @@ class InstagramScraper:
             media_type = item.get('media_type', 1)
             tipo_map = {1: 'foto', 2: 'video', 8: 'carrusel'}
             tipo = tipo_map.get(media_type, 'foto')
+            loc = item.get('location', None) or {}
+            ubicacion = loc.get('name', '') or ''
+            lat = loc.get('lat')
+            lng = loc.get('lng')
             analisis = self._analizar_texto(texto)
             return Publicacion(
                 fecha=fecha,
@@ -673,11 +679,17 @@ class InstagramScraper:
                 tipo=tipo,
                 likes=item.get('like_count', 0),
                 comentarios=item.get('comment_count', 0),
+                ubicacion=ubicacion,
+                lat=lat,
+                lng=lng,
                 categoria=analisis['categoria'],
                 accion_detectada=analisis['accion_detectada'],
                 relevancia_politica=analisis['relevancia_politica']
             )
-        except: return None
+        except:
+            import traceback
+            traceback.print_exc()
+            return None
 
     def fetch_all_posts_via_selenium(self, max_posts: int = 5000, status_file: Optional[str] = None) -> List[Publicacion]:
         """
@@ -953,6 +965,9 @@ def generar_timeline(publicaciones: List[Publicacion]) -> Dict:
                 'categoria': pub.categoria,
                 'relevancia': pub.relevancia_politica,
                 'url': pub.url,
+                'ubicacion': pub.ubicacion or '',
+                'lat': pub.lat,
+                'lng': pub.lng,
                 'engagement': {
                     'likes': pub.likes,
                     'comentarios': pub.comentarios

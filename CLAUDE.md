@@ -1,6 +1,6 @@
 # CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 2.0 | Proyecto: padrinoscali.org | Cali, Colombia*
+*Versión: 2.6.0 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 
@@ -81,9 +81,40 @@ py notebook_agent.py review <archivo_o_texto>
 
 ## 🎯 Estado del Proyecto
 
+- **Versión**: v2.5.0 (Portal del Líder — Mejoras Visuales + Perfil Independiente)
 - **Git**: ✅ Inicializado
-- **Producción**: https://edisongiraldo.com/aratio/ (temporal)
-- **Preview**: https://navajowhite-goose-984880.hostingersite.com/aratio/
-- **XAMPP local**: F:\xampp2\htdocs\aratio\ (cambios pendientes sin commit)
-- **DB**: 15 tablas en producción (u577647812_aratio)
-- **Dominio futuro**: padrinoscali.org
+- **Producción**: https://padrinoscali.org/aratio/ ✅ (DNS propagado)
+- **Legacy**: https://edisongiraldo.com/aratio/
+- **Preview**: https://gold-whale-298635.hostingersite.com/aratio/
+- **Login Admin+Líder**: https://padrinoscali.org/aratio/login.php
+- **Login Portal Líder**: https://padrinoscali.org/aratio/index.php?page=portal_landing
+- **XAMPP local**: F:\xampp2\htdocs\aratio\
+- **DB**: u577647812_aratio (única, compartida entre dominios)
+- **DB Host local**: `82.197.82.47` (IP directa, DNS no resuelve localmente)
+- **Auth**: Admin via email+pass (usuarios), Líder via doc+tel (colaboradores + sesiones_lideres)
+
+---
+
+## 📋 Changelog
+
+### v2.6.0 (2026-06-19) — Fix Edición Colaborador + Geografía
+
+**Problema**: El modal Editar del colaborador no preseleccionaba Departamento, Municipio, Territorio, Barrio ni Puesto de Votación.
+
+**Causa raíz**: La tabla `colaboradores` tiene columna `territorio_id` (FK), pero el JS buscaba `cod_mpio` que no existía en la respuesta de la API.
+
+**Archivos modificados**:
+
+| Archivo | Cambio |
+|---------|--------|
+| `root_config.php` | `display_errors` de `1` a `0` (evita HTML en salida JSON) |
+| `api/colaboradores.php` | JOIN `territorios` para incluir `cod_mpio` + fallback por `departamento+municipio` + PUT acepta `cod_mpio` |
+| `pages/colaborador_detalle.php` | `initListasGeograficas()` carga 6 listas en paralelo + preselección correcta |
+| `pages/colaboradores.php` | PUT→POST en `guardarAsignacionLider()` |
+
+**Notas técnicas**:
+- Hostinger no soporta PUT nativo → usar POST + `_method=PUT`
+- `display_errors=1` en PHP rompe JSON → siempre `0` en producción
+- `X-Requested-With: XMLHttpRequest` requerido para que `requireAuth()` retorne JSON 401 en vez de redirect HTML
+
+### v2.5.0 — Portal del Líder

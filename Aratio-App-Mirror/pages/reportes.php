@@ -365,31 +365,8 @@ if (!$geoDepto) {
         <!-- REPORTE GEOGRÁFICO -->
         <div x-show="reporteActual === 'geografico'">
             <div class="space-y-6">
-                <!-- Breadcrumb para navegación jerárquica - preserve all params -->
-                <?php 
-                $baseGeoUrl = '?page=reportes&reporte=geografico';
-                $currParams = array_filter($_GET, fn($v, $k) => $k !== 'depto' && $k !== 'mpio' && $k !== 'barrio', ARRAY_FILTER_USE_BOTH);
-                if (!empty($currParams)) $baseGeoUrl .= '&' . http_build_query($currParams);
-                ?>
-                <div class="flex items-center gap-2 text-sm flex-wrap">
-                    <a href="<?= $baseGeoUrl ?>" class="px-3 py-1 rounded-full <?= !$geoDepto ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200' ?>">Todos</a>
-                    <?php if($geoDepto): ?>
-                    <span class="text-gray-400">›</span>
-                    <a href="<?= $baseGeoUrl ?>&depto=<?= urlencode($geoDepto) ?>" class="px-3 py-1 rounded-full <?= !$geoMpio ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200' ?>"><?= htmlspecialchars($geoDepto) ?></a>
-                    <?php endif; ?>
-                    <?php if($geoMpio): ?>
-                    <span class="text-gray-400">›</span>
-                    <a href="<?= $baseGeoUrl ?>&depto=<?= urlencode($geoDepto) ?>&mpio=<?= urlencode($geoMpio) ?>" class="px-3 py-1 rounded-full <?= !$geoBarrio ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200' ?>"><?= htmlspecialchars($geoMpio) ?></a>
-                    <?php endif; ?>
-                    <?php if($geoBarrio): ?>
-                    <span class="text-gray-400">›</span>
-                    <span class="px-3 py-1 rounded-full bg-blue-600 text-white"><?= htmlspecialchars($geoBarrio) ?></span>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Stats Premium Cards -->
+                <!-- Stats Premium Cards (reactivos, se actualizan desde Alpine) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Colaboradores -->
                     <div class="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:scale-[1.02]">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full"></div>
                         <div class="relative">
@@ -397,12 +374,10 @@ if (!$geoDepto) {
                                 <i data-lucide="users" class="w-5 h-5"></i>
                                 <span class="text-blue-100 text-sm font-medium">Total</span>
                             </div>
-                            <p class="text-4xl font-extrabold"><?= number_format($geoTotal) ?></p>
+                            <p class="text-4xl font-extrabold" x-text="geoResumen.total_colaboradores || '0'"></p>
                             <p class="text-blue-100 text-xs mt-1">Colaboradores activos</p>
                         </div>
                     </div>
-                    
-                    <!-- Líderes -->
                     <div class="relative overflow-hidden bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:scale-[1.02]">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full"></div>
                         <div class="relative">
@@ -410,12 +385,10 @@ if (!$geoDepto) {
                                 <i data-lucide="crown" class="w-5 h-5"></i>
                                 <span class="text-amber-100 text-sm font-medium">Líderes</span>
                             </div>
-                            <p class="text-4xl font-extrabold"><?= number_format($geoLideres) ?></p>
+                            <p class="text-4xl font-extrabold" x-text="geoResumen.total_lideres || '0'"></p>
                             <p class="text-amber-100 text-xs mt-1">Coordinadores activos</p>
                         </div>
                     </div>
-                    
-                    <!-- Mujeres -->
                     <div class="relative overflow-hidden bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:scale-[1.02]">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full"></div>
                         <div class="relative">
@@ -423,12 +396,10 @@ if (!$geoDepto) {
                                 <i data-lucide="venus" class="w-5 h-5"></i>
                                 <span class="text-pink-100 text-sm font-medium">Mujeres</span>
                             </div>
-                            <p class="text-4xl font-extrabold"><?= number_format($geoMujeres) ?></p>
-                            <p class="text-pink-100 text-xs mt-1"><?= $geoTotal > 0 ? round($geoMujeres/$geoTotal*100,1).'%' : '0%' ?> del total</p>
+                            <p class="text-4xl font-extrabold" x-text="geoResumen.total_mujeres || '0'"></p>
+                            <p class="text-pink-100 text-xs mt-1" x-text="porcentajeGeo('total_mujeres')"></p>
                         </div>
                     </div>
-                    
-                    <!-- Hombres -->
                     <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:scale-[1.02]">
                         <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full"></div>
                         <div class="relative">
@@ -436,104 +407,592 @@ if (!$geoDepto) {
                                 <i data-lucide="mars" class="w-5 h-5"></i>
                                 <span class="text-indigo-100 text-sm font-medium">Hombres</span>
                             </div>
-                            <p class="text-4xl font-extrabold"><?= number_format($geoHombres) ?></p>
-                            <p class="text-indigo-100 text-xs mt-1"><?= $geoTotal > 0 ? round($geoHombres/$geoTotal*100,1).'%' : '0%' ?> del total</p>
+                            <p class="text-4xl font-extrabold" x-text="geoResumen.total_hombres || '0'"></p>
+                            <p class="text-indigo-100 text-xs mt-1" x-text="porcentajeGeo('total_hombres')"></p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Drill down por nivel -->
-                <?php if(!$geoDepto): ?>
-                <div class="bg-gray-50 rounded-xl p-5 border">
-                    <h4 class="font-medium mb-4">Departamentos</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <?php foreach($geoDeptos as $d): ?>
-                        <a href="<?= $baseGeoUrl ?>&depto=<?= urlencode($d['departamento']) ?>" class="p-3 rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition flex justify-between">
-                            <span class="font-medium"><?= htmlspecialchars($d['departamento']) ?></span>
-                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-sm"><?= $d['total'] ?></span>
-                        </a>
-                        <?php endforeach; ?>
+                <!-- Filtros en cascada (Cali por defecto) -->
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-sm">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                        <span class="font-medium text-gray-700">Cali, Valle del Cauca</span>
+                    </div>
+                    <div>
+                        <select x-model="geoFiltro.tipo" @change="onCambioTipo()" class="input text-sm">
+                            <option value="">Todos los tipos</option>
+                            <template x-for="t in geoOpciones.tipos" :key="t">
+                                <option :value="t" x-text="t"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <select x-model="geoFiltro.territorio" @change="onCambioTerritorio()" class="input text-sm" :disabled="!geoFiltro.tipo">
+                            <option value="">Todas las comunas</option>
+                            <template x-for="t in geoOpciones.territorios" :key="t">
+                                <option :value="t" x-text="t"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <select x-model="geoFiltro.barrio" @change="onCambioBarrio()" class="input text-sm" :disabled="!geoFiltro.territorio">
+                            <option value="">Todos los barrios</option>
+                            <template x-for="b in geoOpciones.barrios" :key="b">
+                                <option :value="b" x-text="b"></option>
+                            </template>
+                        </select>
                     </div>
                 </div>
-                <?php elseif(!$geoMpio): ?>
-                <div class="bg-gray-50 rounded-xl p-5 border">
-                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i data-lucide="landmark" class="w-5 h-5 text-blue-600"></i>Municipios en <?= htmlspecialchars($geoDepto) ?>
-                    </h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <?php foreach($geoMpiOS as $m): ?>
-                        <a href="<?= $baseGeoUrl ?>&depto=<?= urlencode($geoDepto) ?>&mpio=<?= urlencode($m['municipio']) ?>" class="p-3 rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition flex justify-between">
-                            <span class="font-medium"><?= htmlspecialchars($m['municipio']) ?></span>
-                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-sm"><?= $m['total'] ?></span>
-                        </a>
-                        <?php endforeach; ?>
+
+                <!-- Panel dividido: Mapa + Lista lateral -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Mapa -->
+                    <div class="lg:col-span-2 bg-gray-50 rounded-xl border overflow-hidden relative" style="min-height: 500px;">
+                        <div id="mapaGeografico" style="height: 500px; width: 100%;"></div>
+                        <div x-show="geoLoading" class="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-lg">
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                                <span class="text-sm text-gray-600">Cargando mapa...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Lista lateral -->
+                    <div class="bg-white rounded-xl border max-h-[500px] overflow-y-auto">
+                        <div class="p-3 border-b bg-gray-50 sticky top-0">
+                            <h4 class="font-bold text-sm text-gray-700 flex items-center gap-1">
+                                <i data-lucide="list" class="w-4 h-4"></i>
+                                Territorios
+                                 <span class="ml-auto text-xs font-normal text-gray-500" x-text="geoListaFiltrada.length + ' con datos'"></span>
+                            </h4>
+                        </div>
+                        <div class="divide-y">
+                            <template x-for="(item, idx) in geoListaFiltrada" :key="idx">
+                                <div @click="seleccionarTerritorio(item)"
+                                     class="p-3 cursor-pointer transition"
+                                     :class="geoItemSeleccionado?.nombre === item.nombre ? 'bg-primary/10 border-l-4 border-primary' : 'hover:bg-gray-50 border-l-4 border-transparent'">
+                                    <div class="flex justify-between items-start">
+                                        <span class="font-medium text-sm text-gray-900" x-text="item.nombre"></span>
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded-full"
+                                              :class="item.total_colaboradores > 0 ? 'bg-pink-100 text-pink-700' : 'bg-gray-100 text-gray-500'"
+                                              x-text="item.total_colaboradores"></span>
+                                    </div>
+                                    <div class="flex gap-3 text-xs text-gray-500 mt-1">
+                                        <span>👑 <span x-text="item.total_lideres"></span> líderes</span>
+                                        <span>♀️ <span x-text="item.total_mujeres"></span></span>
+                                        <span>♂️ <span x-text="item.total_hombres"></span></span>
+                                    </div>
+                                    <!-- Barra de densidad -->
+                                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                                        <div class="h-1.5 rounded-full transition-all duration-500"
+                                             :style="'width: ' + densidadRelativa(item.total_colaboradores) + '%'"
+                                             :class="colorDensidadClase(item.total_colaboradores)"></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="geoListaFiltrada.length === 0" class="p-6 text-center text-gray-400 text-sm">
+                                <i data-lucide="map-pin" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                                <p>Selecciona un tipo</p>
+                                <p class="text-xs mt-1">para ver los territorios</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <?php elseif(!$geoBarrio): ?>
-                <div class="bg-gray-50 rounded-xl p-5 border">
-                    <h4 class="font-medium mb-4">Barrios en <?= htmlspecialchars($geoMpio) ?></h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <?php foreach($geoBarrios as $b): ?>
-                        <a href="<?= $baseGeoUrl ?>&depto=<?= urlencode($geoDepto) ?>&mpio=<?= urlencode($geoMpio) ?>&barrio=<?= urlencode($b['barrio']) ?>" class="p-3 rounded-lg border hover:border-blue-500 hover:bg-blue-50 transition flex justify-between">
-                            <span class="font-medium text-sm"><?= htmlspecialchars($b['barrio']) ?></span>
-                            <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-sm"><?= $b['total'] ?></span>
-                        </a>
-                        <?php endforeach; ?>
+
+                <!-- Tabla detallada (al seleccionar un polígono/territorio) -->
+                <div x-show="geoDetalleActivo" class="bg-white rounded-xl border overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 border-b flex items-center justify-between">
+                        <h4 class="font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="users" class="w-4 h-4 text-primary"></i>
+                            Colaboradores en <span class="text-primary" x-text="geoDetalle.nombre"></span>
+                        </h4>
+                        <button @click="cerrarDetalle()" class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto p-4" x-show="geoDetalle.colaboradores.length > 0">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Nombre</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Documento</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Perfil</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Nivel</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Barrio</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <template x-for="c in geoDetalle.colaboradores" :key="c.id || c.documento">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-3 py-2 font-medium text-sm" x-text="c.nombres + ' ' + (c.apellidos || '')"></td>
+                                        <td class="px-3 py-2 text-gray-500 text-sm" x-text="c.documento"></td>
+                                        <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs bg-blue-100" x-text="c.perfil"></span></td>
+                                        <td class="px-3 py-2 text-gray-500 text-sm" x-text="c.nivel_participacion"></td>
+                                        <td class="px-3 py-2 text-gray-500 text-sm" x-text="c.barrio || '-'"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div x-show="geoDetalle.colaboradores.length === 0" class="p-6 text-center text-gray-400 text-sm">
+                        No hay colaboradores en este territorio
                     </div>
                 </div>
-                <?php else: ?>
-                <div class="bg-gray-50 rounded-xl p-5 border">
-                    <h4 class="font-medium mb-4">Colaboradores en <?= htmlspecialchars($geoBarrio) ?></h4>
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Nombre</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Documento</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Perfil</th>
-                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500">Nivel</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y">
-                            <?php foreach($geoColaboradores as $c): ?>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-3 py-2 font-medium"><?= htmlspecialchars($c['nombres'].' '.$c['apellidos']) ?></td>
-                                <td class="px-3 py-2 text-gray-500 text-sm"><?= $c['documento'] ?></td>
-                                <td class="px-3 py-2"><span class="px-2 py-0.5 rounded-full text-xs bg-blue-100"><?= htmlspecialchars($c['perfil']) ?></span></td>
-                                <td class="px-3 py-2 text-gray-500 text-sm"><?= htmlspecialchars($c['nivel_participacion']) ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
         </div><!-- End Report Content -->
     </div>
 </div>
 
+<style>
+.polygon-label {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 10px;
+    font-weight: 600;
+    color: #374151;
+    text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.polygon-label::before { display: none !important; }
+</style>
 <script>
 function reportesData() {
     return {
+        // ─── Propiedades existentes ───
         reporteActual: 'donaciones',
         charts: {},
         mapa: null,
         geo: {},
 
+        // ─── Nuevas propiedades geográficas ───
+        geoFiltro: { municipio: '', tipo: '', territorio: '', barrio: '' },
+        geoOpciones: { municipios: [], tipos: [], territorios: [], barrios: [] },
+        geoResumen: { total_colaboradores: 0, total_lideres: 0, total_mujeres: 0, total_hombres: 0 },
+        geoListaTerritorios: [],
+        geoDetalle: { nombre: '', colaboradores: [] },
+        geoDetalleActivo: false,
+        geoLoading: false,
+        geoMapa: null,
+        geoLayer: null,
+        geoMapaConteos: {},
+        geoItemSeleccionado: null,
+        geoCacheGeoJSON: null,
+        geoUltimoMunicipio: '',
+
+        get geoListaFiltrada() {
+            return this.geoListaTerritorios.filter(t => t.total_colaboradores > 0);
+        },
+
+        // ─── Init ───
         init() {
-            // Load initial tab from URL
             const urlParams = new URLSearchParams(window.location.search);
             this.reporteActual = urlParams.get('reporte') || 'general';
-            
-            this.$watch('reporteActual', () => {
+
+            this.$watch('reporteActual', (val) => {
                 this.$nextTick(() => {
                     this.renderCharts();
                     lucide.createIcons();
+                    if (val === 'geografico') {
+                        this.initMapaGeografico();
+                        this.loadGeoMunicipios();
+                    }
                 });
             });
+
             this.renderCharts();
+
+            // Inicializar geográfico si la URL ya trae ese tab
+            if (this.reporteActual === 'geografico') {
+                this.$nextTick(() => {
+                    this.initMapaGeografico();
+                    this.loadGeoMunicipios();
+                });
+            }
         },
 
+        // ─── Init Mapa ───
+        initMapaGeografico() {
+            if (this.geoMapa) return;
+            const el = document.getElementById('mapaGeografico');
+            if (!el || el._leaflet_id) return;
+            this.geoMapa = L.map('mapaGeografico', { zoomControl: true }).setView([3.4516, -76.5320], 12);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+            }).addTo(this.geoMapa);
+            this.geoLayer = L.layerGroup().addTo(this.geoMapa);
+        },
+
+        async loadGeoMunicipios() {
+            this.geoFiltro.municipio = 'CALI';
+            this.onCambioMunicipio();
+        },
+
+        // ─── Handlers de filtros en cascada ───
+        async onCambioMunicipio() {
+            this.geoFiltro.tipo = '';
+            this.geoFiltro.territorio = '';
+            this.geoFiltro.barrio = '';
+            this.geoOpciones.tipos = [];
+            this.geoOpciones.territorios = [];
+            this.geoOpciones.barrios = [];
+            if (!this.geoFiltro.municipio) {
+                this.limpiarMapa();
+                return;
+            }
+            try {
+                const r = await fetch('/aratio/api/territorios.php?accion=tipos_territorio&departamento=VALLE DEL CAUCA&municipio=' + encodeURIComponent(this.geoFiltro.municipio));
+                const d = await r.json();
+                if (d.success) this.geoOpciones.tipos = d.data;
+            } catch (e) { console.error(e); }
+            this.cargarGeoDatos();
+        },
+
+        async onCambioTipo() {
+            this.geoFiltro.territorio = '';
+            this.geoFiltro.barrio = '';
+            this.geoOpciones.territorios = [];
+            this.geoOpciones.barrios = [];
+            if (!this.geoFiltro.tipo) {
+                this.cargarGeoDatos();
+                return;
+            }
+            try {
+                const r = await fetch('/aratio/api/territorios.php?accion=territorios&departamento=VALLE DEL CAUCA&municipio=' + encodeURIComponent(this.geoFiltro.municipio) + '&tipo_territorio=' + encodeURIComponent(this.geoFiltro.tipo));
+                const d = await r.json();
+                if (d.success) this.geoOpciones.territorios = d.data;
+            } catch (e) { console.error(e); }
+            this.cargarGeoDatos();
+        },
+
+        async onCambioTerritorio() {
+            this.geoFiltro.barrio = '';
+            this.geoOpciones.barrios = [];
+            if (!this.geoFiltro.territorio) {
+                this.cargarGeoDatos();
+                return;
+            }
+            try {
+                const r = await fetch('/aratio/api/territorios.php?accion=barrios&departamento=VALLE DEL CAUCA&municipio=' + encodeURIComponent(this.geoFiltro.municipio) + '&tipo_territorio=' + encodeURIComponent(this.geoFiltro.tipo) + '&territorio=' + encodeURIComponent(this.geoFiltro.territorio));
+                const d = await r.json();
+                if (d.success) this.geoOpciones.barrios = d.data;
+            } catch (e) { console.error(e); }
+            this.cargarGeoDatos();
+        },
+
+        onCambioBarrio() {
+            this.cargarGeoDatos();
+        },
+
+        // ─── Carga de datos del mapa ───
+        async cargarGeoDatos() {
+            if (!this.geoFiltro.municipio) {
+                this.limpiarMapa();
+                return;
+            }
+            this.geoLoading = true;
+            this.cerrarDetalle();
+
+            try {
+                // 1. GeoJSON: cachear por municipio (solo refetch si cambia municipio)
+                const municipioCambio = this.geoFiltro.municipio !== this.geoUltimoMunicipio;
+                if (municipioCambio || !this.geoCacheGeoJSON) {
+                    this.geoUltimoMunicipio = this.geoFiltro.municipio;
+                    const geoRes = await fetch('/aratio/api_territorios_geojson.php?municipio=' + encodeURIComponent(this.geoFiltro.municipio));
+                    this.geoCacheGeoJSON = await geoRes.json();
+                }
+
+                // 2. Filtrar polígonos localmente
+                let filtered = this.geoCacheGeoJSON;
+                if (this.geoFiltro.tipo || this.geoFiltro.territorio || this.geoFiltro.barrio) {
+                    const features = (this.geoCacheGeoJSON.features || []).filter(f => {
+                        const p = f.properties || {};
+                        if (this.geoFiltro.tipo && p.Tipo_territorio !== this.geoFiltro.tipo) return false;
+                        if (this.geoFiltro.territorio && p.Territorio !== this.geoFiltro.territorio) return false;
+                        if (this.geoFiltro.barrio && p.barrio !== this.geoFiltro.barrio) return false;
+                        return true;
+                    });
+                    filtered = { ...this.geoCacheGeoJSON, features };
+                }
+
+                // 3. Conteos (siempre a servidor porque dependen de filtros)
+                const paramsCount = new URLSearchParams({ municipio: this.geoFiltro.municipio });
+                if (this.geoFiltro.tipo) paramsCount.append('tipo_territorio', this.geoFiltro.tipo);
+                if (this.geoFiltro.territorio) paramsCount.append('territorio', this.geoFiltro.territorio);
+                if (this.geoFiltro.barrio) paramsCount.append('barrio', this.geoFiltro.barrio);
+
+                const countRes = await fetch('/aratio/api/reporte_geo_colaboradores.php?campana_id=<?= $campanaId ?>&' + paramsCount.toString());
+                const countData = await countRes.json();
+
+                // 4. Actualizar resumen
+                if (countData.success) {
+                    this.geoResumen = countData.resumen;
+                    this.geoListaTerritorios = countData.lista_territorios || [];
+                    this.geoMapaConteos = countData.mapa_conteos || {};
+                }
+
+                // 5. Renderizar polígonos
+                this.renderizarPoligonos(filtered);
+
+            } catch (e) {
+                console.error('Error cargando datos geográficos:', e);
+            } finally {
+                this.geoLoading = false;
+            }
+        },
+
+        renderizarPoligonos(geoData) {
+            if (!this.geoLayer || !this.geoMapa) return;
+
+            // Unbind tooltips de capas viejas antes de removerlas (evita Tooltip.js errors)
+            this.geoLayer.eachLayer(function(l) {
+                if (l.unbindTooltip) l.unbindTooltip();
+                if (l.unbindPopup) l.unbindPopup();
+            });
+            this.geoMapa.removeLayer(this.geoLayer);
+            this.geoLayer = L.layerGroup().addTo(this.geoMapa);
+
+            if (!geoData.features || geoData.features.length === 0) return;
+
+            const self = this;
+            const layer = L.geoJSON(geoData, {
+                style: function (feature) {
+                    return self.calcularEstilo(feature);
+                },
+                onEachFeature: function (feature, leafletLayer) {
+                    self.onEachFeature(feature, leafletLayer);
+                }
+            });
+
+            this.geoLayer.addLayer(layer);
+            try {
+                this.geoMapa.fitBounds(layer.getBounds(), { padding: [20, 20], animate: false });
+            } catch (e) {
+                // bounds inválidos (geometría degenerada), ignorar
+            }
+        },
+
+        calcularEstilo(feature) {
+            const props = feature.properties;
+            const id = props.id || feature.id;
+            const conteo = this.geoMapaConteos ? this.geoMapaConteos[id] : null;
+            const total = conteo ? conteo.total : 0;
+
+            if (total === 0) {
+                return {
+                    fillColor: 'transparent',
+                    fillOpacity: 0,
+                    weight: 0.5,
+                    opacity: 0.3,
+                    color: '#d1d5db'
+                };
+            }
+
+            const color = this.getColorDensidad(total);
+            const opacity = Math.min(0.25 + (total / 15) * 0.5, 0.75);
+            return {
+                fillColor: color,
+                fillOpacity: opacity,
+                weight: 1.5,
+                opacity: 0.8,
+                color: '#ffffff'
+            };
+        },
+
+        getColorDensidad(total) {
+            if (total >= 15) return '#7c3aed';
+            if (total >= 10) return '#a855f7';
+            if (total >= 6) return '#d946ef';
+            if (total >= 3) return '#ec4899';
+            if (total > 0) return '#f472b6';
+            return 'transparent';
+        },
+
+        onEachFeature(feature, leafletLayer) {
+            const self = this;
+            const props = feature.properties;
+            const id = props.id || feature.id;
+            const conteo = this.geoMapaConteos ? this.geoMapaConteos[id] : null;
+            const total = conteo ? conteo.total : 0;
+            const lideres = conteo ? conteo.lideres : 0;
+            const mujeres = conteo ? conteo.mujeres : 0;
+            const hombres = conteo ? conteo.hombres : 0;
+
+            const nombre = props.barrio || props.Territorio || 'Sin nombre';
+            const sector = props.Territorio || '';
+            const tipo = props.Tipo_territorio || '';
+
+            // Tooltip en hover
+            leafletLayer.bindTooltip(nombre, {
+                direction: 'center',
+                className: 'polygon-label'
+            });
+
+            leafletLayer.bindPopup(`
+                <div style="min-width: 220px; font-family: system-ui, sans-serif;">
+                    <div style="font-weight: 700; font-size: 14px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; margin-bottom: 6px;">
+                        🏘️ ${nombre}
+                    </div>
+                    ${sector ? `<div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">${tipo} — ${sector}</div>` : ''}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 13px;">
+                        <div>👥 <strong>${total}</strong> colaboradores</div>
+                        <div>👑 <strong>${lideres}</strong> líderes</div>
+                        <div>♀️ <strong>${mujeres}</strong> mujeres</div>
+                        <div>♂️ <strong>${hombres}</strong> hombres</div>
+                    </div>
+                    <button id="btn-ver-lista-${id}"
+                            style="margin-top: 8px; width: 100%; padding: 6px; background: #1e3a5f; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+                        Ver lista →
+                    </button>
+                </div>
+            `);
+
+            leafletLayer.on('popupopen', function(e) {
+                const btnId = 'btn-ver-lista-' + id;
+                setTimeout(function() {
+                    const btn = document.getElementById(btnId);
+                    if (btn) {
+                        btn.onclick = function() {
+                            self.seleccionarTerritorioPorBarrio(nombre, sector);
+                        };
+                    }
+                }, 50);
+            });
+
+            leafletLayer.on({
+                mouseover: function (e) {
+                    const layer = e.target;
+                    layer.setStyle({
+                        weight: 3,
+                        color: '#FFD700',
+                        dashArray: '',
+                        fillOpacity: 0.6
+                    });
+                    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                        layer.bringToFront();
+                    }
+                },
+                mouseout: function (e) {
+                    const layer = e.target;
+                    if (self.calcularEstilo) {
+                        layer.setStyle(self.calcularEstilo(layer.feature));
+                    }
+                },
+                click: function (e) {
+                    const layer = e.target;
+                    if (self.geoMapa) {
+                        self.geoMapa.fitBounds(layer.getBounds(), { maxZoom: 16 });
+                    }
+                    const id = layer.feature.properties.id || layer.feature.id;
+                    const conteo = self.geoMapaConteos ? self.geoMapaConteos[id] : null;
+                    if (conteo) {
+                        self.seleccionarTerritorio({
+                            nombre: conteo.territorio || conteo.barrio || 'Sin nombre',
+                            barrio: conteo.barrio,
+                            total_colaboradores: conteo.total,
+                            total_lideres: conteo.lideres,
+                            total_mujeres: conteo.mujeres,
+                            total_hombres: conteo.hombres
+                        });
+                    }
+                }
+            });
+        },
+
+        // ─── Selección de territorio ───
+        seleccionarTerritorio(item) {
+            this.geoItemSeleccionado = item;
+            this.geoDetalleActivo = true;
+            this.geoDetalle = { nombre: item.nombre, colaboradores: [] };
+
+            // Si viene de sidebar (comuna con varios barrios), pasar todos
+            const barrioVal = item.barrios
+                ? item.barrios.map(b => b.barrio).join(',')
+                : (item.barrio || item.nombre);
+
+            const params = new URLSearchParams({
+                campana_id: '<?= $campanaId ?>',
+                barrio: barrioVal,
+                municipio: this.geoFiltro.municipio
+            });
+
+            const url = '/aratio/api/colaboradores.php?' + params.toString();
+            console.log('Fetching colaboradores:', url);
+            fetch(url)
+                .then(r => {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    console.log('Respuesta colaboradores:', data);
+                    if (data.success && data.data) {
+                        this.geoDetalle.colaboradores = data.data;
+                    } else if (data.data && data.data.length === 0) {
+                        this.geoDetalle.colaboradores = [];
+                    }
+                })
+                .catch(e => {
+                    console.error('Error fetching colaboradores:', e);
+                    this.geoDetalle.colaboradores = [];
+                });
+        },
+
+        seleccionarTerritorioPorBarrio(nombreBarrio, sector) {
+            const item = this.geoListaTerritorios.find(t =>
+                t.nombre === (sector || nombreBarrio)
+            );
+            if (item) {
+                this.seleccionarTerritorio(item);
+            } else {
+                this.seleccionarTerritorio({
+                    nombre: nombreBarrio,
+                    barrio: nombreBarrio,
+                    total_colaboradores: 0,
+                    total_lideres: 0,
+                    total_mujeres: 0,
+                    total_hombres: 0
+                });
+            }
+        },
+
+        cerrarDetalle() {
+            this.geoDetalleActivo = false;
+            this.geoDetalle = { nombre: '', colaboradores: [] };
+            this.geoItemSeleccionado = null;
+        },
+
+        // ─── Helpers ───
+        porcentajeGeo(campo) {
+            const total = this.geoResumen.total_colaboradores || 1;
+            const val = this.geoResumen[campo] || 0;
+            return Math.round(val / total * 100) + '% del total';
+        },
+
+        densidadRelativa(total) {
+            const max = Math.max(...this.geoListaTerritorios.map(t => t.total_colaboradores), 1);
+            return Math.min((total / max) * 100, 100);
+        },
+
+        colorDensidadClase(total) {
+            if (total >= 15) return 'bg-violet-600';
+            if (total >= 10) return 'bg-purple-500';
+            if (total >= 6) return 'bg-fuchsia-500';
+            if (total >= 3) return 'bg-pink-500';
+            if (total > 0) return 'bg-pink-400';
+            return 'bg-gray-200';
+        },
+
+        limpiarMapa() {
+            if (this.geoLayer) this.geoLayer.clearLayers();
+            this.geoResumen = { total_colaboradores: 0, total_lideres: 0, total_mujeres: 0, total_hombres: 0 };
+            this.geoListaTerritorios = [];
+            this.cerrarDetalle();
+        },
+
+        // ─── Métodos existentes ───
         getTituloReporte() {
             const titulos = {
                 donaciones: 'Reporte de Donaciones',
@@ -559,7 +1018,6 @@ function reportesData() {
         },
 
         renderChartsTerritorial() {
-            // Chart por perfil
             const ctxPerfil = document.getElementById('chartPerfil');
             if (ctxPerfil) {
                 const perfLabels = <?= json_encode(array_column($perfilStats, 'perfil')) ?>;
@@ -569,7 +1027,6 @@ function reportesData() {
                     data: { labels: perfLabels, datasets: [{ data: perfData, backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444', '#EC4899'] }] }
                 });
             }
-            // Chart por nivel
             const ctxNivel = document.getElementById('chartNivel');
             if (ctxNivel) {
                 const nivLabels = <?= json_encode(array_column($nivelStats, 'nivel')) ?>;
@@ -597,75 +1054,6 @@ function reportesData() {
             });
         },
 
-        renderMapaTerritorial() {
-            if (!this.mapa) {
-                this.mapa = L.map('mapaTerritorial').setView([4.570868, -74.297333], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.mapa);
-            }
-        },
-
-        // Geographic report functions
-        async loadGeoMunicipios() {
-            this.geo.municipio = '';
-            this.geo.zona = '';
-            this.geo.barrio = '';
-            this.geo.municipios = [];
-            if (!this.geo.departamento) return;
-            try {
-                const r = await fetch('/territorios/municipios-cascada?departamento=' + encodeURIComponent(this.geo.departamento));
-                const d = await r.json();
-                if (d.success) this.geo.municipios = d.data;
-            } catch(e) { console.error(e); }
-            this.loadColaboradores();
-        },
-
-        async loadGeoTerritorios() {
-            this.geo.zona = '';
-            this.geo.barrio = '';
-            this.geo.zonas = [];
-            if (!this.geo.municipio) return;
-            try {
-                const r = await fetch('/territorios/tipos?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio));
-                const d = await r.json();
-                if (d.success) this.geo.zonas = d.data;
-            } catch(e) { console.error(e); }
-            this.loadColaboradores();
-        },
-
-        async loadGeoBarrios() {
-            this.geo.barrio = '';
-            this.geo.barrios = [];
-            if (!this.geo.zona) return;
-            try {
-                const r = await fetch('/territorios/territorios?departamento=' + encodeURIComponent(this.geo.departamento) + '&municipio=' + encodeURIComponent(this.geo.municipio) + '&tipo=' + encodeURIComponent(this.geo.zona));
-                const d = await r.json();
-                if (d.success) this.geo.barrios = d.data;
-            } catch(e) { console.error(e); }
-            this.loadColaboradores();
-        },
-
-        async loadColaboradores() {
-            // Build query params from current filters
-            let params = new URLSearchParams();
-            if (this.geo.departamento) params.append('departamento', this.geo.departamento);
-            if (this.geo.municipio) params.append('municipio', this.geo.municipio);
-            if (this.geo.zona) params.append('tipo_territorio', this.geo.zona);
-            if (this.geo.barrio) params.append('barrio', this.geo.barrio);
-            params.append('campana_id', '<?= $campanaId ?>');
-            
-            try {
-                const response = await fetch('/?api=colaboradores_list&' + params);
-                const data = await response.json();
-                if (data.colaboradores) {
-                    this.geo.colaboradores = data.colaboradores;
-                    this.geo.total = data.colaboradores.length;
-                    this.geo.lideres = data.colaboradores.filter(c => c.perfil && c.perfil.includes('Lider')).length;
-                    this.geo.simpatizantes = data.colaboradores.filter(c => c.nivel_participacion === 'Simpatizante').length;
-                    this.geo.movilizadores = data.colaboradores.filter(c => c.nivel_participacion === 'Movilizador').length;
-                }
-            } catch(e) { console.error('Error:', e); }
-        },
-
         exportarReporte() {
             alert('Exportar ' + this.getTituloReporte() + ' a PDF/Excel');
         },
@@ -675,5 +1063,6 @@ function reportesData() {
         }
     }
 }
+
 lucide.createIcons();
 </script>

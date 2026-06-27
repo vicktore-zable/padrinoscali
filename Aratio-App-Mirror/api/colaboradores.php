@@ -19,6 +19,14 @@ $db = getDB();
 $method = $_SERVER['REQUEST_METHOD'];
 $userId = $_SESSION['user_id'] ?? null;
 
+// Soporte para _method=PUT en hosting que no soporta PUT nativo
+if ($method === 'POST') {
+    $body = json_decode(file_get_contents('php://input'), true);
+    if (isset($body['_method']) && strtoupper($body['_method']) === 'PUT') {
+        $method = 'PUT';
+    }
+}
+
 try {
     // Acciones especiales
     if ($action) {
@@ -145,16 +153,20 @@ function handleGet($db, $userId)
     $perfil = $_GET['perfil'] ?? null;
     $estado = $_GET['estado'] ?? null;
     $nivel = $_GET['nivel'] ?? null;
+    $municipio = $_GET['municipio'] ?? null;
+    $barrio = $_GET['barrio'] ?? null;
 
     if ($colaboradorId) {
         // Obtener colaborador específico
         $stmt = $db->prepare("
             SELECT c.*, u.nombre as usuario_nombre,
                    CONCAT_WS(' ', l.nombres, l.apellidos) as lider_nombre,
+                   t.cod_mpio,
                    (SELECT COUNT(*) FROM colaboradores s WHERE s.lider_directo = c.documento AND s.campana_id = c.campana_id) as num_seguidores
             FROM colaboradores c
             LEFT JOIN usuarios u ON c.usuario_registro_id = u.id
             LEFT JOIN colaboradores l ON c.lider_directo = l.documento AND c.campana_id = l.campana_id
+            LEFT JOIN territorios t ON c.territorio_id = t.id
             WHERE c.id = ?
         ");
         $stmt->execute([$colaboradorId]);
@@ -165,6 +177,13 @@ function handleGet($db, $userId)
             $colaborador['estado'] = calcularEstado($colaborador['dato_potencial'], $colaborador['dato_historico']);
             $colaborador['grupo_etareo'] = calcularGrupoEtareo($colaborador['fecha_nacimiento']);
             $colaborador['nombre_completo'] = $colaborador['nombres'] . ' ' . $colaborador['apellidos'];
+            // Derivar cod_mpio si territorio_id es NULL (fallback)
+            if (empty($colaborador['cod_mpio']) && !empty($colaborador['departamento']) && !empty($colaborador['municipio'])) {
+                $stmtCm = $db->prepare("SELECT cod_mpio FROM territorios WHERE departamento = ? AND municipio = ? LIMIT 1");
+                $stmtCm->execute([$colaborador['departamento'], $colaborador['municipio']]);
+                $rowCm = $stmtCm->fetch();
+                if ($rowCm) $colaborador['cod_mpio'] = $rowCm['cod_mpio'];
+            }
             jsonResponse(['success' => true, 'data' => $colaborador]);
         } else {
             jsonResponse(['success' => false, 'message' => 'Colaborador no encontrado'], 404);
@@ -197,6 +216,23 @@ function handleGet($db, $userId)
         if ($nivel) {
             $sql .= " AND c.nivel_participacion = ?";
             $params[] = $nivel;
+        }
+
+        if ($municipio) {
+            $sql .= " AND c.municipio = ?";
+            $params[] = $municipio;
+        }
+
+        if ($barrio) {
+            if (strpos($barrio, ',') !== false) {
+                $barrios = array_map('trim', explode(',', $barrio));
+                $placeholders = implode(',', array_fill(0, count($barrios), '?'));
+                $sql .= " AND c.barrio IN ($placeholders)";
+                $params = array_merge($params, $barrios);
+            } else {
+                $sql .= " AND c.barrio = ?";
+                $params[] = $barrio;
+            }
         }
 
         $sql .= " ORDER BY c.created_at DESC";
@@ -434,7 +470,7 @@ function handlePost($db, $userId)
         sanitize($data['tipo_territorio'] ?? null),
         sanitize($data['territorio'] ?? null),
         sanitize($data['barrio'] ?? null),
-        $data['territorio_id'] ?? null,
+        $data['territorio_id'] ?? $data['cod_mpio'] ?? null,
         sanitize($data['direccion'] ?? null),
         sanitize($data['detalle_ubicacion'] ?? null),
         sanitize($data['lider_directo'] ?? null),
@@ -554,7 +590,7 @@ function handlePut($db, $userId)
         sanitize($data['tipo_territorio'] ?? null),
         sanitize($data['territorio'] ?? null),
         sanitize($data['barrio'] ?? null),
-        $data['territorio_id'] ?? null,
+        $data['territorio_id'] ?? $data['cod_mpio'] ?? null,
         sanitize($data['direccion'] ?? null),
         sanitize($data['detalle_ubicacion'] ?? null),
         sanitize($data['lider_directo'] ?? null),

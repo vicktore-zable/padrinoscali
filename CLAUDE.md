@@ -33,6 +33,20 @@ edisongiraldo.com/
 ├── .gitignore
 ├── config/
 │   └── config.php              ← Configuración principal
+├── docs/                        ← Documentación organizada por temas
+│   ├── 00-INDEX.md             ← Índice maestro
+│   ├── CHANGELOG.md            ← Changelog unificado
+│   ├── VERSION.md              ← Control de versiones
+│   ├── 01-estrategia/          ← Planes y roadmaps
+│   ├── 02-arquitectura/        ← Diagramas, DB, APIs
+│   ├── 03-despliegue/          ← Deploy, credenciales, mantenimiento
+│   ├── 04-modulos/             ← Docs por módulo
+│   ├── 05-integraciones/       ← Instagram, WhatsApp
+│   ├── 06-reportes/            ← Auditorías, diagnósticos
+│   ├── 07-sesiones/            ← Notas de sesiones
+│   ├── 08-guias/              ← How-to guides
+│   ├── 09-referencia/          ← Design system, specs
+│   └── versiones/              ← Snapshots por versión
 ├── *.py                       ← Scripts de diagnóstico/auditoría
 ├── *_content.txt               ← Contenidos extraídos del remoto
 └── quality_reports/          ← Reports auditados
@@ -164,5 +178,32 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 - Hostinger no soporta PUT nativo → usar POST + `_method=PUT`
 - `display_errors=1` en PHP rompe JSON → siempre `0` en producción
 - `X-Requested-With: XMLHttpRequest` requerido para que `requireAuth()` retorne JSON 401 en vez de redirect HTML
+
+### v2.8.0 (2026-06-28) — Sistema de Cumpleaños por WhatsApp
+
+**Feature**: Automatización de mensajes de felicitación por WhatsApp a colaboradores en su cumpleaños.
+
+| Archivo | Tipo | Descripción |
+|---------|------|-------------|
+| `database/migrations/20260628_whatsapp_birthday.sql` | NUEVO | Migración tabla `whatsapp_log` |
+| `includes/WhatsAppApi.php` | NUEVO | Clase con templates, envío WATI y logging |
+| `cron/birthday_check.php` | NUEVO | Script diario (ejecutar 8 AM en Hostinger) |
+| `api/whatsapp.php` | NUEVO | Endpoints: cumpleaños, historial, reenviar, stats |
+| `pages/whatsapp_log.php` | NUEVO | Panel admin Alpine.js con 3 secciones |
+| `root_config.php` | MODIFICADO | Constantes WATI_API_KEY, WATI_API_URL |
+| `config/config.php` | MODIFICADO | Fallback whatsapp config |
+| `index.php` | MODIFICADO | Ruta `whatsapp_log` + menú lateral |
+
+**Cron Hostinger** (configurar en Panel Hostinger → Cron Jobs):
+```
+0 8 * * * php /home/u577647812/domains/padrinoscali.org/public_html/aratio/cron/birthday_check.php
+```
+
+**Panel Admin**: `https://padrinoscali.org/aratio/index.php?page=whatsapp_log`
+- Sección 1: Calendario de cumpleaños (hoy/semana/mes/personalizado) con envío manual
+- Sección 2: Historial de envíos (paginado, filtros por estado/fecha)
+- Sección 3: Estadísticas (enviados hoy, mes, tasa de éxito, próximos 7 días)
+
+**WATI**: Configurar `WATI_API_KEY` y `WATI_NUMBER` en `root_config.php` antes de usar.
 
 ### v2.5.0 — Portal del Líder

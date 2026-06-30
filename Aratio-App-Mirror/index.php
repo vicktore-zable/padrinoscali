@@ -57,6 +57,12 @@ if (isset($_GET['page']) && in_array($_GET['page'], $portalPages)) {
 // Global Auth for main Aratio system
 $excludeAuth = ['landing', 'dashboard_organizaciones_publico']; // Public pages
 
+// Operación Mandami — capture form (public, no auth)
+if (isset($_GET['page']) && $_GET['page'] === 'mandami_captura') {
+    require_once __DIR__ . '/mandami_captura.php';
+    exit;
+}
+
 // Default to landing if not logged in and no specific page requested
 if (!isset($_GET['page']) && !isset($_SESSION['user_id'])) {
     $pagina = 'landing';
@@ -369,6 +375,17 @@ $paginasPermitidas = [
                     <a href="?page=emails" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'emails' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="mail" class="w-5 h-5"></i>
                         <span class="text-sm">Email</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Operación Mandami -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">Operación Mandami</h4>
+                <nav class="space-y-1">
+                    <a href="?page=mandami" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'mandami' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="target" class="w-5 h-5"></i>
+                        <span class="text-sm">Embudo Mandami</span>
                     </a>
                 </nav>
             </div>

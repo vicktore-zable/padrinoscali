@@ -131,6 +131,11 @@ define('WATI_API_KEY', '');
 define('WATI_NUMBER', '');
 
 // =============================================
+// OPERACIÓN MANDAMI
+// =============================================
+define('MANDAMI_BASE_URL', APP_URL . '/mandami_captura.php');
+
+// =============================================
 // CONFIGURACIÓN DE FACEBOOK GRAPH API
 // =============================================
 define('FB_APP_ID', '');

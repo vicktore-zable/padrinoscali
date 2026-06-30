@@ -131,9 +131,9 @@ define('WATI_API_KEY', '');
 define('WATI_NUMBER', '');
 
 // =============================================
-// OPERACIÓN MANDAMI
+// CP — PULSO DE CAMPAÑA
 // =============================================
-define('MANDAMI_BASE_URL', APP_URL . '/mandami_captura.php');
+define('CP_BASE_URL', APP_URL . '/index.php?page=cp_captura');
 
 // =============================================
 // CONFIGURACIÓN DE FACEBOOK GRAPH API

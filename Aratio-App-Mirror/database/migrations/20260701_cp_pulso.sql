@@ -1,4 +1,7 @@
-CREATE TABLE IF NOT EXISTS mandami_triggers (
+RENAME TABLE IF EXISTS mandami_triggers TO cp_triggers;
+RENAME TABLE IF EXISTS mandami_capture_flow TO cp_capture_flow;
+
+CREATE TABLE IF NOT EXISTS cp_triggers (
     id INT AUTO_INCREMENT PRIMARY KEY,
     keyword VARCHAR(100) NOT NULL,
     label VARCHAR(255) NOT NULL DEFAULT '',
@@ -9,7 +12,7 @@ CREATE TABLE IF NOT EXISTS mandami_triggers (
     UNIQUE KEY uk_keyword (keyword)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS mandami_capture_flow (
+CREATE TABLE IF NOT EXISTS cp_capture_flow (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     fb_user_id VARCHAR(100) NOT NULL,
     user_name VARCHAR(255) NOT NULL,
@@ -36,9 +39,9 @@ CREATE TABLE IF NOT EXISTS mandami_capture_flow (
     FOREIGN KEY (colaborador_id) REFERENCES colaboradores(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO mandami_triggers (keyword, label, auto_reply_template, landing_url, enabled) VALUES
-('quiero', 'Voluntariado', '¡Gracias por querer sumarte a esta campaña! Contame en qué comuna vivís para conectarte con tu líder de zona 👇', '/mandami/captura?origen=quiero', 1),
-('comuna', 'Identificación territorial', '¡Gracias por comentar! Contame más de vos para sumarte al equipo de tu comuna 👇', '/mandami/captura?origen=comuna', 1),
-('Cali', 'General', '¡Qué bueno que te interesa Cali! Dejame tus datos para mantenerte al tanto de todo 👇', '/mandami/captura?origen=cali', 1),
-('evento', 'Asistencia a eventos', '¡Te esperamos en el próximo evento! Dejame tus datos para avisarte 👇', '/mandami/captura?origen=evento', 1)
+INSERT INTO cp_triggers (keyword, label, auto_reply_template, landing_url, enabled) VALUES
+('quiero', 'Voluntariado', '¡Gracias por querer sumarte a esta campaña! Contame en qué comuna vivís para conectarte con tu líder de zona 👇', '/cp_captura.php?origen=quiero', 1),
+('comuna', 'Identificación territorial', '¡Gracias por comentar! Contame más de vos para sumarte al equipo de tu comuna 👇', '/cp_captura.php?origen=comuna', 1),
+('Cali', 'General', '¡Qué bueno que te interesa Cali! Dejame tus datos para mantenerte al tanto de todo 👇', '/cp_captura.php?origen=cali', 1),
+('evento', 'Asistencia a eventos', '¡Te esperamos en el próximo evento! Dejame tus datos para avisarte 👇', '/cp_captura.php?origen=evento', 1)
 ON DUPLICATE KEY UPDATE label = VALUES(label), auto_reply_template = VALUES(auto_reply_template), landing_url = VALUES(landing_url), enabled = VALUES(enabled);

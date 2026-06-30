@@ -25,8 +25,8 @@ class MessengerBot
     public function getConfigStatus(): array
     {
         $canMessage = $this->isConfigured();
-        $triggers = $this->db ? (int)$this->db->query("SELECT COUNT(*) FROM mandami_triggers WHERE enabled = 1")->fetchColumn() : 0;
-        $pending = $this->db ? (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow WHERE dm_sent = 0 AND formulario_completado = 0")->fetchColumn() : 0;
+        $triggers = $this->db ? (int)$this->db->query("SELECT COUNT(*) FROM cp_triggers WHERE enabled = 1")->fetchColumn() : 0;
+        $pending = $this->db ? (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow WHERE dm_sent = 0 AND formulario_completado = 0")->fetchColumn() : 0;
 
         return [
             'configured' => $canMessage,
@@ -48,7 +48,7 @@ class MessengerBot
         $stats = ['scanned' => 0, 'matched' => 0, 'dm_sent' => 0, 'errors' => []];
 
         try {
-            $triggers = $this->db->query("SELECT * FROM mandami_triggers WHERE enabled = 1")->fetchAll(PDO::FETCH_ASSOC);
+            $triggers = $this->db->query("SELECT * FROM cp_triggers WHERE enabled = 1")->fetchAll(PDO::FETCH_ASSOC);
             if (empty($triggers)) return $stats;
 
             $since = date('Y-m-d H:i:s', strtotime("-{$sinceHours} hours"));
@@ -70,7 +70,7 @@ class MessengerBot
                 foreach ($triggers as $trigger) {
                     $keyword = mb_strtolower(trim($trigger['keyword']));
                     if (str_contains($textoLower, $keyword)) {
-                        $alreadyReplied = $this->db->prepare("SELECT COUNT(*) FROM mandami_capture_flow WHERE fb_comment_id = ?");
+                        $alreadyReplied = $this->db->prepare("SELECT COUNT(*) FROM cp_capture_flow WHERE fb_comment_id = ?");
                         $alreadyReplied->execute([$comment['fb_comment_id']]);
                         if ($alreadyReplied->fetchColumn() > 0) continue;
 
@@ -111,7 +111,7 @@ class MessengerBot
         $dmMessageId = $dmResult['message_id'] ?? null;
 
         $insert = $this->db->prepare("
-            INSERT INTO mandami_capture_flow (fb_user_id, user_name, trigger_keyword, fb_post_id, fb_comment_id, dm_sent, dm_sent_at, dm_message_id)
+            INSERT INTO cp_capture_flow (fb_user_id, user_name, trigger_keyword, fb_post_id, fb_comment_id, dm_sent, dm_sent_at, dm_message_id)
             VALUES (?, ?, ?, ?, ?, 1, NOW(), ?)
         ");
         $insert->execute([
@@ -183,7 +183,7 @@ class MessengerBot
             return ['success' => false, 'message' => 'Datos incompletos'];
         }
 
-        $flow = $this->db->prepare("SELECT id FROM mandami_capture_flow WHERE fb_user_id = ? ORDER BY created_at DESC LIMIT 1");
+        $flow = $this->db->prepare("SELECT id FROM cp_capture_flow WHERE fb_user_id = ? ORDER BY created_at DESC LIMIT 1");
         $flow->execute([$fbUserId]);
         $existing = $flow->fetch(PDO::FETCH_ASSOC);
 
@@ -191,7 +191,7 @@ class MessengerBot
 
         if ($existing) {
             $update = $this->db->prepare("
-                UPDATE mandami_capture_flow SET
+                UPDATE cp_capture_flow SET
                     link_clicked = 1,
                     link_clicked_at = NOW(),
                     formulario_completado = 1,
@@ -205,7 +205,7 @@ class MessengerBot
             $update->execute([$nombres, $comuna, $celular, $colaboradorId, $existing['id']]);
         } else {
             $insert = $this->db->prepare("
-                INSERT INTO mandami_capture_flow (fb_user_id, user_name, trigger_keyword, link_clicked, link_clicked_at, formulario_completado, formulario_completado_at, nombres, comuna, celular, colaborador_id)
+                INSERT INTO cp_capture_flow (fb_user_id, user_name, trigger_keyword, link_clicked, link_clicked_at, formulario_completado, formulario_completado_at, nombres, comuna, celular, colaborador_id)
                 VALUES (?, ?, ?, 1, NOW(), 1, NOW(), ?, ?, ?, ?)
             ");
             $insert->execute([$fbUserId, $nombres, $keyword, $nombres, $comuna, $celular, $colaboradorId]);
@@ -275,23 +275,23 @@ class MessengerBot
     {
         if (!$this->db) return [];
 
-        $total = (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow")->fetchColumn();
-        $dmSent = (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow WHERE dm_sent = 1")->fetchColumn();
-        $linkClicked = (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow WHERE link_clicked = 1")->fetchColumn();
-        $formCompleted = (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow WHERE formulario_completado = 1")->fetchColumn();
-        $conColaborador = (int)$this->db->query("SELECT COUNT(*) FROM mandami_capture_flow WHERE colaborador_id IS NOT NULL")->fetchColumn();
+        $total = (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow")->fetchColumn();
+        $dmSent = (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow WHERE dm_sent = 1")->fetchColumn();
+        $linkClicked = (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow WHERE link_clicked = 1")->fetchColumn();
+        $formCompleted = (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow WHERE formulario_completado = 1")->fetchColumn();
+        $conColaborador = (int)$this->db->query("SELECT COUNT(*) FROM cp_capture_flow WHERE colaborador_id IS NOT NULL")->fetchColumn();
 
         $byKeyword = $this->db->query("
             SELECT trigger_keyword, COUNT(*) as total,
                    SUM(CASE WHEN formulario_completado = 1 THEN 1 ELSE 0 END) as completados
-            FROM mandami_capture_flow
+            FROM cp_capture_flow
             GROUP BY trigger_keyword
             ORDER BY total DESC
         ")->fetchAll(PDO::FETCH_ASSOC);
 
         $byComuna = $this->db->query("
             SELECT comuna, COUNT(*) as total
-            FROM mandami_capture_flow
+            FROM cp_capture_flow
             WHERE comuna IS NOT NULL AND comuna != ''
             GROUP BY comuna
             ORDER BY total DESC
@@ -300,7 +300,7 @@ class MessengerBot
 
         $recent = $this->db->query("
             SELECT c.*, col.nombres as col_nombres, col.apellidos as col_apellidos
-            FROM mandami_capture_flow c
+            FROM cp_capture_flow c
             LEFT JOIN colaboradores col ON col.id = c.colaborador_id
             ORDER BY c.created_at DESC
             LIMIT 20
@@ -324,14 +324,14 @@ class MessengerBot
     public function getTriggers(): array
     {
         if (!$this->db) return [];
-        return $this->db->query("SELECT * FROM mandami_triggers ORDER BY keyword")->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db->query("SELECT * FROM cp_triggers ORDER BY keyword")->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function saveTrigger(array $data): bool
     {
         if (!$this->db) return false;
         $stmt = $this->db->prepare("
-            INSERT INTO mandami_triggers (keyword, label, auto_reply_template, landing_url, enabled)
+            INSERT INTO cp_triggers (keyword, label, auto_reply_template, landing_url, enabled)
             VALUES (?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 label = VALUES(label),
@@ -351,7 +351,7 @@ class MessengerBot
     public function deleteTrigger(int $id): bool
     {
         if (!$this->db) return false;
-        $stmt = $this->db->prepare("DELETE FROM mandami_triggers WHERE id = ?");
+        $stmt = $this->db->prepare("DELETE FROM cp_triggers WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
@@ -359,7 +359,7 @@ class MessengerBot
     {
         if (!$this->db) return;
         $stmt = $this->db->prepare("
-            UPDATE mandami_capture_flow SET
+            UPDATE cp_capture_flow SET
                 link_clicked = 1,
                 link_clicked_at = NOW()
             WHERE fb_user_id = ? AND link_clicked = 0

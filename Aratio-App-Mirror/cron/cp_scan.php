@@ -1,8 +1,8 @@
 <?php
 /**
- * Operación Mandami — Escáner de comentarios
+ * CP — Pulso de Campaña: Escáner de comentarios
  * Ejecutar cada 5 minutos desde Hostinger:
- * php /home/u577647812/domains/padrinoscali.org/public_html/aratio/cron/mandami_scan.php
+ * php /home/u577647812/domains/padrinoscali.org/public_html/aratio/cron/cp_scan.php
  */
 
 require_once __DIR__ . '/../config/config.php';

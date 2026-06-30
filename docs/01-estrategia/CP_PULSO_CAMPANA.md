@@ -1,6 +1,6 @@
-# Operación Mandami — De Redes a Poder Territorial
+# CP — Pulso de Campaña
 
-> **Inspiración**: Zohran Mamdani (NYC) — embudo redes → captura → organización → poder
+> **Inspiración**: Embudo redes → captura → organización → poder
 > **Proyecto**: Aratio — Padrinos Cali
 > **Versión**: v1.0 | 2026-07-01
 
@@ -8,7 +8,7 @@
 
 ## Concepto
 
-Replicar el modelo Mandami: cada post en redes sociales es una máquina de captura de datos. Una palabra clave en los comentarios activa un bot que recoge nombre, comuna y celular, y lo convierte en colaborador del CRM — sin fricción, sin formularios externos, sin plataformas de pago.
+Cada post en redes sociales es una máquina de captura de datos. Una palabra clave en los comentarios activa un bot que recoge nombre, comuna y celular, y lo convierte en colaborador del CRM — sin fricción, sin formularios externos, sin plataformas de pago.
 
 Tres capas de métricas:
 
@@ -28,23 +28,23 @@ Tres capas de métricas:
 
 | # | Componente | Archivo | Descripción |
 |---|-----------|---------|-------------|
-| 1.1 | Migración SQL | `database/migrations/20260701_operacion_mandami.sql` | Tablas: `comment_triggers`, `comment_replies`, `capture_flow` |
+| 1.1 | Migración SQL | `database/migrations/20260701_cp_pulso.sql` | Tablas: `cp_triggers`, `cp_capture_flow` |
 | 1.2 | MessengerBot | `includes/MessengerBot.php` | Detección de keywords + auto-respuesta + flujo de captura |
-| 1.3 | API endpoints | `api/mandami.php` | triggers CRUD, comment monitoring, funnel stats |
-| 1.4 | Dashboard | `pages/mandami.php` | Embudo de conversión + filtro territorial |
+| 1.3 | API endpoints | `api/cp_pulso.php` | triggers CRUD, comment monitoring, funnel stats |
+| 1.4 | Dashboard | `pages/cp_pulso.php` | Embudo de conversión + filtro territorial |
 
 ### Flujo Técnico
 
 ```
-1. Cron cada 5min → api/mandami.php?action=scan
+1. Cron cada 5min → api/cp_pulso.php?action=scan
 2. Fetch comments recientes desde FB Graph API
-3. Match contra keywords configuradas en comment_triggers
+3. Match contra keywords configuradas en cp_triggers
 4. Si hay match y no se ha respondido aún:
-   a. Registrar en comment_replies (evita duplicados)
+   a. Registrar en cp_capture_flow (evita duplicados)
    b. Enviar DM vía Messenger API con template configurado
    c. Iniciar flujo de captura: ¿Comuna? ¿Celular?
 5. Cuando completa datos → crear/actualizar colaborador
-6. Registrar en capture_flow con origen: red + comuna + fecha
+6. Registrar en cp_capture_flow con origen: red + comuna + fecha
 ```
 
 ### Keyword Triggers (ejemplos)

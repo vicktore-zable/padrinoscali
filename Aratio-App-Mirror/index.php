@@ -57,9 +57,9 @@ if (isset($_GET['page']) && in_array($_GET['page'], $portalPages)) {
 // Global Auth for main Aratio system
 $excludeAuth = ['landing', 'dashboard_organizaciones_publico']; // Public pages
 
-// Operación Mandami — capture form (public, no auth)
-if (isset($_GET['page']) && $_GET['page'] === 'mandami_captura') {
-    require_once __DIR__ . '/mandami_captura.php';
+// CP — Pulso de Campaña: capture form (public, no auth)
+if (isset($_GET['page']) && $_GET['page'] === 'cp_captura') {
+    require_once __DIR__ . '/cp_captura.php';
     exit;
 }
 
@@ -379,13 +379,13 @@ $paginasPermitidas = [
                 </nav>
             </div>
 
-            <!-- Operación Mandami -->
+            <!-- CP — Pulso de Campaña -->
             <div class="mb-6">
-                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">Operación Mandami</h4>
+                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">CP — Pulso de Campaña</h4>
                 <nav class="space-y-1">
-                    <a href="?page=mandami" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'mandami' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="target" class="w-5 h-5"></i>
-                        <span class="text-sm">Embudo Mandami</span>
+                    <a href="?page=cp_pulso" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'cp_pulso' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                        <span class="text-sm">Pulso de Campaña</span>
                     </a>
                 </nav>
             </div>

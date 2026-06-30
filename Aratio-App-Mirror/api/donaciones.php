@@ -78,7 +78,33 @@ try {
                 $data['notas'] ?? null
             ]);
 
-            jsonResponse(['success' => true, 'message' => 'Donación registrada exitosamente', 'id' => $db->lastInsertId()]);
+            $donacionId = $db->lastInsertId();
+
+            if (class_exists('ActivityLogger')) {
+                ActivityLogger::log(
+                    (int)($data['colaborador_id'] ?? 0),
+                    'donacion_hizo',
+                    "Donación $" . number_format((float)$data['monto'], 0) . " ({$data['metodo_pago']})",
+                    ['donacion_id' => $donacionId, 'monto' => $data['monto'], 'tipo' => $data['tipo_donante'], 'metodo' => $data['metodo_pago']],
+                    'donaciones',
+                    $donacionId,
+                    $user['id']
+                );
+            }
+
+            if (class_exists('WorkflowEngine') && !empty($data['colaborador_id'])) {
+                try {
+                    WorkflowEngine::trigger(WorkflowEngine::TRIGGER_DONACION_RECIBIDA, [
+                        'donacion' => ['id' => $donacionId, 'monto' => $data['monto'], 'tipo' => $data['tipo_donante']],
+                        'monto' => $data['monto'],
+                        'colaborador_id' => $data['colaborador_id']
+                    ], (int)$data['colaborador_id']);
+                } catch (Throwable $e) {
+                    error_log("ALAS trigger donacion: " . $e->getMessage());
+                }
+            }
+
+            jsonResponse(['success' => true, 'message' => 'Donación registrada exitosamente', 'id' => $donacionId]);
             break;
 
         case 'PUT':

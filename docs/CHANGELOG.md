@@ -7,14 +7,47 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
-## [2.9.0] — No publicada
+## [2.9.0] — 2026-06-29
 
-### 🚧 Planeado
-- **WhatsApp Cloud API (Meta)**: Reemplazar WATI como provider primario ($0/mes). Mensajería bidireccional, webhook para recibir mensajes, broadcast segmentado, plantillas aprobadas.
-- **Workflow Engine**: Sistema de automatización con 5 triggers predefinidos (registro, evento próximo, evento finalizado, donación, inactividad). Acciones: WhatsApp, cambio de estado, asignación de líder.
-- **Timeline Unificado**: Tabla `actividad_colaborador` que consolida todas las interacciones (eventos, donaciones, WhatsApp, cambios de estado) en el perfil del colaborador.
+### ✨ ALAS — Automatización de Liderazgo, Acción y Seguimiento
 
-📖 Ver plan completo en `docs/01-estrategia/PLAN_FASE1.md`
+Sistema completo de comunicaciones inteligentes para Aratio. 13 archivos nuevos, 8 modificados, 8 tablas nuevas.
+
+### 💬 WhatsApp Cloud API (Meta)
+- **Nuevo**: `includes/WhatsAppCloudApi.php` — Clase para Meta WhatsApp Cloud API (gratis <1,000 convs/mes)
+- **Nuevo**: `api/whatsapp_webhook.php` — Webhook público (GET verify + POST mensajes entrantes)
+- **Nuevo**: `api/whatsapp_messages.php` — Endpoints: conversaciones, enviar, broadcast, plantillas, stats
+- **Nuevo**: `pages/whatsapp_messages.php` — Panel Alpine.js: inbox conversaciones, chat en vivo, broadcast segmentado, gestor de plantillas
+- **Nuevo**: `cron/whatsapp_broadcast.php` — Procesador de cola de broadcasts (cada 1 min)
+- **Fallback automático** a WATI si Cloud API no está configurado
+
+### ⚙️ Workflow Engine
+- **Nuevo**: `includes/WorkflowEngine.php` — Motor de automatización con 6 triggers predefinidos
+- **Nuevo**: `api/workflows.php` — Endpoints: reglas, log, stats, toggle, ejecución manual
+- **Nuevo**: `pages/workflows.php` — Panel de monitoreo: KPIs, reglas, bitácora, cola de pendientes
+- **Nuevo**: `cron/workflow_processor.php` — Procesador de acciones diferidas (cada 5 min)
+- **Triggers**: registro, evento próximo, evento finalizado, donación, inactividad 30d, cumpleaños
+- **Acciones**: WhatsApp, asignar líder automático, cambio de estado, notificar líder
+
+### 📋 Timeline Unificado
+- **Nuevo**: `includes/ActivityLogger.php` — Clase estática para registrar cualquier actividad
+- **Nuevo**: `api/timeline.php` — Endpoint paginado con filtros por tipo
+- **Nuevo**: Pestaña "Actividad" en perfil del colaborador con timeline cronológico
+- **Tipos**: registro, evento, compromiso, donación, WhatsApp, estado, evaluación, líder, cumpleaños
+
+### 🔌 Integración en módulos existentes
+- `api/colaboradores.php`: ActivityLogger en crear, cambiar líder, reevaluar + trigger registro
+- `api/eventos.php`: Trigger evento próximo al crear evento
+- `api/donaciones.php`: ActivityLogger + trigger donación recibida
+- `api/compromisos.php`: ActivityLogger
+- `api/whatsapp.php`: ActivityLogger en reenvíos
+
+### 🧩 Configuración
+- `root_config.php`: Constantes `META_WHATSAPP_TOKEN`, `META_WHATSAPP_PHONE_ID`, `META_WEBHOOK_VERIFY_TOKEN`, `ALAS_VERSION`
+- `index.php`: Rutas `whatsapp_messages` y `workflows` + sección ALAS en menú lateral
+- 3 migraciones SQL: tablas de conversaciones, workflows y timeline
+
+📖 Plan completo en `docs/01-estrategia/PLAN_FASE1.md`
 
 ---
 

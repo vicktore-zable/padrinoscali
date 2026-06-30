@@ -111,7 +111,21 @@ try {
             ]);
 
             if ($success) {
-                jsonResponse(['success' => true, 'message' => 'Evento registrado exitosamente', 'id' => $db->lastInsertId()]);
+                $eventoId = $db->lastInsertId();
+
+                if (class_exists('WorkflowEngine')) {
+                    try {
+                        WorkflowEngine::trigger(WorkflowEngine::TRIGGER_EVENTO_PROXIMO, [
+                            'evento' => ['id' => $eventoId, 'nombre' => $data['nombre'], 'fecha' => $data['fecha_inicio'], 'lugar' => $data['ubicacion']],
+                            'fecha_evento' => $data['fecha_inicio'],
+                            'dias_antes' => 1,
+                        ]);
+                    } catch (Throwable $e) {
+                        error_log("ALAS trigger evento.proximo: " . $e->getMessage());
+                    }
+                }
+
+                jsonResponse(['success' => true, 'message' => 'Evento registrado exitosamente', 'id' => $eventoId]);
             } else {
                 jsonResponse(['success' => false, 'message' => 'Error al registrar el evento'], 500);
             }

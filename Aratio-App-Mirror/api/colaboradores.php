@@ -486,6 +486,29 @@ function handlePost($db, $userId)
 
     $colaboradorId = $db->lastInsertId();
 
+    if (class_exists('ActivityLogger')) {
+        ActivityLogger::log(
+            $colaboradorId,
+            'registro',
+            "Registrado en campaña",
+            ['campana_id' => $data['campana_id'], 'perfil' => $data['perfil']],
+            'colaboradores',
+            $colaboradorId,
+            $userId
+        );
+    }
+
+    if (class_exists('WorkflowEngine')) {
+        try {
+            WorkflowEngine::trigger(WorkflowEngine::TRIGGER_REGISTRADO, [
+                'colaborador' => $data,
+                'campana_id' => $data['campana_id'] ?? null,
+            ], $colaboradorId);
+        } catch (Throwable $e) {
+            error_log("ALAS trigger registro: " . $e->getMessage());
+        }
+    }
+
     jsonResponse([
         'success' => true,
         'message' => 'Colaborador creado exitosamente',
@@ -1425,6 +1448,18 @@ function handleCambiarLider($db, $userId)
             // Tabla puede no existir, continuar sin historial
         }
 
+        if (class_exists('ActivityLogger')) {
+            ActivityLogger::log(
+                $colaboradorId,
+                'lider_cambio',
+                "Líder anterior: " . ($liderAnterior ?: 'Ninguno') . " → Nuevo: " . ($nuevoLider ?: 'Ninguno'),
+                ['lider_anterior' => $liderAnterior, 'lider_nuevo' => $nuevoLider, 'motivo' => $motivo],
+                'colaboradores',
+                $colaboradorId,
+                $userId
+            );
+        }
+
         $db->commit();
 
         jsonResponse([
@@ -1505,6 +1540,26 @@ function handleReevaluar($db, $userId)
         }
 
         $db->commit();
+
+        if (class_exists('ActivityLogger')) {
+            ActivityLogger::log(
+                $colaboradorId,
+                'evaluacion',
+                "Reevaluación: potencial {$potencialAnterior} → {$nuevoPotencial}, estado {$estadoAnterior} → {$estadoNuevo}",
+                [
+                    'potencial_anterior' => $potencialAnterior,
+                    'potencial_nuevo' => $nuevoPotencial,
+                    'historico_anterior' => $historicoAnterior,
+                    'historico_nuevo' => $nuevoHistorico,
+                    'estado_anterior' => $estadoAnterior,
+                    'estado_nuevo' => $estadoNuevo,
+                    'motivo' => $motivo
+                ],
+                'colaboradores',
+                $colaboradorId,
+                $userId
+            );
+        }
 
         jsonResponse([
             'success' => true,

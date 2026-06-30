@@ -157,6 +157,18 @@ function handlePost($db, $userId) {
 
     $compromisoId = $db->lastInsertId();
 
+    if (class_exists('ActivityLogger') && !empty($data['colaborador_id'])) {
+        ActivityLogger::log(
+            (int)$data['colaborador_id'],
+            'compromiso_creado',
+            "Compromiso: {$data['titulo']}",
+            ['compromiso_id' => $compromisoId, 'titulo' => $data['titulo'], 'tipo' => $data['tipo']],
+            'compromisos',
+            $compromisoId,
+            $userId
+        );
+    }
+
     jsonResponse([
         'success' => true,
         'message' => 'Compromiso registrado exitosamente',

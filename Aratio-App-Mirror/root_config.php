@@ -3,19 +3,19 @@
  * ARATIO - Sistema de Gestión de Campaña Edison Giraldo
  * Archivo de Configuración Principal
  *
- * PRODUCCIÓN: edisongiraldo.com/aratio/
+ * PRODUCCIÓN: padrinoscali.org/aratio/
  * SERVIDOR:   157.173.208.254:65002
  * DB:         u577647812_aratio (Hostinger)
- * Última actualización: 2026-04-14
+ * Última actualización: 2026-06-18
  */
 
 // =============================================
 // CONFIGURACIÓN DE ERRORES
 // =============================================
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', '/home/u577647812/domains/edisongiraldo.com/public_html/php-errors.log');
+ini_set('error_log', '/home/u577647812/domains/padrinoscali.org/public_html/php-errors.log');
 
 // Configuración de zona horaria
 date_default_timezone_set('America/Bogota');
@@ -26,7 +26,7 @@ date_default_timezone_set('America/Bogota');
 // localhost / 127.0.0.1 = desarrollo | else = producción Hostinger
 // Detección de entorno: localhost / aratio.edisongiraldo.com = desarrollo | else = producción Hostinger
 $currentHost = $_SERVER['HTTP_HOST'] ?? '';
-$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', 'edisongiraldo.localhost', '127.0.0.1', 'aratio.edisongiraldo.com']);
+$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', 'edisongiraldo.localhost', 'padrinoscali.localhost', '127.0.0.1', 'aratio.edisongiraldo.com']);
 
 // Si estamos en CLI, verificar si es el entorno de Hostinger por la ruta absoluta
 if (php_sapi_name() === 'cli') {
@@ -44,7 +44,7 @@ if (php_sapi_name() === 'cli') {
 if ($isLocal) {
     // Desarrollo local — apunta a la misma DB de Hostinger para pruebas
     // Si estamos en Windows XAMPP, se conecta remoto a Hostinger
-    define('DB_HOST', 'srv1540.hstgr.io'); 
+    define('DB_HOST', '82.197.82.47'); // IP directa — DNS no resuelve localmente
     define('DB_NAME', 'u577647812_aratio');
     define('DB_USER', 'u577647812_aratio');
     define('DB_PASS', 'v6xSHUWhjrxE');
@@ -61,8 +61,8 @@ define('DB_CHARSET', 'utf8mb4');
 // =============================================
 // CONFIGURACIÓN DE LA APLICACIÓN
 // =============================================
-define('APP_NAME', 'Aratio — Edison Giraldo');
-define('APP_VERSION', '2.0.0');
+define('APP_NAME', 'Aratio — Padrinos Cali');
+define('APP_VERSION', '2.5.0');
 
 // APP_SUBPATH dinámico según el HOST
 // Si es el dominio personalizado, no hay subfolder. Si es localhost, es /aratio
@@ -74,7 +74,7 @@ define('APP_SUBPATH', $detectedSubpath);
 define('APP_URL',
     $isLocal
         ? 'http://' . $currentHost . APP_SUBPATH
-        : 'https://edisongiraldo.com/aratio'
+        : 'https://padrinoscali.org/aratio'
 );
 define('APP_ENV', $isLocal ? 'development' : 'production');
 
@@ -120,7 +120,15 @@ define('SMTP_PORT', 465);
 define('SMTP_USER', 'admin@aratio.mrmtech.net');
 define('SMTP_PASS', 'tu_password_email'); // Configurar después
 define('SMTP_FROM', 'admin@aratio.mrmtech.net');
-define('SMTP_FROM_NAME', 'Sistema Aratio — Edison Giraldo');
+define('SMTP_FROM_NAME', 'Sistema Aratio — Padrinos Cali');
+
+// =============================================
+// CONFIGURACIÓN DE WHATSAPP (WATI)
+// =============================================
+define('WHATSAPP_PROVIDER', 'wati');
+define('WATI_API_URL', 'https://wati.live/api/v1/sendTemplateMessage');
+define('WATI_API_KEY', '');
+define('WATI_NUMBER', '');
 
 // Marcador para saber que este archivo se cargó correctamente
 define('ROOT_CONFIG_LOADED', true);

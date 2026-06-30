@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/config.php';
 $pagina = $_GET['page'] ?? 'dashboard';
 
 // Portal as a module: handle portal pages// Redirección condicional para mod_colab (Portal del Líder)
-$portalPages = ['portal_landing', 'portal_login', 'portal_auth', 'portal_red', 'perfil_lider', 'dashboard_lider', 'portal_dashboard'];
+$portalPages = ['portal_landing', 'portal_login', 'portal_auth', 'portal_red', 'perfil_lider', 'dashboard_lider', 'portal_dashboard', 'portal_registrar_simpatizante', 'portal_eventos', 'portal_change_password', 'portal_perfil'];
 
 // NUEVO: Redirección para mod_elecciones (Público) (Cambiado para no pisar el panel de admin)
 if (isset($_GET['page']) && strpos($_GET['page'], 'public_elecciones') !== false) {
@@ -103,7 +103,8 @@ $paginasPermitidas = [
     'dashboard', 'colaboradores', 'colaboradores_red', 'colaborador_detalle',
     'colaboradores_reportes', 'donaciones', 'eventos', 'acciones', 'compromisos',
     'reportes', 'grupos', 'elecciones', 'candidatos', 'campanas', 'usuarios',
-    'ayuda', 'configuracion', 'registro_asistencia', 'organizaciones'
+    'ayuda', 'configuracion', 'registro_asistencia', 'organizaciones',
+    'whatsapp_log'
 ];
 ?>
 <!DOCTYPE html>
@@ -311,7 +312,7 @@ $paginasPermitidas = [
                     </a>
                     <a href="?page=colaboradores" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'colaboradores' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="users" class="w-5 h-5"></i>
-                        <span class="text-sm">Colaboradores</span>
+                        <span class="text-sm">Padrinos</span>
                     </a>
                     <a href="?page=donaciones" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'donaciones' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="dollar-sign" class="w-5 h-5"></i>
@@ -332,6 +333,10 @@ $paginasPermitidas = [
                     <a href="?page=reportes" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'reportes' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
                         <span class="text-sm">Reportes</span>
+                    </a>
+                    <a href="?page=whatsapp_log" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'whatsapp_log' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="cake" class="w-5 h-5"></i>
+                        <span class="text-sm">Cumpleaños</span>
                     </a>
                     <a href="?page=actividad_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'actividad_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="camera" class="w-5 h-5"></i>

@@ -66,6 +66,9 @@ try {
             case 'stats_extended':
                 handleStatsExtended($db);
                 break;
+            case 'update':
+                handlePut($db, $userId);
+                break;
             default:
                 jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
         }

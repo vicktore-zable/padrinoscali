@@ -62,6 +62,77 @@ class Auth {
     }
     
     /**
+     * Login de colaborador (documento + telefono)
+     */
+    public function loginColaborador($documento, $telefono) {
+        if (empty($documento) || empty($telefono)) {
+            return ['success' => false, 'message' => 'Documento y teléfono son requeridos'];
+        }
+
+        try {
+            // Buscar en colaboradores
+            $stmt = $this->db->prepare("
+                SELECT c.*
+                FROM colaboradores c
+                WHERE c.documento = ? AND c.telefono = ?
+                LIMIT 1
+            ");
+            $stmt->execute([$documento, $telefono]);
+            $colaborador = $stmt->fetch();
+
+            if (!$colaborador) {
+                return ['success' => false, 'message' => 'Documento y teléfono no coinciden con nuestros registros'];
+            }
+
+            // Buscar o crear entrada en usuarios
+            $stmt = $this->db->prepare("SELECT id FROM usuarios WHERE usuario = ? OR documento_colaborador = ? LIMIT 1");
+            $stmt->execute([$documento, $documento]);
+            $existingUser = $stmt->fetch();
+
+            if ($existingUser) {
+                $userId = $existingUser['id'];
+            } else {
+                $stmt = $this->db->prepare("
+                    INSERT INTO usuarios (usuario, nombre, email, password, nombres, apellidos, tipo_usuario, colaborador_id, documento_colaborador, activo, rol, estado)
+                    VALUES (?, ?, ?, ?, ?, ?, 'lider', ?, ?, 1, 'lider', 'activo')
+                ");
+                $stmt->execute([
+                    $documento,
+                    $colaborador['nombres'] . ' ' . $colaborador['apellidos'],
+                    $colaborador['email'] ?: ($documento . '@aratio.com'),
+                    hashPassword($telefono),
+                    $colaborador['nombres'],
+                    $colaborador['apellidos'],
+                    $colaborador['id'],
+                    $documento
+                ]);
+                $userId = $this->db->lastInsertId();
+            }
+
+            // Establecer sesion
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['user_name'] = $colaborador['nombres'] . ' ' . $colaborador['apellidos'];
+            $_SESSION['user_email'] = $colaborador['email'] ?: '';
+            $_SESSION['user_rol'] = 'lider';
+            $_SESSION['user_documento'] = $colaborador['documento'];
+            $_SESSION['tipo_login'] = 'colaborador';
+
+            return [
+                'success' => true,
+                'message' => 'Login exitoso',
+                'user' => [
+                    'id' => $userId,
+                    'nombre' => $colaborador['nombres'] . ' ' . $colaborador['apellidos'],
+                    'email' => $colaborador['email'] ?: '',
+                    'rol' => 'lider'
+                ]
+            ];
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Error al iniciar sesión. Intente más tarde.'];
+        }
+    }
+
+    /**
      * Logout
      */
     public function logout() {
@@ -318,8 +389,15 @@ class Auth {
     /**
      * Requerir autenticación (redirige al login si no está autenticado)
      */
-    public function requireAuth() {
+    public function requireAuth()
+    {
         if (!$this->isAuthenticated()) {
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+                http_response_code(401);
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Unauthenticated', 'redirect' => url('login.php')]);
+                exit;
+            }
             header('Location: ' . url('login.php'));
             exit;
         }

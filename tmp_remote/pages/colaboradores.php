@@ -1355,13 +1355,14 @@ function colaboradoresData() {
             };
 
             try {
+                const putPayload = { ...payload, _method: 'PUT' };
                 const response = await fetch('/aratio/api/colaboradores.php', {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(putPayload)
                 });
 
                 const result = await response.json();

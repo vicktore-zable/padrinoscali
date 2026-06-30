@@ -37,3 +37,10 @@ nul
 
 # Fuentes (datos sensibles)
 fuentes/*.xlsx
+
+# Debug / Test (no deploy a producción)
+test_*.php
+fix_*.php
+debug_*.php
+*-backup*.php
+*_content.txt

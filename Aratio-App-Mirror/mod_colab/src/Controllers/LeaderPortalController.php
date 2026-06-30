@@ -59,8 +59,40 @@ class LeaderPortalController extends Controller {
         // Verificar si el usuario tiene un perfil de colaborador asociado
         if (isset($_SESSION['user']['colaborador_id']) && !empty($_SESSION['user']['colaborador_id'])) {
             $this->liderId = $_SESSION['user']['colaborador_id'];
-            
-            // Obtener documento para consultas
+        } elseif (isset($_SESSION['user_documento'])) {
+            // Compatibilidad con login nativo de Auth.php
+            $liderData = $this->colaboradorModel->getByDocumento($_SESSION['user_documento']);
+            if ($liderData) {
+                $this->liderId = $liderData['id'];
+                
+                // Reconstruir $_SESSION['user'] para compatibilidad
+                if (!isset($_SESSION['user'])) {
+                    $_SESSION['user'] = [
+                        'id' => $_SESSION['user_id'] ?? 0,
+                        'nombres' => $liderData['nombres'],
+                        'apellidos' => $liderData['apellidos'],
+                        'email' => $_SESSION['user_email'] ?? $liderData['email'],
+                        'tipo_usuario' => 'lider',
+                        'colaborador_id' => $liderData['id'],
+                        'documento' => $liderData['documento']
+                    ];
+                }
+            }
+        } elseif (isset($_SESSION['user_id'])) {
+            // Intentar obtener desde la tabla usuarios
+            $userData = $this->usuarioModel->getById($_SESSION['user_id']);
+            if ($userData && !empty($userData['colaborador_id'])) {
+                $this->liderId = $userData['colaborador_id'];
+                
+                if (!isset($_SESSION['user'])) {
+                    $_SESSION['user'] = $userData;
+                    $_SESSION['user']['tipo_usuario'] = $userData['rol'] ?? 'lider';
+                }
+            }
+        }
+
+        // Obtener documento para consultas
+        if ($this->liderId) {
             $liderData = $this->colaboradorModel->getById($this->liderId);
             if ($liderData) {
                 $this->liderDocumento = $liderData['documento'];
@@ -77,12 +109,12 @@ class LeaderPortalController extends Controller {
             // Si es admin, permitirle ver como demo o redirigir
             if ($this->isAdmin()) {
                 $this->setFlash('Acceso de administrador: Vista de demostración (sin datos reales)', 'info');
-                $this->redirect('/dashboard');
+                $this->redirect('?page=dashboard');
                 return;
             }
             
             $this->setFlash('No tienes un perfil de líder asociado. Contacta al administrador.', 'error');
-            $this->redirect('/dashboard');
+            $this->redirect('?page=dashboard');
             return;
         }
 
@@ -133,7 +165,7 @@ class LeaderPortalController extends Controller {
      */
     public function myNetwork(): void {
         if (!$this->liderId) {
-            $this->redirect('/dashboard');
+            $this->redirect('?page=dashboard');
             return;
         }
         
@@ -150,7 +182,7 @@ class LeaderPortalController extends Controller {
      */
     public function events(): void {
         if (!$this->liderId) {
-            $this->redirect('/dashboard');
+            $this->redirect('?page=dashboard');
             return;
         }
 

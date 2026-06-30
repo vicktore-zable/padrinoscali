@@ -56,7 +56,6 @@ class PortalAuthController extends Controller {
         $documento = trim($this->input('documento'));
         $password = trim($this->input('password'));
 
-        // Validar
         if (empty($documento) || empty($password)) {
             $this->setFlash('Por favor ingrese su documento y teléfono', 'error');
             $this->redirect('?page=portal_login');
@@ -64,37 +63,50 @@ class PortalAuthController extends Controller {
         }
 
         try {
-            // 1. Buscar en colaboradores por documento
             $colaborador = $this->colaboradorModel->getByDocumento($documento);
-
             if (!$colaborador) {
                 $this->setFlash('No se encontró un líder registrado con este documento.', 'error');
                 $this->redirect('?page=portal_login');
                 return;
             }
 
-            // 2. Validar que la contraseña ingresada sea exactamente el teléfono en la DB
             $dbTelefono = trim($colaborador['telefono'] ?? '');
-            
             if (empty($dbTelefono)) {
                 $this->setFlash('El líder no tiene un teléfono registrado para el acceso. Contacte al administrador.', 'error');
                 $this->redirect('?page=portal_login');
                 return;
             }
 
-            if ($password === $dbTelefono) {
-                // 3. Obtener o crear el usuario de sistema para la sesión
-                $user = $this->usuarioModel->getByUsuario($documento);
+            if ($password !== $dbTelefono) {
+                $this->setFlash('El teléfono ingresado no coincide con nuestros registros.', 'error');
+                $this->redirect('?page=portal_login');
+                return;
+            }
 
+            // Construir sesión desde colaborador, intentando crear usuario de sistema
+            $sessionUser = [
+                'usuario' => $documento,
+                'nombre' => ($colaborador['nombres'] ?? '') . ' ' . ($colaborador['apellidos'] ?? ''),
+                'nombres' => $colaborador['nombres'] ?? '',
+                'apellidos' => $colaborador['apellidos'] ?? '',
+                'email' => $colaborador['email'] ?? '',
+                'tipo_usuario' => 'lider',
+                'colaborador_id' => $colaborador['id'],
+                'documento_colaborador' => $colaborador['documento'],
+                'activo' => 1,
+            ];
+
+            // Intentar encontrar o crear usuario de sistema, pero no bloquear si falla
+            try {
+                $user = $this->usuarioModel->getByUsuario($documento);
                 if (!$user) {
-                    // Crear usuario automáticamente si no existe
                     $userId = $this->usuarioModel->create([
                         'usuario' => $documento,
-                        'nombre' => $colaborador['nombres'] . ' ' . $colaborador['apellidos'],
-                        'email' => $colaborador['email'] ?: ($documento . '@aratio.com'), 
-                        'password' => $dbTelefono, // Se hasheará en el modelo
-                        'nombres' => $colaborador['nombres'],
-                        'apellidos' => $colaborador['apellidos'],
+                        'nombre' => $sessionUser['nombre'],
+                        'email' => $colaborador['email'] ?: ($documento . '@aratio.com'),
+                        'password' => $dbTelefono,
+                        'nombres' => $sessionUser['nombres'],
+                        'apellidos' => $sessionUser['apellidos'],
                         'tipo_usuario' => 'lider',
                         'colaborador_id' => $colaborador['id'],
                         'activo' => 1,
@@ -102,13 +114,14 @@ class PortalAuthController extends Controller {
                     ]);
                     $user = $this->usuarioModel->getById($userId);
                 }
-
-                $this->loginUser($user);
-                return;
-            } else {
-                $this->setFlash('El teléfono ingresado no coincide con nuestros registros.', 'error');
-                $this->redirect('?page=portal_login');
+                $sessionUser['id'] = $user['id'];
+            } catch (\Exception $e) {
+                // Si falla la creación en usuarios, usar ID sintético negativo
+                Logger::warning("Login sin usuario de sistema: " . $e->getMessage());
+                $sessionUser['id'] = -$colaborador['id'];
             }
+
+            $this->loginUser($sessionUser);
 
         } catch (\Exception $e) {
             Logger::exception($e);
@@ -118,21 +131,13 @@ class PortalAuthController extends Controller {
     }
 
     private function loginUser($user) {
-        if (!$user['activo']) {
-            $this->setFlash('Su cuenta está inactiva.', 'error');
-            $this->redirect('?page=portal_login');
-            return;
-        }
-
-        // Establecer sesión
         $_SESSION['user'] = $user;
         $_SESSION['user_id'] = $user['id'];
 
-        // Intentar registrar sesión (si la tabla está correcta)
         try {
             $_SESSION['session_token'] = $this->usuarioModel->createSession(
-                $user['id'], 
-                Security::getClientIp(), 
+                $user['id'],
+                Security::getClientIp(),
                 $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
             );
         } catch (\Exception $e) {

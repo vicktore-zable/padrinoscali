@@ -300,7 +300,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
     </div>
 
     <!-- Modal Crear/Editar -->
-    <div x-show="modalNuevo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" style="display: none;">
+    <div x-show="modalNuevo" @paste.window="handlePaste($event)" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" style="display: none;">
         <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10000]">
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-xl font-bold" x-text="form.id ? 'Editar Colaborador' : 'Nuevo Colaborador'"></h2>
@@ -369,6 +369,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                             <div class="text-center p-4">
                                                 <i data-lucide="user" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
                                                 <p class="text-[9px] font-black text-slate-400 uppercase">Sin Identidad</p>
+                                                <p class="text-[8px] font-semibold text-slate-400 mt-1 lowercase">(o presiona Ctrl+V)</p>
                                             </div>
                                         </template>
                                     </div>
@@ -403,6 +404,9 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                 <input type="file" x-ref="fileInput" @change="handleFileUpload($event)" accept="image/*" class="hidden">
                                 <button type="button" @click="$refs.fileInput.click()" x-show="!mostrandoCamara" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
                                     SUBIR ARCHIVO
+                                </button>
+                                <button type="button" @click="alert('Para pegar, simplemente haz clic en cualquier parte de este recuadro y presiona Ctrl+V (o Cmd+V).')" x-show="!mostrandoCamara" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-2">
+                                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> PEGAR
                                 </button>
                                 
                                 <template x-if="form.foto">
@@ -927,11 +931,60 @@ function colaboradoresData() {
         handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                this.form.foto = event.target.result;
-            };
-            reader.readAsDataURL(file);
+            this.processImage(file);
+        },
+
+        async handlePaste(e) {
+            if (!this.modalNuevo) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
+                    const file = item.getAsFile();
+                    await this.processImage(file);
+                    e.preventDefault();
+                    break;
+                }
+            }
+        },
+
+        async processImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress to JPEG 70% quality to ensure lightweight base64
+                        this.form.foto = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
         },
 
         editar(c) {
@@ -1181,10 +1234,12 @@ function colaboradoresData() {
 
         async guardar() {
             this.loading = true;
-            const method = this.form.id ? 'PUT' : 'POST';
+            // Usar siempre POST. Si es actualización, usar action=update
+            const method = 'POST';
+            const endpoint = this.form.id ? '/aratio/api/colaboradores.php?action=update' : '/aratio/api/colaboradores.php';
 
             try {
-                const response = await fetch('/aratio/api/colaboradores.php', {
+                const response = await fetch(endpoint, {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -1355,8 +1410,8 @@ function colaboradoresData() {
             };
 
             try {
-                const response = await fetch('/aratio/api/colaboradores.php', {
-                    method: 'PUT',
+                const response = await fetch('/aratio/api/colaboradores.php?action=update', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'

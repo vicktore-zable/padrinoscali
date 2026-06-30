@@ -10,19 +10,19 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.8.0 |
-| **Fecha** | 2026-06-28 |
-| **Estado** | Producción |
-| **Commit** | `e4f9b17` |
-| **Feature** | Reporte Geográfico Interactivo (Leaflet + Alpine) |
+| **Versión** | v2.9.0 |
+| **Fecha** | 2026-06-29 |
+| **Estado** | Producción (pendiente setup WhatsApp API) |
+| **Commit** | `16e447a` |
+| **Feature** | ALAS: Comunicaciones Inteligentes + Workflows + Timeline |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.9.0** |
-| **Feature** | Comunicaciones Inteligentes + Workflows |
-| **Estado** | En planificación (ver `01-estrategia/PLAN_FASE1.md`) |
+| **Próxima** | **v2.10.0** |
+| **Feature** | Interactividad + Phone Banking |
+| **Estado** | En planificación (ver `01-estrategia/FASE2_ROADMAP.md`) |
 
 ---
 

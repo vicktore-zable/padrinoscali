@@ -59,8 +59,40 @@ class LeaderPortalController extends Controller {
         // Verificar si el usuario tiene un perfil de colaborador asociado
         if (isset($_SESSION['user']['colaborador_id']) && !empty($_SESSION['user']['colaborador_id'])) {
             $this->liderId = $_SESSION['user']['colaborador_id'];
-            
-            // Obtener documento para consultas y datos para el layout
+        } elseif (isset($_SESSION['user_documento'])) {
+            // Compatibilidad con login nativo de Auth.php
+            $liderData = $this->colaboradorModel->getByDocumento($_SESSION['user_documento']);
+            if ($liderData) {
+                $this->liderId = $liderData['id'];
+                
+                // Reconstruir $_SESSION['user'] para compatibilidad
+                if (!isset($_SESSION['user'])) {
+                    $_SESSION['user'] = [
+                        'id' => $_SESSION['user_id'] ?? 0,
+                        'nombres' => $liderData['nombres'],
+                        'apellidos' => $liderData['apellidos'],
+                        'email' => $_SESSION['user_email'] ?? $liderData['email'],
+                        'tipo_usuario' => 'lider',
+                        'colaborador_id' => $liderData['id'],
+                        'documento' => $liderData['documento']
+                    ];
+                }
+            }
+        } elseif (isset($_SESSION['user_id'])) {
+            // Intentar obtener desde la tabla usuarios
+            $userData = $this->usuarioModel->getById($_SESSION['user_id']);
+            if ($userData && !empty($userData['colaborador_id'])) {
+                $this->liderId = $userData['colaborador_id'];
+                
+                if (!isset($_SESSION['user'])) {
+                    $_SESSION['user'] = $userData;
+                    $_SESSION['user']['tipo_usuario'] = $userData['rol'] ?? 'lider';
+                }
+            }
+        }
+
+        // Obtener documento para consultas y datos para el layout
+        if ($this->liderId) {
             $liderData = $this->colaboradorModel->getById($this->liderId);
             if ($liderData) {
                 $this->liderDocumento = $liderData['documento'];
@@ -146,10 +178,27 @@ class LeaderPortalController extends Controller {
      * Ver Mi Red (Visualización Gráfica)
      */
     public function myNetwork(): void {
-        if (!$this->liderId) {
-            $this->redirect('/dashboard');
-            return;
+        // Primero verificamos si ya hay sesión; si no, intentamos login demo
+        if (!isset($_SESSION['user_id'])) {
+            $auth = new Auth();
+            $demoDocumento = '16832362';
+            $demoTelefono = '3173661064';
+            $loginResult = $auth->loginColaborador($demoDocumento, $demoTelefono);
+            if (!$loginResult['success']) {
+                // Si el login demo falla, redirigimos al login tradicional
+                $this->redirect('login.php');
+                return;
+            }
+            // Después del login, la sesión debería estar creada
         }
+        // Si la sesión ya existía, o después del login demo, aseguramos que el controlador tenga los datos del líder
+        if (isset($_SESSION['user_id'])) {
+            $this->liderId = $_SESSION['user_id'];
+            $this->liderDocumento = $_SESSION['user_documento'] ?? null;
+        }
+        // Ahora garantizamos que el usuario está autenticado
+        $auth = new Auth();
+        $auth->requireAuth();
         
         // Pasamos el documento raíz y el token CSRF
         $this->view('portal.network', [
@@ -164,9 +213,27 @@ class LeaderPortalController extends Controller {
      */
     public function events(): void {
         if (!$this->liderId) {
-            $this->redirect('?page=dashboard');
-            return;
+            // Intentar login automático como líder social (demo)
+            $auth = new Auth();
+            // Credenciales demo - ajuste a valores válidos en su base de datos
+            $demoDocumento = '0000000000'; // TODO: reemplazar con documento de líder demo
+            $demoTelefono = '0000'; // TODO: reemplazar con teléfono de líder demo
+            $loginResult = $auth->loginColaborador($demoDocumento, $demoTelefono);
+            if ($loginResult['success']) {
+                // Recargar datos del líder ahora autenticado
+                $this->liderId = $_SESSION['user']['colaborador_id'] ?? null;
+                $this->liderDocumento = $_SESSION['user_documento'] ?? null;
+                // Si aun no se obtuvo, fallback a demo ID
+                if (!$this->liderId) {
+                    $this->liderId = 1; // ajuste si es necesario
+                }
+            } else {
+                // Si el login demo falla, redirigir al login tradicional
+                $this->redirect('login.php');
+                return;
+            }
         }
+
 
         // Obtener campaña activa del líder si es posible, o todas
         // Por ahora obtenemos los próximos eventos

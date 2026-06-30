@@ -9,7 +9,8 @@
 
 | Documento | Descripción |
 |-----------|-------------|
-| `PLAN_FASE1.md` | Plan Fase 1: Comunicaciones Inteligentes + Workflows (WhatsApp bidireccional, automatización, timeline unificado) |
+| `PLAN_FASE1.md` | Plan Fase 1: ALAS — Comunicaciones Inteligentes + Workflows (WhatsApp bidireccional, automatización, timeline unificado) |
+| `FASE2_ROADMAP.md` | **NUEVO** — Fase 2: Interactividad + Phone Banking + Email + Dashboard + Líder 2.0 |
 
 ## 02 — Arquitectura
 
@@ -20,6 +21,7 @@
 | Documento | Descripción |
 |-----------|-------------|
 | `MANTENIMIENTO.md` | Guía de mantenimiento del servidor y la aplicación |
+| `SETUP_ALAS.md` | **NUEVO** — Guía paso a paso para configurar WhatsApp Cloud API, cron jobs, webhook y plantillas Meta |
 
 **Documentación relacionada en `DEPLOY_EDISONGIRALDO.md` (raíz del proyecto):**
 Credenciales SSH, SFTP, DB, SMTP y rutas de producción.

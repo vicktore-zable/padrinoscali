@@ -19,6 +19,14 @@ $db = getDB();
 $method = $_SERVER['REQUEST_METHOD'];
 $userId = $_SESSION['user_id'] ?? null;
 
+// Soporte para _method=PUT en hosting que no soporta PUT nativo
+if ($method === 'POST') {
+    $body = json_decode(file_get_contents('php://input'), true);
+    if (isset($body['_method']) && strtoupper($body['_method']) === 'PUT') {
+        $method = 'PUT';
+    }
+}
+
 try {
     // Acciones especiales
     if ($action) {

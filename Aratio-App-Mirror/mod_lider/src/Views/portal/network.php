@@ -128,19 +128,23 @@
     };
 
     async function loadNetwork() {
+        console.log('Loading network for liderId:', liderId);
+        console.log('Fetching network data from', `api/colaboradores/${liderId}/network-data`);
         try {
             const liderId = <?= json_encode($liderId) ?>;
-            // Usar la ruta limpia manejada por el .htaccess de la raíz
-            const response = await fetch(`/api/colaboradores/${liderId}/network-data`, {
+            // Usar la ruta relativa para mantener el contexto del subdirectorio (ej. /aratio/)
+            const response = await fetch(`api/colaboradores/${liderId}/network-data`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
             
+            console.log('Response status:', response.status);
             // Si la sesión expiró (401), redirigir a login
             if (response.status === 401) {
                 const errorData = await response.json();
+                console.warn('Auth error:', errorData);
                 if (errorData.redirect) {
                     window.location.href = errorData.redirect;
                     return;
@@ -212,7 +216,7 @@
                 loader.style.display = 'none';
             }
         } catch (error) {
-            console.error(error);
+            console.error('Network load error:', error);
             container.innerHTML = '<div class="flex items-center justify-center h-full text-red-500 bg-red-50/50"><span class="font-medium">Fallo de conexión con el núcleo.</span></div>';
             loader.style.display = 'none';
         }

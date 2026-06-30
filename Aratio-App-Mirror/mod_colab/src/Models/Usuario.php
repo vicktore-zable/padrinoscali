@@ -483,10 +483,10 @@ class Usuario {
 
         $result = $this->db->insert('sesiones', [
             'usuario_id' => $userId,
-            'token' => $token,
+            'token_sesion' => $token,
             'ip_address' => $ip,
             'user_agent' => $userAgent,
-            'expires_at' => $expiresIn
+            'expira_en' => $expiresIn
         ]);
 
         Logger::debug('[DEBUG USUARIO] Resultado de inserción de sesión', [
@@ -511,8 +511,8 @@ class Usuario {
         $sql = "SELECT s.*, u.*
                 FROM sesiones s
                 INNER JOIN " . self::TABLE . " u ON s.usuario_id = u.id
-                WHERE s.token = ?
-                  AND s.expires_at > NOW()
+                WHERE s.token_sesion = ?
+                  AND s.expira_en > NOW()
                   AND u.activo = TRUE";
 
         Logger::debug('[DEBUG USUARIO] Ejecutando consulta de verificación', [
@@ -532,8 +532,8 @@ class Usuario {
             // Actualizar última actividad
             $updateResult = $this->db->update('sesiones', [
                 'ultima_actividad' => date('Y-m-d H:i:s'),
-                'expires_at' => date('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime'])
-            ], 'token = ?', [$token]);
+                'expira_en' => date('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime'])
+            ], 'token_sesion = ?', [$token]);
 
             Logger::debug('[DEBUG USUARIO] Actualizada última actividad de sesión', [
                 'update_result' => $updateResult

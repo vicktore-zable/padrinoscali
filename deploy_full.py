@@ -8,7 +8,7 @@ HOST = "157.173.208.254"
 PORT = 65002
 USER = "u577647812"
 PASS = 'EDG$v6xSHUWhjrxE'
-REMOTE_DIR = "/home/u577647812/domains/edisongiraldo.com/public_html/aratio"
+REMOTE_DIR = "/home/u577647812/domains/padrinoscali.org/public_html/aratio"
 LOCAL_DIR  = r"F:\xampp2\htdocs\aratio"
 
 EXCLUDE_DIRS = [".git", "node_modules", "uploads", "cache", "logs", ".claude"]
@@ -21,7 +21,7 @@ def create_ssh_client(server, port, user, password):
     return client
 
 def deploy():
-    print(f"--- Iniciando Despliegue AratioPRO v2.1.0 (Edisongiraldo.com) ---")
+    print(f"--- Iniciando Despliegue AratioPRO v2.5.0 (PadrinosCali.org) ---")
     print(f"Destino: {USER}@{HOST}:{PORT}")
     
     try:

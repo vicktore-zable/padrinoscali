@@ -1,88 +1,46 @@
 <?php
 /**
  * API Endpoint: Instagram Sync
- * 
- * Solo funciona en entorno local (XAMPP).
- * En producción (Hostinger) devuelve 403.
- * 
+ *
  * Actions:
- *   ?action=start  → Lanza scraper Python en background
+ *   ?action=start  → Lee JSON maestro y marca completado
  *   ?action=status → Lee estado del proceso
  */
 
 require_once __DIR__ . '/../config/config.php';
-
 header('Content-Type: application/json; charset=utf-8');
-
-// Solo permitir en local
-if (!$isLocal) {
-    http_response_code(403);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'La sincronización solo está disponible en el entorno local (XAMPP).'
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
 
 $action = $_GET['action'] ?? '';
 $statusFile = BASE_PATH . '/storage/instagram_sync_status.json';
-$scraperPath = BASE_PATH . '/instagram_scraper.py';
-$outputFile = BASE_PATH . '/storage/instagram_data.json';
+$masterPath = BASE_PATH . '/storage/maestro_instagram.json';
 
 switch ($action) {
 
     case 'start':
-        // Verificar que no haya otro proceso corriendo (timeout 10 min)
-        $existingStatus = null;
-        if (file_exists($statusFile)) {
-            $existingStatus = json_decode(file_get_contents($statusFile), true);
-        }
-
-        if ($existingStatus && $existingStatus['status'] === 'running') {
-            $elapsed = time() - ($existingStatus['timestamp'] ?? 0);
-            if ($elapsed < 600) {
-                http_response_code(409);
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Ya hay una sincronización en curso.'
-                ], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
-        }
-
-        // Verificar que el scraper existe
-        if (!file_exists($scraperPath)) {
+        if (!file_exists($masterPath)) {
             http_response_code(500);
             echo json_encode([
                 'status' => 'error',
-                'message' => 'No se encuentra el scraper en: ' . $scraperPath
+                'message' => 'No se encuentra el archivo maestro_instagram.json'
             ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
-        // Escribir status inicial
+        $data = json_decode(file_get_contents($masterPath), true);
+        $total = $data['estadisticas']['total_publicaciones'] ?? 0;
+        $timelineCount = count($data['timeline'] ?? []);
+
         file_put_contents($statusFile, json_encode([
-            'status' => 'running',
-            'message' => 'Iniciando sincronización...',
+            'status' => 'started',
+            'message' => 'Procesando datos de Instagram...',
             'current' => 0,
-            'total' => 0,
+            'total' => (int)$total,
             'timestamp' => time()
         ], JSON_UNESCAPED_UNICODE));
 
-        // Lanzar scraper en background (Windows)
-        $cmd = 'start /B cmd /C python ' . escapeshellarg($scraperPath)
-            . ' --max-posts 5000'
-            . ' --since-date 2024-01-01'
-            . ' --monthly'
-            . ' --output ' . escapeshellarg($outputFile)
-            . ' --status-file ' . escapeshellarg($statusFile)
-            . ' --markdown ' . escapeshellarg(BASE_PATH . '/timeline_concejal.md');
-
-        pclose(popen($cmd, 'r'));
-
         echo json_encode([
             'status' => 'started',
-            'message' => 'Sincronización iniciada correctamente.'
+            'message' => 'Procesando ' . $total . ' publicaciones en ' . $timelineCount . ' periodos...'
         ], JSON_UNESCAPED_UNICODE);
         break;
 
@@ -96,6 +54,17 @@ switch ($action) {
         }
 
         $status = json_decode(file_get_contents($statusFile), true);
+
+        if ($status['status'] === 'started') {
+            $data = json_decode(file_get_contents($masterPath), true);
+            $total = $data['estadisticas']['total_publicaciones'] ?? 0;
+            $status['current'] = (int)$total;
+            $status['total'] = (int)$total;
+            $status['status'] = 'completed';
+            $status['message'] = 'Se cargaron ' . $total . ' publicaciones correctamente';
+            file_put_contents($statusFile, json_encode($status, JSON_UNESCAPED_UNICODE));
+        }
+
         echo json_encode($status, JSON_UNESCAPED_UNICODE);
         break;
 

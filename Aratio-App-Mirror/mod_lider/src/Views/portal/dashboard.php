@@ -16,7 +16,7 @@ use App\Utils\Helpers;
             <div class="flex flex-wrap gap-3 mt-6">
                 <!-- Perfil Tag -->
                 <div class="px-4 py-1.5 rounded-full bg-[#002244]/5 border border-[#002244]/20 text-[#002244] text-xs font-bold uppercase tracking-widest shadow-sm">
-                    <?= htmlspecialchars($lider['perfil'] ?? 'Líder') ?>
+                    <?= htmlspecialchars($lider['perfil'] ?? 'Padrino') ?>
                 </div>
                 <?php if(!empty($lider['municipio'])): ?>
                 <div class="px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-500 text-xs font-bold uppercase flex items-center gap-2 shadow-sm">
@@ -239,7 +239,7 @@ use App\Utils\Helpers;
         </div>
         <div class="flex gap-2 w-full md:w-auto">
             <div class="relative flex-1 md:w-64">
-                <input type="text" x-model="search" placeholder="Buscar líder..." class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-[#002244] focus:border-[#002244] outline-none">
+                <input type="text" x-model="search" placeholder="Buscar padrino..." class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-[#002244] focus:border-[#002244] outline-none">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
             </div>
             <button @click="exportTeam()" class="px-4 py-2 rounded-lg bg-white border border-gray-200 text-xs font-bold hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-600 shadow-sm">
@@ -260,7 +260,7 @@ use App\Utils\Helpers;
                     <i data-lucide="user-plus" class="w-10 h-10 text-gray-400"></i>
                 </div>
                 <h4 class="text-xl font-bold text-gray-800 mb-2">Comienza a construir tu legado</h4>
-                <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">Aún no tienes líderes directos. Comparte tu enlace de activación para empezar a construir tu estructura política.</p>
+                <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">Aún no tienes padrinos directos. Comparte tu enlace de activación para empezar a construir tu estructura política.</p>
                 <button onclick="document.getElementById('refLinkInput').select()" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#002244] text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg">
                     <i data-lucide="share-2" class="w-4 h-4"></i>
                     Compartir Enlace
@@ -351,6 +351,298 @@ use App\Utils\Helpers;
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Red Consolidada - Todos los miembros de la red -->
+<div class="glass-card overflow-hidden border border-gray-100 shadow-sm bg-white mt-8" x-data="redConsolidada()">
+    <div class="p-8 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/50">
+        <div>
+            <h3 class="text-xl font-bold flex items-center gap-2 text-gray-800">
+                <i data-lucide="network" class="w-5 h-5 text-[#DAA520]"></i>
+                Red Consolidada
+            </h3>
+            <p class="text-xs text-gray-500 mt-1">
+                Todas las personas de tu red: <span x-text="lista.length"></span> miembros en total
+            </p>
+        </div>
+        <div class="flex gap-2 w-full md:w-auto">
+            <div class="relative flex-1 md:w-72">
+                <input type="text" x-model="searchRed" placeholder="Buscar en toda la red..." 
+                    class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-[#DAA520] focus:border-[#DAA520] outline-none">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+            </div>
+            <a href="?page=portal_red" class="px-4 py-2 rounded-lg bg-[#DAA520]/10 border border-[#DAA520]/30 text-xs font-bold hover:bg-[#DAA520]/20 transition-all flex items-center gap-2 text-[#DAA520] shadow-sm">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Ver Grafo</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <template x-if="lista.length === 0">
+            <div class="p-12 text-center">
+                <p class="text-gray-500">Aún no hay miembros en tu red consolidada.</p>
+            </div>
+        </template>
+        <template x-if="lista.length > 0">
+        <div>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-[10px] text-gray-500 uppercase tracking-widest border-b border-gray-100 bg-gray-50/50">
+                        <th class="px-6 py-4 font-semibold">Miembro</th>
+                        <th class="px-6 py-4 font-semibold">Documento</th>
+                        <th class="px-6 py-4 font-semibold">Perfil</th>
+                        <th class="px-6 py-4 font-semibold">Nivel</th>
+                        <th class="px-6 py-4 font-semibold">Ubicación</th>
+                        <th class="px-6 py-4 font-semibold">Contacto</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <template x-for="m in filtrar()" :key="m.id">
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold"
+                                         :class="m.nivel === 0 ? 'bg-[#002244] text-white' : 'bg-gray-100 text-gray-600'"
+                                         x-text="m.nombres.charAt(0) + m.apellidos.charAt(0)"></div>
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-800" x-text="m.nombres + ' ' + m.apellidos"></div>
+                                        <div class="text-[10px] text-gray-400" x-text="m.lider_directo ? 'Bajo: ' + m.lider_directo : 'Raíz'"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-mono text-gray-600" x-text="m.documento"></td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                      :class="{
+                                          'bg-[#002244]/10 text-[#002244]': m.nivel === 0,
+                                          'bg-blue-50 text-blue-600': m.perfil && m.perfil.includes('Lider'),
+                                          'bg-gray-100 text-gray-600': m.perfil === 'Simpatizante'
+                                      }"
+                                      x-text="m.perfil || 'Sin perfil'"></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold"
+                                      :class="m.nivel === 0 ? 'bg-[#DAA520]/20 text-[#DAA520]' : 'bg-gray-100 text-gray-500'"
+                                      x-text="'Nivel ' + m.nivel"></span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600" x-text="m.municipio || '---'"></div>
+                                <div class="text-xs text-gray-400" x-text="m.barrio || ''"></div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 flex items-center gap-1" x-show="m.telefono">
+                                    <i data-lucide="phone" class="w-3 h-3 text-gray-400"></i>
+                                    <span x-text="m.telefono"></span>
+                                </div>
+                                <div class="text-xs text-gray-400 flex items-center gap-1" x-show="m.email">
+                                    <i data-lucide="mail" class="w-3 h-3 text-gray-400"></i>
+                                    <span x-text="m.email"></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <template x-if="lista.length > 10">
+            <div class="p-4 text-center border-t border-gray-100">
+                <button @click="showAll = !showAll" class="text-sm font-bold text-[#002244] hover:underline">
+                    <span x-show="!showAll" x-text="'Ver todos (' + lista.length + ' miembros)'"></span>
+                    <span x-show="showAll">Mostrar menos</span>
+                </button>
+            </div>
+            </template>
+        </div>
+        </template>
+    </div>
+</div>
+
+<!-- Actividad Reciente Feed -->
+<div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-8" x-data="feed()">
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <div class="p-2 rounded-lg bg-blue-50 text-blue-600">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">Actividad Reciente</h3>
+        </div>
+        <div class="flex items-center gap-2">
+            <span x-show="loading" class="w-2 h-2 rounded-full bg-aratio-gold animate-pulse"></span>
+            <span x-text="totalItems > 0 ? totalItems + ' actividades' : ''" class="text-xs text-gray-400"></span>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div x-show="loading && items.length === 0" class="space-y-4">
+        <template x-for="i in 5" :key="i">
+            <div class="flex gap-4 animate-pulse">
+                <div class="w-10 h-10 rounded-xl bg-gray-100"></div>
+                <div class="flex-1">
+                    <div class="h-4 bg-gray-100 rounded w-3/4 mb-2"></div>
+                    <div class="h-3 bg-gray-50 rounded w-1/2"></div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <!-- Empty State -->
+    <div x-show="!loading && items.length === 0" class="p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-50 flex items-center justify-center">
+            <i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i>
+        </div>
+        <p class="text-gray-500 font-medium">Aún no hay actividad registrada</p>
+        <p class="text-xs text-gray-400 mt-1">La actividad de tu equipo aparecerá aquí automáticamente</p>
+    </div>
+
+    <!-- Feed Items -->
+    <div x-show="items.length > 0" class="space-y-3">
+        <template x-for="item in items" :key="item.id">
+            <div class="flex gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all group">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold"
+                     :class="{
+                         'bg-green-50 text-green-600': item.tipo === 'creacion',
+                         'bg-blue-50 text-blue-600': item.tipo === 'contacto',
+                         'bg-purple-50 text-purple-600': item.tipo === 'evento',
+                         'bg-amber-50 text-amber-600': item.tipo === 'donacion',
+                         'bg-gray-50 text-gray-600': !item.tipo || item.tipo === 'otro'
+                     }">
+                    <i :data-lucide="{
+                        'creacion': 'user-plus',
+                        'contacto': 'phone',
+                        'evento': 'calendar',
+                        'donacion': 'heart',
+                    }[item.tipo] || 'circle'" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2">
+                        <p class="text-sm font-semibold text-gray-900 truncate" x-text="item.descripcion || item.accion || 'Actividad'"></p>
+                        <span class="text-[10px] text-gray-400 whitespace-nowrap" x-text="fechaRelativa(item.creado_en)"></span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-gray-500" x-text="item.nombres + ' ' + (item.apellidos || '')"></span>
+                        <span class="text-[10px] text-gray-400" x-show="item.perfil" x-text="'· ' + item.perfil"></span>
+                        <span class="text-[10px] text-gray-400" x-show="item.municipio" x-text="'· ' + item.municipio"></span>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <!-- Load More -->
+    <div x-show="hasMore" class="mt-4 text-center">
+        <button @click="loadMore()" :disabled="loading"
+                class="px-6 py-2 text-sm font-bold text-aratio-blue hover:bg-aratio-blue/5 rounded-xl transition-colors disabled:opacity-50">
+            <span x-show="!loading">Cargar más</span>
+            <span x-show="loading">Cargando...</span>
+        </button>
+    </div>
+</div>
+
+<script>
+function redConsolidada() {
+    return {
+        searchRed: '',
+        showAll: false,
+        lista: <?= json_encode(array_map(function($m) {
+            return [
+                'id' => (int)$m['id'],
+                'nombres' => $m['nombres'],
+                'apellidos' => $m['apellidos'],
+                'documento' => $m['documento'],
+                'perfil' => $m['perfil'] ?? '',
+                'nivel' => (int)($m['nivel_jerarquico'] ?? 0),
+                'municipio' => $m['municipio'] ?? '',
+                'barrio' => $m['barrio'] ?? '',
+                'telefono' => $m['telefono'] ?? '',
+                'email' => $m['email'] ?? '',
+                'estado' => $m['estado'] ?? 'Activo',
+                'lider_directo' => $m['lider_directo'] ?? ''
+            ];
+        }, $redCompleta), JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+        filtrar() {
+            let result = this.lista;
+            if (this.searchRed) {
+                const q = this.searchRed.toLowerCase();
+                result = result.filter(m =>
+                    (m.nombres + ' ' + m.apellidos).toLowerCase().includes(q) ||
+                    m.documento.toLowerCase().includes(q) ||
+                    (m.municipio || '').toLowerCase().includes(q)
+                );
+            }
+            return this.showAll ? result : result.slice(0, 10);
+        }
+    }
+}
+
+function feed() {
+    return {
+        items: [],
+        page: 1,
+        totalItems: 0,
+        pages: 0,
+        loading: false,
+        hasMore: true,
+        documento: '<?= $lider["documento"] ?? "" ?>',
+        pollTimer: null,
+
+        async init() {
+            await this.loadFeed();
+            this.pollTimer = setInterval(() => { this.loadFeed(true); }, 30000);
+        },
+
+        destroy() {
+            if (this.pollTimer) clearInterval(this.pollTimer);
+        },
+
+        async loadFeed(refresh = false) {
+            if (this.loading) return;
+            this.loading = true;
+            try {
+                const page = refresh ? 1 : this.page;
+                const url = `api/lideres.php?action=feed&documento=${this.documento}&page=${page}`;
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Error ' + res.status);
+                const json = await res.json();
+                if (json.success) {
+                    if (refresh) {
+                        this.items = json.data;
+                        this.page = 1;
+                    } else if (page === 1) {
+                        this.items = json.data;
+                    } else {
+                        this.items = [...this.items, ...json.data];
+                    }
+                    this.totalItems = json.total;
+                    this.pages = json.pages;
+                    this.hasMore = this.page < this.pages;
+                    this.$nextTick(() => lucide.createIcons());
+                }
+            } catch (e) {
+                console.error('Feed error:', e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async loadMore() {
+            if (this.loading || !this.hasMore) return;
+            this.page++;
+            await this.loadFeed();
+        },
+
+        fechaRelativa(fecha) {
+            if (!fecha) return '';
+            const f = new Date(fecha.replace(' ', 'T'));
+            const now = new Date();
+            const diff = Math.floor((now - f) / 1000);
+            if (diff < 60) return 'Ahora';
+            if (diff < 3600) return Math.floor(diff / 60) + 'm';
+            if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+            if (diff < 172800) return 'Ayer';
+            return f.toLocaleDateString('es-CO', { day: 'numeric', month: 'short' });
+        }
+    }
+}
+</script>
 
 <script>
     // Lucide initializer for dynamic elements

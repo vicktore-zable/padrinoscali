@@ -10,19 +10,19 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.13.0 |
-| **Fecha** | 2026-06-29 |
+| **Versión** | v2.14.0 |
+| **Fecha** | 2026-06-30 |
 | **Estado** | Producción |
 | **Commit** | *(actual)* |
-| **Feature** | Dashboard Territorial: KPIs, gráficos, mapa Leaflet, ALAS integrado |
+| **Feature** | Líder 2.0: ranking, feed actividad, notificaciones, API dedicada |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.14.0** |
-| **Feature** | Líder 2.0 (feed propio, ranking, notificaciones) |
-| **Estado** | En planificación (ver `01-estrategia/FASE2_ROADMAP.md`) |
+| **Próxima** | **v2.15.0** |
+| **Feature** | Instagram → CRM (match menciones, lead gen, timeline) |
+| **Estado** | En planificación |
 
 ---
 
@@ -30,7 +30,8 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | *(actual)* |
+| **v2.14.0** | 2026-06-30 | Líder 2.0 (ranking, feed actividad, notificaciones, API líderes) | *(actual)* |
+| **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | `6feab7b` |
 | **v2.12.0** | 2026-06-29 | Email Campaigns (campañas, segmentación, plantillas, tracking) | `94b03ec` |
 | **v2.11.0** | 2026-06-29 | Phone Banking (campañas, cola, panel, historial) | `2f2e568` |
 | **v2.10.0** | 2026-06-29 | Interactividad en Vivo (polling, badges, toast) | `8ec9c06` |

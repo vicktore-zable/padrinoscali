@@ -4,6 +4,17 @@ Todas las actualizaciones destacadas del proyecto se documentan en este archivo.
 
 ---
 
+## [2.14.0] - 2026-06-30
+### 👤 Líder 2.0: Ranking, Feed y API Dedicada
+- **API de Líderes** (`api/lideres.php`): 5 endpoints (ranking, detalle, feed, notificaciones, global stats)
+- **Ranking de Líderes**: Tabla ordenable por 4 métricas (seguidores, eventos, contactadas, donaciones) en `pages/lideres.php`
+- **Modal Detalle**: Carga en paralelo seguidores + perfiles + feed de actividad + notificaciones del líder
+- **Feed en Portal del Líder**: Sección "Actividad Reciente" en dashboard con polling 30s, carga más, iconos por tipo
+- **Notificaciones**: Cumpleaños próximos, nuevos seguidores, actividad del equipo en últimos 7 días
+- **Sincronización**: Integración con el portal líder existente sin modificar routing
+
+---
+
 ## [2.2.0] - 2026-04-19
 ### 🛡️ Estabilización y Arquitectura Multi-Instancia
 - **Refactorización de Configuración**: Implementada carga segura en `config/config.php` (Core) mediante bloques `if (!defined(...))` para permitir sobreescritura desde `root_config.php`.

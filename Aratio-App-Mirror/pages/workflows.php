@@ -174,12 +174,21 @@ function alasWorkflows() {
         log: [],
         pendientes: [],
         stats: {},
+        pollInterval: null,
 
         init() {
             this.loadReglas();
             this.loadLog();
             this.loadPendientes();
             this.loadStats();
+            this.pollInterval = setInterval(() => {
+                this.loadStats();
+                this.loadPendientes();
+            }, 15000);
+        },
+
+        destroy() {
+            if (this.pollInterval) clearInterval(this.pollInterval);
         },
 
         async loadReglas() {

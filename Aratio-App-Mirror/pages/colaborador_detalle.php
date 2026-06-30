@@ -1142,6 +1142,7 @@ function colaboradorDetalle() {
         actividadCount: 0,
         actividadTipos: ['registro','evento_asistio','compromiso_creado','donacion_hizo','whatsapp_enviado','whatsapp_recibido','estado_cambio','evaluacion','lider_cambio','cumpleaños'],
         actividadFiltros: [],
+        actividadPollInterval: null,
 
         // Cambiar líder
         liderSearch: '',
@@ -1333,6 +1334,13 @@ function colaboradorDetalle() {
                 }
             } catch (e) { console.error('ALAS error cargando actividad:', e); }
             this.loadingActividad = false;
+
+            if (this.actividadPage === 1) {
+                if (this.actividadPollInterval) clearInterval(this.actividadPollInterval);
+                this.actividadPollInterval = setInterval(() => {
+                    this.loadActividad();
+                }, 30000);
+            }
         },
 
         toggleActividadFiltro(tipo) {
@@ -1344,6 +1352,7 @@ function colaboradorDetalle() {
             }
             this.actividadPage = 1;
             this.actividad = [];
+            if (this.actividadPollInterval) clearInterval(this.actividadPollInterval);
             this.loadActividad();
         },
 

@@ -7,6 +7,34 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.10.0] — 2026-06-29
+
+### ⚡ Interactividad en Vivo
+
+Sistema de polling automático y notificaciones en tiempo real para todos los paneles ALAS.
+
+### 🔴 Badge de mensajes no leídos
+- **Nuevo**: Sección "ALAS" en sidebar con Inbox (badge rojo) + Workflows
+- **Nuevo**: Polling cada 30s desde `index.php` al endpoint `stats` para actualizar badge
+- **Nuevo**: Toast notification cuando llegan mensajes nuevos (ventana 5s auto-hide)
+- **Nuevo**: Contador en cabezal de sección ALAS además del badge inline
+
+### 💬 Inbox en vivo
+- **Modificado**: `pages/whatsapp_messages.php` — Polling cada 15s refresca lista de conversaciones y stats sin recargar
+- **Modificado**: Auto-marca como leído al seleccionar conversación
+
+### ⚙️ Workflows en vivo
+- **Modificado**: `pages/workflows.php` — Polling cada 15s refresca KPIs y cola de pendientes
+
+### 📋 Timeline en tiempo real
+- **Modificado**: `pages/colaborador_detalle.php` — Polling cada 30s en pestaña Actividad
+- **Mejora**: Al cambiar filtros de actividad, se reinicia el polling automáticamente
+
+### 🧩 Infraestructura
+- **Modificado**: `index.php` — Toast component Alpine.js global (evento `alas-toat` vía CustomEvent)
+- **Modificado**: `index.php` — Páginas `whatsapp_messages` y `workflows` agregadas a `$paginasPermitidas`
+- **Modificado**: Todos los componentes Alpine.js con `destroy()` cleanup de intervalos
+
 ## [2.9.0] — 2026-06-29
 
 ### ✨ ALAS — Automatización de Liderazgo, Acción y Seguimiento

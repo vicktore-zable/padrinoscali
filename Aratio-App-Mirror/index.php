@@ -104,7 +104,7 @@ $paginasPermitidas = [
     'colaboradores_reportes', 'donaciones', 'eventos', 'acciones', 'compromisos',
     'reportes', 'grupos', 'elecciones', 'candidatos', 'campanas', 'usuarios',
     'ayuda', 'configuracion', 'registro_asistencia', 'organizaciones',
-    'whatsapp_log'
+    'whatsapp_log', 'whatsapp_messages', 'workflows'
 ];
 ?>
 <!DOCTYPE html>
@@ -349,6 +349,25 @@ $paginasPermitidas = [
                 </nav>
             </div>
 
+            <!-- ALAS -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4 flex items-center justify-between">
+                    <span>ALAS</span>
+                    <span x-show="alasUnread > 0" class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center" x-text="alasUnread"></span>
+                </h4>
+                <nav class="space-y-1">
+                    <a href="?page=whatsapp_messages" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'whatsapp_messages' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        <span class="text-sm flex-1">Inbox</span>
+                        <span x-show="alasUnread > 0" class="bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center" x-text="alasUnread"></span>
+                    </a>
+                    <a href="?page=workflows" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'workflows' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                        <span class="text-sm">Workflows</span>
+                    </a>
+                </nav>
+            </div>
+
             <!-- Administración -->
             <div class="mb-6">
                 <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">Administración</h4>
@@ -415,18 +434,43 @@ $paginasPermitidas = [
         ?>
     </main>
 
+    <!-- ALAS Toast -->
+    <div x-data="{ toast: { show: false, message: '', type: 'info' } }"
+         @alas-toast.window="toast.message = $event.detail.message; toast.type = $event.detail.type || 'info'; toast.show = true; setTimeout(() => toast.show = false, 5000)"
+         class="fixed bottom-6 right-6 z-50">
+        <div x-show="toast.show"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="translate-y-4 opacity-0"
+             x-transition:enter-end="translate-y-0 opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="translate-y-0 opacity-100"
+             x-transition:leave-end="translate-y-4 opacity-0"
+             :class="toast.type === 'success' ? 'bg-green-600' : toast.type === 'warning' ? 'bg-yellow-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-gray-800'"
+             class="px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg flex items-center gap-3 max-w-sm">
+            <template x-if="toast.type === 'success'"><i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i></template>
+            <template x-if="toast.type === 'warning'"><i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i></template>
+            <template x-if="toast.type === 'error'"><i data-lucide="x-circle" class="w-5 h-5 flex-shrink-0"></i></template>
+            <template x-if="toast.type === 'info'"><i data-lucide="bell" class="w-5 h-5 flex-shrink-0"></i></template>
+            <span x-text="toast.message"></span>
+            <button @click="toast.show = false" class="ml-auto text-white/70 hover:text-white">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         function appData() {
             return {
                 sidebarOpen: false,
-                
+                alasUnread: 0,
+                alasPrevUnread: 0,
+                alasPollInterval: null,
+
                 init() {
-                    // Inicializar Lucide icons
                     lucide.createIcons();
                     
-                    // Cerrar sidebar al hacer clic en enlaces en móvil
                     document.querySelectorAll('aside a').forEach(link => {
                         link.addEventListener('click', () => {
                             if (window.innerWidth < 1024) {
@@ -434,6 +478,35 @@ $paginasPermitidas = [
                             }
                         });
                     });
+
+                    this.pollAlas();
+                    this.alasPollInterval = setInterval(() => this.pollAlas(), 30000);
+                },
+
+                destroy() {
+                    if (this.alasPollInterval) {
+                        clearInterval(this.alasPollInterval);
+                    }
+                },
+
+                async pollAlas() {
+                    try {
+                        const resp = await fetch('api/whatsapp_messages.php?action=stats');
+                        const json = await resp.json();
+                        if (json.success) {
+                            this.alasUnread = json.data.mensajes_no_leidos || 0;
+                            if (this.alasUnread > this.alasPrevUnread) {
+                                const diff = this.alasUnread - this.alasPrevUnread;
+                                window.dispatchEvent(new CustomEvent('alas-toast', {
+                                    detail: {
+                                        message: diff + ' ' + (diff === 1 ? 'mensaje nuevo' : 'mensajes nuevos') + ' en ALAS Inbox',
+                                        type: 'info'
+                                    }
+                                }));
+                            }
+                            this.alasPrevUnread = this.alasUnread;
+                        }
+                    } catch (e) { /* silent */ }
                 }
             }
         }

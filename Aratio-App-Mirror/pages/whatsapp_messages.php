@@ -227,10 +227,20 @@ function alasInbox() {
         broadcastFiltros: { territorio_id: '', municipio: '', perfil: '' },
         plantillas: [],
 
+        pollInterval: null,
+
         init() {
             this.loadConversaciones();
             this.loadPlantillas();
             this.loadStats();
+            this.pollInterval = setInterval(() => {
+                this.loadConversaciones();
+                this.loadStats();
+            }, 15000);
+        },
+
+        destroy() {
+            if (this.pollInterval) clearInterval(this.pollInterval);
         },
 
         async loadConversaciones() {

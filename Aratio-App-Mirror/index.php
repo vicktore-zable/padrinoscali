@@ -379,7 +379,11 @@ $paginasPermitidas = [
                 <nav class="space-y-1">
                     <a href="?page=social_crm" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'social_crm' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="share-2" class="w-5 h-5"></i>
-                        <span class="text-sm">Redes Sociales</span>
+                        <span class="text-sm">Social CRM</span>
+                    </a>
+                    <a href="?page=instagram_graph" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'instagram_graph' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                        <span class="text-sm">IG Comentarios</span>
                     </a>
                     <a href="?page=actividad_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'actividad_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="camera" class="w-5 h-5"></i>

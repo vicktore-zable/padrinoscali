@@ -137,6 +137,7 @@ define('FB_APP_ID', '');
 define('FB_PAGE_ID', 'edisonconcejal');
 define('FB_PAGE_TOKEN', '');
 define('FB_API_VERSION', 'v19.0');
+define('IG_BUSINESS_ID', '');
 
 // Marcador para saber que este archivo se cargó correctamente
 define('ROOT_CONFIG_LOADED', true);

@@ -7,6 +7,32 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.12.0] — 2026-06-29
+
+### 📧 Email Campaigns
+
+Sistema de campañas de correo electrónico con segmentación y tracking de aperturas.
+
+### 🆕 Archivos nuevos
+
+| Archivo | Descripción |
+|---------|-------------|
+| `includes/EmailCampaigns.php` | Clase core: sendMail (PHP mail()), crear campañas, generar cola, procesar, stats |
+| `api/emails.php` | 10 endpoints REST: campañas, crear, procesar cola, plantillas, historial, stats, track pixel |
+| `pages/emails.php` | Panel Alpine.js con 5 tabs (Campañas, Nueva, Plantillas, Historial, Stats) |
+| `cron/email_processor.php` | Procesador de cola (30 emails por ejecución) |
+| `database/migrations/20260701_email_campaigns.sql` | 4 tablas + 3 plantillas predefinidas |
+
+### 📊 Funcionalidades
+- **Campañas**: Crear con nombre, asunto, cuerpo HTML y filtros de segmentación
+- **Segmentación**: Filtrar por perfil, municipio, territorio, líder
+- **Cola**: Generación automática al crear campaña, procesamiento vía cron
+- **Plantillas**: 3 predefinidas (Bienvenida, Invitación Evento, Boletín Mensual), reutilizables
+- **Tracking**: Pixel de apertura (1x1 GIF) en todos los correos
+- **Historial**: Log completo de envíos con estado y errores
+- **Stats**: KPIs (hoy, total, pendientes, abiertos, tasa de apertura) + distribución visual
+- **Filtros**: SMTP Hostinger ya configurado, usa mail() nativo de PHP
+
 ## [2.11.0] — 2026-06-29
 
 ### 📞 Phone Banking

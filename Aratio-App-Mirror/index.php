@@ -105,7 +105,7 @@ $paginasPermitidas = [
     'reportes', 'grupos', 'elecciones', 'candidatos', 'campanas', 'usuarios',
     'ayuda', 'configuracion', 'registro_asistencia', 'organizaciones',
     'whatsapp_log', 'whatsapp_messages', 'workflows',
-    'llamadas'
+    'llamadas', 'emails'
 ];
 ?>
 <!DOCTYPE html>
@@ -369,6 +369,10 @@ $paginasPermitidas = [
                     <a href="?page=llamadas" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'llamadas' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="phone-call" class="w-5 h-5"></i>
                         <span class="text-sm">Phone Banking</span>
+                    </a>
+                    <a href="?page=emails" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'emails' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="mail" class="w-5 h-5"></i>
+                        <span class="text-sm">Email</span>
                     </a>
                 </nav>
             </div>

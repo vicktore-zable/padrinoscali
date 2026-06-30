@@ -7,6 +7,44 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.13.0] — 2026-06-29
+
+### 🗺️ Dashboard Territorial
+
+Panel de control unificado con KPIs, gráficos de tendencia y mapa interactivo Leaflet.
+
+### 🆕 Archivos nuevos
+
+| Archivo | Descripción |
+|---------|-------------|
+| `api/dashboard.php` | 5 endpoints: kpis consolidados, geo distribución, tendencias, recientes, ALAS stats |
+| `pages/dashboard_territorial.php` | Panel Alpine.js con 3 secciones (KPIs, mapa, gráficos) + ALAS status |
+
+### 📊 KPIs (16 indicadores)
+- Colaboradores totales, activos, líderes, perfiles, top municipios
+- Donaciones totales y recaudado
+- Eventos totales y próximos, asistentes
+- Acciones comunitarias y personas contactadas
+- Compromisos totales y cumplidos
+
+### 🗺️ Mapa Leaflet
+- Carga GeoJSON de territorios desde `api_territorios_geojson.php`
+- Tooltips y popups con desglose por perfil (líderes, movilizadores, simpatizantes)
+- Fallback a CircleMarker si no hay GeoJSON
+
+### 📈 Gráficos Chart.js
+- Colaboradores por mes (barra)
+- Donaciones por mes (barra con monto)
+- Eventos por mes (barra)
+- Selector de período (3/6/12 meses)
+
+### 🔌 ALAS Integración
+- Sección "Estado del Sistema" con stats de WhatsApp, Workflows, Phone Banking y Email
+- Timeline de actividad reciente con iconos por tipo
+
+### 🧩 Sidebar
+- Nuevo enlace "Dashboard Territorial" en navegación principal (icono globe)
+
 ## [2.12.0] — 2026-06-29
 
 ### 📧 Email Campaigns

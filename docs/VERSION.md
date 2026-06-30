@@ -10,18 +10,18 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.12.0 |
+| **Versión** | v2.13.0 |
 | **Fecha** | 2026-06-29 |
 | **Estado** | Producción |
 | **Commit** | *(actual)* |
-| **Feature** | Email Campaigns: campañas, segmentación, plantillas, tracking |
+| **Feature** | Dashboard Territorial: KPIs, gráficos, mapa Leaflet, ALAS integrado |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.13.0** |
-| **Feature** | Dashboard Territorial |
+| **Próxima** | **v2.14.0** |
+| **Feature** | Líder 2.0 (feed propio, ranking, notificaciones) |
 | **Estado** | En planificación (ver `01-estrategia/FASE2_ROADMAP.md`) |
 
 ---
@@ -30,7 +30,8 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v2.12.0** | 2026-06-29 | Email Campaigns (campañas, segmentación, plantillas, tracking) | *(actual)* |
+| **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | *(actual)* |
+| **v2.12.0** | 2026-06-29 | Email Campaigns (campañas, segmentación, plantillas, tracking) | `94b03ec` |
 | **v2.11.0** | 2026-06-29 | Phone Banking (campañas, cola, panel, historial) | `2f2e568` |
 | **v2.10.0** | 2026-06-29 | Interactividad en Vivo (polling, badges, toast) | `8ec9c06` |
 | **v2.9.0** | 2026-06-29 | ALAS: Comunicaciones Inteligentes + Workflows + Timeline | `16e447a` |

@@ -105,7 +105,7 @@ $paginasPermitidas = [
     'reportes', 'grupos', 'elecciones', 'candidatos', 'campanas', 'usuarios',
     'ayuda', 'configuracion', 'registro_asistencia', 'organizaciones',
     'whatsapp_log', 'whatsapp_messages', 'workflows',
-    'llamadas', 'emails'
+    'llamadas', 'emails', 'dashboard_territorial'
 ];
 ?>
 <!DOCTYPE html>
@@ -334,6 +334,10 @@ $paginasPermitidas = [
                     <a href="?page=reportes" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'reportes' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
                         <span class="text-sm">Reportes</span>
+                    </a>
+                    <a href="?page=dashboard_territorial" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard_territorial' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                        <span class="text-sm">Dashboard Territorial</span>
                     </a>
                     <a href="?page=whatsapp_log" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'whatsapp_log' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="cake" class="w-5 h-5"></i>

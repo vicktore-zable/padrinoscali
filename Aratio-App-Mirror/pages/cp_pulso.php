@@ -1,8 +1,8 @@
-<div class="max-w-6xl mx-auto" x-data="mandami()" x-init="init()">
+<div class="max-w-6xl mx-auto" x-data="cpPulso()" x-init="init()">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900">Operación Mandami</h2>
+            <h2 class="text-2xl font-bold text-gray-900">CP — Pulso de Campaña</h2>
             <p class="text-sm text-gray-500 mt-1">Embudo redes → captura → organización → poder</p>
         </div>
         <div class="flex items-center gap-2">
@@ -198,7 +198,7 @@
 </div>
 
 <script>
-function mandami() {
+function cpPulso() {
     return {
         loading: true,
         scanning: false,
@@ -216,13 +216,13 @@ function mandami() {
         async loadAll() {
             this.loading = true;
             try {
-                const res = await fetch('api/mandami.php?action=status');
+                const res = await fetch('api/cp_pulso.php?action=status');
                 const json = await res.json();
                 if (json.success) {
                     this.config = json.data.config;
                     this.funnel = json.data.funnel;
                 }
-                const tres = await fetch('api/mandami.php?action=triggers');
+                const tres = await fetch('api/cp_pulso.php?action=triggers');
                 const tjson = await tres.json();
                 if (tjson.success) this.triggers = tjson.data;
             } catch (e) { console.error(e); }
@@ -235,29 +235,29 @@ function mandami() {
         async scanNow() {
             this.scanning = true;
             try {
-                await fetch('api/mandami.php?action=scan&hours=24');
+                await fetch('api/cp_pulso.php?action=scan&hours=24');
                 await this.loadAll();
             } catch (e) { console.error(e); }
             finally { this.scanning = false; }
         },
 
         async saveTrigger() {
-            await fetch('api/mandami.php?action=save_trigger', {
+            await fetch('api/cp_pulso.php?action=save_trigger', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(this.newTrigger),
             });
             this.showAddTrigger = false;
             this.newTrigger = { keyword: '', label: '', auto_reply_template: '', landing_url: '' };
-            const res = await fetch('api/mandami.php?action=triggers');
+            const res = await fetch('api/cp_pulso.php?action=triggers');
             const json = await res.json();
             if (json.success) this.triggers = json.data;
         },
 
         async deleteTrigger(id) {
             if (!confirm('Eliminar este trigger?')) return;
-            await fetch('api/mandami.php?action=delete_trigger&id=' + id);
-            const res = await fetch('api/mandami.php?action=triggers');
+            await fetch('api/cp_pulso.php?action=delete_trigger&id=' + id);
+            const res = await fetch('api/cp_pulso.php?action=triggers');
             const json = await res.json();
             if (json.success) this.triggers = json.data;
         },

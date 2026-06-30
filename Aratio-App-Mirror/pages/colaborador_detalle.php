@@ -105,6 +105,13 @@ if (!$colaboradorId) {
                         Actividad
                         <span x-show="actividadCount > 0" class="ml-2 px-2 py-0.5 bg-fuchsia-100 text-fuchsia-600 rounded-full text-xs" x-text="actividadCount"></span>
                     </button>
+                    <button @click="activeTab = 'social'; loadSocialTimeline()"
+                            :class="activeTab === 'social' ? 'border-fuchsia-500 text-fuchsia-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                            class="px-6 py-4 border-b-2 font-medium text-sm flex items-center">
+                        <i data-lucide="share-2" class="w-4 h-4 mr-2"></i>
+                        Redes Sociales
+                        <span x-show="socialCount > 0" class="ml-2 px-2 py-0.5 bg-fuchsia-100 text-fuchsia-600 rounded-full text-xs" x-text="socialCount"></span>
+                    </button>
                 </nav>
             </div>
 
@@ -645,6 +652,50 @@ if (!$colaboradorId) {
                             </div>
                         </div>
                     </div>
+                <!-- Tab: Redes Sociales -->
+                <div x-show="activeTab === 'social'">
+                    <div x-show="loadingSocial" class="text-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-fuchsia-600 mx-auto"></div>
+                    </div>
+                    <div x-show="!loadingSocial && social.length === 0" class="text-center py-8 text-gray-500">
+                        <i data-lucide="share-2" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                        <p>Sin actividad en redes sociales.</p>
+                        <p class="text-xs text-gray-400 mt-1">Configura redes en el perfil del colaborador para ver su actividad.</p>
+                    </div>
+                    <div x-show="social.length > 0" class="space-y-3">
+                        <template x-for="item in social" :key="item.tipo + '_' + (item.url || Math.random())">
+                            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                                     :class="{
+                                         'bg-blue-100 text-blue-600': item.tipo === 'facebook_reaction',
+                                         'bg-blue-100 text-blue-600': item.tipo === 'facebook_comment',
+                                         'bg-purple-100 text-purple-600': item.tipo === 'instagram_mention',
+                                         'bg-green-100 text-green-600': item.tipo === 'social_fb_match',
+                                     }">
+                                    <i :data-lucide="{
+                                        'facebook_reaction': 'heart',
+                                        'facebook_comment': 'message-circle',
+                                        'instagram_mention': 'at-sign',
+                                        'social_fb_match': 'user-check',
+                                    }[item.tipo] || 'circle'" class="w-4 h-4"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-800" x-text="item.descripcion"></p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <span class="text-xs px-2 py-0.5 rounded"
+                                              :class="{
+                                                  'bg-blue-50 text-blue-600': item.tipo === 'facebook_reaction' || item.tipo === 'facebook_comment',
+                                                  'bg-purple-50 text-purple-600': item.tipo === 'instagram_mention',
+                                                  'bg-green-50 text-green-600': item.tipo === 'social_fb_match',
+                                              }"
+                                              x-text="item.tipo.replace(/_/g, ' ')"></span>
+                                        <span class="text-xs text-gray-400" x-text="formatearFechaSocial(item.fecha)"></span>
+                                        <a x-show="item.url" :href="item.url" target="_blank" class="text-xs text-fuchsia-600 hover:underline ml-auto">Ver publicación →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1143,6 +1194,34 @@ function colaboradorDetalle() {
         actividadTipos: ['registro','evento_asistio','compromiso_creado','donacion_hizo','whatsapp_enviado','whatsapp_recibido','estado_cambio','evaluacion','lider_cambio','cumpleaños'],
         actividadFiltros: [],
         actividadPollInterval: null,
+
+        // Redes Sociales
+        loadingSocial: false,
+        social: [],
+        socialCount: 0,
+
+        async loadSocialTimeline() {
+            if (this.loadingSocial) return;
+            this.loadingSocial = true;
+            try {
+                const resp = await fetch(`api/social_crm.php?action=timeline&colaborador_id=${this.colaboradorId}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    this.social = json.data;
+                    this.socialCount = json.data.length;
+                    this.$nextTick(() => lucide.createIcons());
+                }
+            } catch (e) { console.error('Social timeline error:', e); }
+            this.loadingSocial = false;
+        },
+
+        formatearFechaSocial(fecha) {
+            if (!fecha) return '';
+            const f = new Date(fecha.replace(' ', 'T'));
+            return f.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+        },
 
         // Cambiar líder
         liderSearch: '',

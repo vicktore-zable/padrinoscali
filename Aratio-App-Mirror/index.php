@@ -343,14 +343,6 @@ $paginasPermitidas = [
                         <i data-lucide="cake" class="w-5 h-5"></i>
                         <span class="text-sm">Cumpleaños</span>
                     </a>
-                    <a href="?page=actividad_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'actividad_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="camera" class="w-5 h-5"></i>
-                        <span class="text-sm">Monitor Digital</span>
-                    </a>
-                    <a href="?page=mapa_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'mapa_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="map" class="w-5 h-5"></i>
-                        <span class="text-sm">Mapa de Gestión</span>
-                    </a>
                 </nav>
             </div>
 
@@ -377,6 +369,29 @@ $paginasPermitidas = [
                     <a href="?page=emails" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'emails' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="mail" class="w-5 h-5"></i>
                         <span class="text-sm">Email</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Social CRM -->
+            <div class="mb-6">
+                <h4 class="text-xs font-semibold uppercase text-gray-500 mb-3 px-4">Social CRM</h4>
+                <nav class="space-y-1">
+                    <a href="?page=social_crm" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'social_crm' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                        <span class="text-sm">Redes Sociales</span>
+                    </a>
+                    <a href="?page=actividad_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'actividad_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="camera" class="w-5 h-5"></i>
+                        <span class="text-sm">Monitor Digital</span>
+                    </a>
+                    <a href="?page=mapa_instagram" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'mapa_instagram' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span class="text-sm">Mapa de Gestión</span>
+                    </a>
+                    <a href="?page=lideres" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'lideres' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="crown" class="w-5 h-5"></i>
+                        <span class="text-sm">Lideres</span>
                     </a>
                 </nav>
             </div>

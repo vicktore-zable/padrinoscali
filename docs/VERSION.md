@@ -10,18 +10,18 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.14.0 |
+| **Versión** | v2.15.0 |
 | **Fecha** | 2026-06-30 |
 | **Estado** | Producción |
 | **Commit** | *(actual)* |
-| **Feature** | Líder 2.0: ranking, feed actividad, notificaciones, API dedicada |
+| **Feature** | Social CRM: Facebook Graph API → CRM + Instagram mentions + match automático |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.15.0** |
-| **Feature** | Instagram → CRM (match menciones, lead gen, timeline) |
+| **Próxima** | **v2.16.0** |
+| **Feature** | Dashboard Territorial Social (mapa IG+FB combinado) |
 | **Estado** | En planificación |
 
 ---
@@ -30,7 +30,8 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v2.14.0** | 2026-06-30 | Líder 2.0 (ranking, feed actividad, notificaciones, API líderes) | *(actual)* |
+| **v2.15.0** | 2026-06-30 | Social CRM: Facebook API + match automático + IG mentions | *(actual)* |
+| **v2.14.0** | 2026-06-30 | Líder 2.0 (ranking, feed actividad, notificaciones, API líderes) | `2d77755` |
 | **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | `6feab7b` |
 | **v2.12.0** | 2026-06-29 | Email Campaigns (campañas, segmentación, plantillas, tracking) | `94b03ec` |
 | **v2.11.0** | 2026-06-29 | Phone Banking (campañas, cola, panel, historial) | `2f2e568` |

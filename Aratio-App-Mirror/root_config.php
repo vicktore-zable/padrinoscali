@@ -130,5 +130,13 @@ define('WATI_API_URL', 'https://wati.live/api/v1/sendTemplateMessage');
 define('WATI_API_KEY', '');
 define('WATI_NUMBER', '');
 
+// =============================================
+// CONFIGURACIÓN DE FACEBOOK GRAPH API
+// =============================================
+define('FB_APP_ID', '');
+define('FB_PAGE_ID', 'edisonconcejal');
+define('FB_PAGE_TOKEN', '');
+define('FB_API_VERSION', 'v19.0');
+
 // Marcador para saber que este archivo se cargó correctamente
 define('ROOT_CONFIG_LOADED', true);

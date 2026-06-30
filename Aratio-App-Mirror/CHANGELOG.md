@@ -4,6 +4,20 @@ Todas las actualizaciones destacadas del proyecto se documentan en este archivo.
 
 ---
 
+## [2.15.0] - 2026-06-30
+### 🌐 Social CRM: Facebook + Instagram → CRM
+- **Facebook Graph API** (`includes/FacebookApi.php`): Fetch posts, reacciones (con quién), comentarios (con quién), shares desde `facebook.com/edisonconcejal`
+- **Match Automático** (`includes/SocialCRM.php`): Algoritmo fuzzy matching por nombre (Levenshtein + word match) entre usuarios FB y colaboradores CRM
+- **5 tablas nuevas**: `fb_posts`, `fb_reactions`, `fb_comments`, `fb_commenters`, `social_leads`, `ig_menciones`
+- **API endpoints**: `api/facebook.php` (8 endpoints: status, sync, posts, post_detail, commenters, match, suggest, stats), `api/social_crm.php` (leads, timeline, IG mentions, Instagram carga masiva)
+- **Panel Admin** (`pages/social_crm.php`): 5 tabs Alpine.js (Feed FB, Comentaristas, Leads, Match, Stats) + modal asignación a colaborador + sincronización manual
+- **Instagram Mentions**: 452 menciones históricas cargadas desde JSON a DB (`ig_menciones`)
+- **Cron**: `cron/facebook_sync.php` para sincronización cada 6h
+- **Sidebar**: Nueva sección "Social CRM" con acceso a Redes Sociales, Monitor Digital, Mapa de Gestión, Líderes
+- **Constantes**: `FB_PAGE_ID`, `FB_PAGE_TOKEN`, `FB_API_VERSION` en `root_config.php`
+
+---
+
 ## [2.14.0] - 2026-06-30
 ### 👤 Líder 2.0: Ranking, Feed y API Dedicada
 - **API de Líderes** (`api/lideres.php`): 5 endpoints (ranking, detalle, feed, notificaciones, global stats)

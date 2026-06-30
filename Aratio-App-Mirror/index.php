@@ -449,6 +449,10 @@ $paginasPermitidas = [
                         <i data-lucide="help-circle" class="w-5 h-5"></i>
                         <span class="text-sm">Ayuda</span>
                     </a>
+                    <a href="?page=setup" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'setup' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                        <span class="text-sm">Estado del Sistema</span>
+                    </a>
                     <a href="?page=configuracion" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'configuracion' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="settings" class="w-5 h-5"></i>
                         <span class="text-sm">Configuración</span>

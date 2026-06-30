@@ -7,6 +7,39 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.11.0] — 2026-06-29
+
+### 📞 Phone Banking
+
+Sistema de gestión de llamadas a colaboradores con panel de agente y campañas.
+
+### 🆕 Archivos nuevos
+
+| Archivo | Descripción |
+|---------|-------------|
+| `includes/PhoneBanking.php` | Clase core: crear campañas, generar cola, asignar, registrar resultados, stats |
+| `api/llamadas.php` | 9 endpoints REST: campañas, cola, siguiente, resultado, historial, stats |
+| `pages/llamadas.php` | Panel Alpine.js con 4 tabs (Agente, Campañas, Historial, Stats) |
+| `database/migrations/20260701_phone_banking.sql` | 3 tablas + 2 reglas de workflow |
+
+### 📊 Panel Agente
+- **Campañas**: Crear campaña con nombre, descripción, guión y filtros de segmentación
+- **Cola**: Generación automática de cola al crear campaña, filtra por perfil/territorio/líder
+- **Llamada**: Botón "Siguiente" toma el primer pendiente, muestra info del colaborador + guión
+- **Timer**: Cronómetro automático al iniciar llamada
+- **Resultados**: 7 botones rápidos (contestó, no contesta, llamar después, ocupado, no interesado, equivocado, otro)
+- **Notas**: Campo opcional para resultados personalizados
+- **Mi cola**: Lista de llamadas asignadas al agente actual
+
+### 📈 Historial y Stats
+- **Historial**: Tabla paginada con filtro por resultado, muestra colaborador/agente/duración/notas
+- **Stats**: KPIs (hoy/semana/total/pendientes/duración prom), breakdown de resultados con barras, top agentes
+
+### 🔌 Integraciones
+- `ActivityLogger::log()` en cada resultado de llamada (tipo `llamada_*`)
+- `WorkflowEngine::trigger('llamada.finalizada', ...)` con resultado y duración
+- 2 reglas predefinidas: seguimiento WhatsApp si contestó, cambio estado si no contesta
+
 ## [2.10.0] — 2026-06-29
 
 ### ⚡ Interactividad en Vivo

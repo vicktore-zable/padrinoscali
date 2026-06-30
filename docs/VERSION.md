@@ -10,18 +10,18 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.10.0 |
+| **Versión** | v2.11.0 |
 | **Fecha** | 2026-06-29 |
 | **Estado** | Producción |
 | **Commit** | *(actual)* |
-| **Feature** | Interactividad en Vivo: polling, badges, toast, ALAS sidebar |
+| **Feature** | Phone Banking: campañas, cola, panel agente, historial, stats |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.11.0** |
-| **Feature** | Phone Banking |
+| **Próxima** | **v2.12.0** |
+| **Feature** | Email Campaigns |
 | **Estado** | En planificación (ver `01-estrategia/FASE2_ROADMAP.md`) |
 
 ---
@@ -30,7 +30,8 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v2.10.0** | 2026-06-29 | Interactividad en Vivo (polling, badges, toast) | *(actual)* |
+| **v2.11.0** | 2026-06-29 | Phone Banking (campañas, cola, panel, historial) | *(actual)* |
+| **v2.10.0** | 2026-06-29 | Interactividad en Vivo (polling, badges, toast) | `8ec9c06` |
 | **v2.9.0** | 2026-06-29 | ALAS: Comunicaciones Inteligentes + Workflows + Timeline | `16e447a` |
 | **v2.8.0** | 2026-06-28 | Reporte Geográfico Interactivo (Leaflet) | `e4f9b17` |
 | **v2.7.0** | 2026-06-19 | Instagram Sync: API v1 + Cookies (686 posts) | `0741e2a` |

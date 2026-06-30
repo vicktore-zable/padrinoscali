@@ -10,19 +10,19 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.15.0 |
+| **Versión** | v3.0.0 |
 | **Fecha** | 2026-06-30 |
 | **Estado** | Producción |
 | **Commit** | *(actual)* |
-| **Feature** | Social CRM: Facebook Graph API → CRM + Instagram mentions + match automático |
+| **Feature** | Refactor: Logger centralizado, Container DI, PHPUnit tests, Social CRM completo |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.16.0** |
-| **Feature** | Dashboard Territorial Social (mapa IG+FB combinado) |
-| **Estado** | En planificación |
+| **Próxima** | **v3.1.0** |
+| **Feature** | Migrar APIs a Container DI + mejoras continuas |
+| **Estado** | Por definir |
 
 ---
 
@@ -30,7 +30,8 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v2.15.0** | 2026-06-30 | Social CRM: Facebook API + match automático + IG mentions | *(actual)* |
+| **v3.0.0** | 2026-06-30 | Refactor: Logger, Container DI, PHPUnit, Social CRM completo | *(actual)* |
+| **v2.15.0** | 2026-06-30 | Social CRM: Facebook API + match automático + IG mentions | `214d5c5` |
 | **v2.14.0** | 2026-06-30 | Líder 2.0 (ranking, feed actividad, notificaciones, API líderes) | `2d77755` |
 | **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | `6feab7b` |
 | **v2.12.0** | 2026-06-29 | Email Campaigns (campañas, segmentación, plantillas, tracking) | `94b03ec` |

@@ -7,6 +7,44 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.15.0] — 2026-07-08
+
+### 🐛 Fix: Tab Zonas de Trabajo oculto (HTML estructura)
+
+**Problema**: El tab Zonas de Trabajo y Redes Sociales no se mostraban al hacer clic.
+
+**Causa raíz**: `<div x-show="activeTab === 'actividad'">` (línea 621) no tenía `</div>` de cierre → Social y Zonas quedaban anidados dentro, ocultos por `display: none`.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/colaborador_detalle.php` | `</div>` agregado línea 660 cerrando Actividad; tabs ahora son hermanos correctos |
+
+### 🆕 Tab Zonas de Trabajo — Vista completa
+
+**Feature**: Visualización de zonas propias + de seguidores con tabla, mapa GeoJSON y CRUD completo.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/colaborador_detalle.php` | Tabla Zona/Municipio/Tipo/Responsable/Acciones; empty state personalizado; stats; toast; precarga jerárquica async (dpto→mpio→tipo→territorio→barrio); botones solo para 'propia' |
+| `api/zonas_trabajo.php` | `con_seguidores` con filtro lider_directo+campana; PUT con territorio_id; `_method=PUT` via POST; `barrios_v2` |
+| `api/territorios.php` | Nueva action `detalle_territorio&id=X` |
+| `pages/colaborador_detalle.php` | Mapa Leaflet con responsable en popup; `colaborador_zona_id` |
+
+### 🎨 WhatsApp Cumpleaños — Rediseño tarjetas
+
+**Feature**: Visual redesign del calendario de cumpleaños con countdown y gradiente por urgencia.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/whatsapp_log.php` | Grid 3 columnas; tarjetas con barra gradiente (rojo=hoy, ámbar≤3, azul≤7, gris>7); bloque "Cumple" con fecha+edad; badge countdown; botón circular; toast |
+| `api/whatsapp.php` | Endpoint `cumpleanos` con `fecha_exacta` + `dias_faltantes` |
+
+### 🚀 Deploy
+
+Subido 5 archivos a producción (`padrinoscali.org`) y legacy (`edisongiraldo.com`).
+
+---
+
 ## [2.14.0] — 2026-06-30
 
 ### 🚀 Deploy Completo a Producción + Nuevos Módulos

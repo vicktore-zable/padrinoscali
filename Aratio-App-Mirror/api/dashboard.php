@@ -6,7 +6,7 @@ requireAuth();
 
 $db = getDB();
 $action = $_GET['action'] ?? '';
-$campanaId = (int)($_SESSION['campana_activa'] ?? 0);
+$campanaId = (int)($_GET['campana_id'] ?? $_SESSION['campana_activa'] ?? 0);
 $userId = (int)($_SESSION['user_id'] ?? 0);
 
 try {
@@ -38,16 +38,26 @@ function handleKpi(PDO $db, int $campanaId): void
 {
     $data = [];
 
-    // Colaboradores
+    // Colaboradores (total general)
     $stmt = $db->prepare("SELECT COUNT(*) FROM colaboradores WHERE campana_id = ?");
     $stmt->execute([$campanaId]);
     $data['colaboradores'] = (int)$stmt->fetchColumn();
 
+    // Padrinos = colaboradores con perfil de liderazgo
+    $stmt = $db->prepare("SELECT COUNT(*) FROM colaboradores WHERE campana_id = ? AND (perfil LIKE '%Lider%' OR perfil LIKE '%Líder%' OR perfil LIKE '%Candidat%')");
+    $stmt->execute([$campanaId]);
+    $data['padrinos'] = (int)$stmt->fetchColumn();
+
+    // Seguidores = colaboradores que NO son padrinos
+    $data['seguidores'] = max(0, $data['colaboradores'] - $data['padrinos']);
+
+    // Activos
     $stmt = $db->prepare("SELECT COUNT(*) FROM colaboradores WHERE campana_id = ? AND (estado IS NULL OR estado NOT IN ('inactivo','Inactivo'))");
     $stmt->execute([$campanaId]);
     $data['activos'] = (int)$stmt->fetchColumn();
 
-    $stmt = $db->prepare("SELECT COUNT(DISTINCT lider_directo) FROM colaboradores WHERE campana_id = ? AND lider_directo IS NOT NULL");
+    // Lideres directos (personas que tienen seguidores asignados)
+    $stmt = $db->prepare("SELECT COUNT(DISTINCT lider_directo) FROM colaboradores WHERE campana_id = ? AND lider_directo IS NOT NULL AND lider_directo != ''");
     $stmt->execute([$campanaId]);
     $data['lideres'] = (int)$stmt->fetchColumn();
 
@@ -61,6 +71,12 @@ function handleKpi(PDO $db, int $campanaId): void
     $stmt->execute([$campanaId]);
     $data['top_municipios'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $data['total_municipios'] = (int)$db->query("SELECT COUNT(DISTINCT municipio) FROM colaboradores WHERE campana_id = $campanaId AND municipio IS NOT NULL")->fetchColumn();
+
+    // Geografía detallada
+    $data['comunas'] = (int)$db->query("SELECT COUNT(DISTINCT territorio) FROM colaboradores WHERE campana_id = $campanaId AND tipo_territorio = 'Comuna' AND territorio IS NOT NULL")->fetchColumn();
+    $data['barrios'] = (int)$db->query("SELECT COUNT(DISTINCT barrio) FROM colaboradores WHERE campana_id = $campanaId AND barrio IS NOT NULL")->fetchColumn();
+    $data['urbano'] = (int)$db->query("SELECT COUNT(*) FROM colaboradores WHERE campana_id = $campanaId AND tipo_territorio = 'Comuna'")->fetchColumn();
+    $data['rural'] = (int)$db->query("SELECT COUNT(*) FROM colaboradores WHERE campana_id = $campanaId AND tipo_territorio IN ('Corregimiento','Rural','Vereda')")->fetchColumn();
 
     // Donaciones
     $stmt = $db->prepare("SELECT COUNT(*) FROM donaciones WHERE campana_id = ? AND estado = 'confirmada'");
@@ -84,6 +100,11 @@ function handleKpi(PDO $db, int $campanaId): void
     $stmt->execute([$campanaId]);
     $data['asistentes'] = (int)$stmt->fetchColumn();
 
+    // Asistencia real desde tabla asistencia_eventos
+    $stmt = $db->prepare("SELECT COUNT(*) FROM asistencia_eventos ae JOIN eventos e ON ae.evento_id = e.id WHERE e.campana_id = ? AND ae.asistio = 1");
+    $stmt->execute([$campanaId]);
+    $data['asistencia_real'] = (int)$stmt->fetchColumn();
+
     // Acciones
     $stmt = $db->prepare("SELECT COUNT(*) FROM acciones_comunitarias WHERE campana_id = ?");
     $stmt->execute([$campanaId]);
@@ -101,6 +122,30 @@ function handleKpi(PDO $db, int $campanaId): void
     $stmt = $db->prepare("SELECT COUNT(*) FROM compromisos WHERE campana_id = ? AND estado = 'cumplido'");
     $stmt->execute([$campanaId]);
     $data['compromisos_cumplidos'] = (int)$stmt->fetchColumn();
+
+    // Instagram (desde storage/maestro_instagram.json)
+    $igStats = ['total_publicaciones' => 0];
+    $igPath = __DIR__ . '/../storage/instagram_data.json';
+    if (file_exists($igPath)) {
+        $igData = json_decode(file_get_contents($igPath), true);
+        $igStats = $igData['estadisticas'] ?? $igStats;
+    }
+    $data['instagram'] = (int)($igStats['total_publicaciones'] ?? 0);
+
+    // Facebook (desde tabla fb_posts)
+    $data['facebook'] = (int)$db->query("SELECT COUNT(*) FROM fb_posts")->fetchColumn();
+
+    // WhatsApp (ALAS)
+    $data['whatsapp_activos'] = (int)$db->query("SELECT COUNT(*) FROM whatsapp_conversaciones WHERE estado = 'activa'")->fetchColumn();
+    $data['whatsapp_no_leidos'] = (int)$db->query("SELECT COALESCE(SUM(unread), 0) FROM whatsapp_conversaciones WHERE estado = 'activa'")->fetchColumn();
+
+    // Phone Banking
+    $data['llamadas'] = (int)$db->query("SELECT COUNT(*) FROM llamadas_log WHERE DATE(creado_en) = CURDATE()")->fetchColumn();
+    $data['llamadas_pendientes'] = (int)$db->query("SELECT COUNT(*) FROM llamadas_cola WHERE estado = 'pendiente'")->fetchColumn();
+
+    // Email
+    $data['emails_enviados'] = (int)$db->query("SELECT COUNT(*) FROM email_log WHERE DATE(creado_en) = CURDATE() AND estado = 'enviado'")->fetchColumn();
+    $data['emails_pendientes'] = (int)$db->query("SELECT COUNT(*) FROM email_cola WHERE estado = 'pendiente'")->fetchColumn();
 
     jsonResponse(['success' => true, 'data' => $data]);
 }

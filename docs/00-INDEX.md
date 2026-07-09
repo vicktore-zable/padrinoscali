@@ -1,7 +1,7 @@
 # Índice Maestro de Documentación
 
 > **Proyecto:** Aratio — Padrinos Cali
-> **Última actualización:** 2026-06-29
+> **Última actualización:** 2026-07-08
 
 ---
 
@@ -14,7 +14,13 @@
 
 ## 02 — Arquitectura
 
-*(En construcción)*
+| Documento | Descripción |
+|-----------|-------------|
+| `ARQUITECTURA_ACTUAL.md` | **NUEVO** — Mapa completo de arquitectura, stack, ruteo, estructura de directorios, ~42 tablas DB, 6 módulos, problemas identificados y recomendaciones |
+| `VISTAS_PENDIENTES.md` | **NUEVO** — Listado de vistas que causan fatal error, huérfanas, sin enlaces, APIs sin configuración y plan de reconstrucción |
+| `DB_AUDITORIA.md` | **NUEVO** — Auditoría de base de datos: optimización de consultas, sugerencias de índices, validaciones, transacciones y bitácoras |
+| `MODULOS_ADMIN.md` | **NUEVO** — Análisis de lógica de administración por entidad, propuesta de componentes UI reutilizables y jerarquía de permisos |
+| `MODULOS_GEOGRAFICOS.md` | **NUEVO** — Estrategia de expansión a municipios del Valle del Cauca: estructura actual, fuentes DANE, script ETL, ajustes en vistas |
 
 ## 03 — Despliegue
 
@@ -53,6 +59,7 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 | Documento | Descripción |
 |-----------|-------------|
 | `ORIGEN_BIRTHDAY_WATI.md` | Documentación original del sistema de cumpleaños v2.8.0 |
+| `WHATSAPP_BIRTHDAY_UI.md` | **NUEVO** — Rediseño visual de tarjetas de cumpleaños: fecha exacta + días faltantes + sistema de colores por urgencia (v2.8.1) |
 
 ### JAC
 
@@ -69,13 +76,18 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 
 ## 05 — Integraciones
 
+### Estado General
+
+| Documento | Descripción |
+|-----------|-------------|
+| `ESTADO_INTEGRACIONES.md` | **NUEVO** — Estado actual de todas las integraciones externas (WhatsApp, Facebook, Instagram, Email) con checklist de configuración pendiente |
+
 ### Instagram
 
 | Documento | Descripción |
 |-----------|-------------|
 | `MAESTRO_SCRAPER.md` | Documentación técnica del scraper de Instagram (@edison_concejal) |
 | `TIMELINE_CONCEJAL.md` | Timeline completo de 686 posts (2018-2026) — 278 KB |
-| MAESTRO_SCRAPER.md | `raíz del proyecto` |
 
 ### WhatsApp
 
@@ -127,5 +139,11 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 > **`F:\xampp2\htdocs\aratio\documentacion\`** (57 archivos)
 > **`F:\xampp2\htdocs\aratio\docs\`** (2 archivos)
 > **`Aratio-App-Mirror\documentacion\`** (espejo en workspace)
+
+## Planes
+
+| Documento | Descripción |
+|-----------|-------------|
+| `PLAN_SPRINTS.md` | **NUEVO** — Plan detallado por 5 sprints: tareas, prioridades, esfuerzo estimado, criterios de aceptación para cada sprint |
 
 Para buscar documentación histórica, usar `grep -r "tema" documentacion/` en la terminal.

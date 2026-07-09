@@ -249,6 +249,7 @@ function redJerarquica() {
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const rootDoc = urlParams.get('root_doc') || '';
+                const focusDoc = urlParams.get('focus') || '';
                 const response = await fetch(`api/colaboradores.php?action=network&campana_id=${this.campanaId}&root_doc=${rootDoc}`);
                 const result = await response.json();
 
@@ -257,6 +258,11 @@ function redJerarquica() {
                     this.allEdges = result.data.edges;
                     this.stats = result.data.stats;
                     this.renderNetwork(this.allNodes, this.allEdges);
+                    if (focusDoc) {
+                        this.$nextTick(() => {
+                            setTimeout(() => this.focusNode(focusDoc), 500);
+                        });
+                    }
                 } else {
                     console.error('Error:', result.message);
                 }

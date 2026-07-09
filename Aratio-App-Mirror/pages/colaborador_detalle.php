@@ -22,7 +22,7 @@ if (!$colaboradorId) {
     </div>
 
     <!-- Contenido -->
-    <div x-show="!loading && colaborador">
+    <template x-if="!loading && colaborador?.id"><div>
         <!-- Header con breadcrumb -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
@@ -32,13 +32,13 @@ if (!$colaboradorId) {
                     <span x-text="colaborador.nombres + ' ' + colaborador.apellidos"></span>
                 </div>
                 <h1 class="text-2xl font-bold text-gray-800 flex items-center">
-                    <template x-if="colaborador.foto">
-                        <img :src="'<?= url('') ?>' + colaborador.foto" class="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-gray-100 mr-3">
+                    <template x-if="colaborador?.foto">
+                        <img :src="'<?= url('') ?>' + colaborador.foto" @error="$el.style.display='none'" class="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-gray-100 mr-3">
                     </template>
                     <template x-if="!colaborador.foto">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3"
                              :style="'background: linear-gradient(135deg, #FF00FF, #FFD700)'">
-                            <span x-text="colaborador.nombres ? colaborador.nombres.charAt(0) : ''"></span>
+                            <span x-text="(colaborador?.nombres || ' ').charAt(0)"></span>
                         </div>
                     </template>
                     <div>
@@ -61,7 +61,7 @@ if (!$colaboradorId) {
                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                     Reevaluar
                 </button>
-                <a :href="'index.php?page=colaboradores_red&focus=' + colaborador.id"
+                <a :href="'index.php?page=colaboradores_red&focus=' + (colaborador?.documento || colaborador?.id)"
                    class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 flex items-center">
                     <i data-lucide="network" class="w-4 h-4 mr-2"></i>
                     Ver en Red
@@ -699,7 +699,7 @@ if (!$colaboradorId) {
                 </div>
             </div>
         </div>
-    </div>
+    </div></template>
 
     <!-- Modal: Cambiar Líder -->
     <div x-show="showModal === 'cambiarLider'" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
@@ -1145,7 +1145,7 @@ function colaboradorDetalle() {
         colaboradorId: <?= json_encode($colaboradorId) ?>,
         campanaId: <?= json_encode($campanaId) ?>,
         loading: true,
-        colaborador: null,
+        colaborador: {},
         liderInfo: { nombres: '', apellidos: '' },
         activeTab: 'info',
         showModal: null,

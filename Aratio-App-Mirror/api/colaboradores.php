@@ -1053,7 +1053,6 @@ function handleSeguidores($db)
         jsonResponse(['success' => false, 'message' => 'ID de colaborador requerido'], 400);
     }
 
-    // Obtener documento del colaborador
     $stmt = $db->prepare("SELECT documento, campana_id FROM colaboradores WHERE id = ?");
     $stmt->execute([$colaboradorId]);
     $colaborador = $stmt->fetch();
@@ -1062,7 +1061,7 @@ function handleSeguidores($db)
         jsonResponse(['success' => false, 'message' => 'Colaborador no encontrado'], 404);
     }
 
-    // Obtener seguidores directos
+    // Seguidores directos
     $stmt = $db->prepare("
         SELECT id, documento, nombres, apellidos, perfil, nivel_participacion,
                dato_potencial, dato_historico, departamento, municipio, created_at
@@ -1073,40 +1072,31 @@ function handleSeguidores($db)
     $stmt->execute([$colaborador['documento'], $colaborador['campana_id']]);
     $seguidores = $stmt->fetchAll();
 
-    // Calcular campos virtuales
     foreach ($seguidores as &$s) {
         $s['estado'] = calcularEstado($s['dato_potencial'], $s['dato_historico']);
         $s['nombre_completo'] = $s['nombres'] . ' ' . $s['apellidos'];
     }
 
-    // Calcular estadísticas adicionales para la vista "Gestión de Red" estilo Dashboard
-    // 1. Obtener la red descendente total (Nivel 1 + Nivel N)
-    $totalRed = count($seguidores); // Valor por defecto: Nivel 1. Se sobreescribe si se pueden leer más niveles
-
-    // Calcular desglose de barrio/territorio
-    $desgloseTerritorio = [];
-
-    try {
-        require_once __DIR__ . '/../mod_lider/src/Models/Colaborador.php';
-        $colaboradorModel = new \App\Models\Colaborador();
-
-        // Recursividad para la estructura descendente
-        $downline = $colaboradorModel->getDownlineDocumentos($colaborador['documento']);
-        $totalRed = count($downline);
-
-        // Desglose de distribución barrial
-        if (!empty($downline)) {
-            $desgloseTerritorio = $colaboradorModel->getNeighborhoodBreakdown($downline);
-        }
-
-    } catch (\Exception $e) {
-        // En caso de fallar (ej. la clase modelo no se encuentra en el autoloader), 
-        // fallback al nivel básico (directo) sin romper la API
-        $totalRed = count($seguidores);
-        $downline = array_column($seguidores, 'documento');
+    // Conteo de red total (incluyendo niveles anidados) vía SQL recursivo
+    $totalRed = count($seguidores);
+    $seguidoresDocs = array_column($seguidores, 'documento');
+    if (!empty($seguidoresDocs)) {
+        $placeholders = implode(',', array_fill(0, count($seguidoresDocs), '?'));
+        $stmt2 = $db->prepare("SELECT COUNT(*) FROM colaboradores WHERE lider_directo IN ($placeholders) AND campana_id = ?");
+        $stmt2->execute(array_merge($seguidoresDocs, [$colaborador['campana_id']]));
+        $totalRed += (int)$stmt2->fetchColumn();
     }
 
-    // Retorno Extendido
+    // Desglose por territorio
+    $desgloseTerritorio = [];
+    foreach ($seguidores as $s) {
+        $key = $s['municipio'] ?? 'Sin municipio';
+        if (!isset($desgloseTerritorio[$key])) {
+            $desgloseTerritorio[$key] = ['municipio' => $key, 'total' => 0];
+        }
+        $desgloseTerritorio[$key]['total']++;
+    }
+
     jsonResponse([
         'success' => true,
         'data' => $seguidores,
@@ -1114,7 +1104,7 @@ function handleSeguidores($db)
         'stats' => [
             'total_directos' => count($seguidores),
             'total_red' => $totalRed,
-            'desglose_territorio' => $desgloseTerritorio
+            'desglose_territorio' => array_values($desgloseTerritorio)
         ]
     ]);
 }

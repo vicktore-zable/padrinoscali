@@ -7,6 +7,53 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.14.0] — 2026-06-30
+
+### 🚀 Deploy Completo a Producción + Nuevos Módulos
+
+Subida completa de todos los módulos faltantes a producción en `padrinoscali.org/aratio/`.
+
+### 🆕 CP — Pulso de Campaña
+
+| Archivo | Descripción |
+|---------|-------------|
+| `includes/MessengerBot.php` | Clase PHP con templates de campaña, envío WhatsApp/Messenger, logging |
+| `api/cp_pulso.php` | Endpoint webhook + CRUD triggers |
+| `pages/cp_pulso.php` | Panel admin Alpine.js: historial, stats, envío manual |
+| `cron/cp_scan.php` | Disparo automático diario de campañas vencidas |
+| `cp_captura.php` | Landing pública de captura de leads |
+| `database/migrations/20260701_cp_pulso.sql` | Tablas `cp_triggers`, `cp_capture_flow` |
+| `root_config.php` | Constante `CP_BASE_URL` |
+| `index.php` | Ruta `cp_pulso` + sidebar |
+
+### 🗺️ Dashboard Territorial + Social CRM (deploy a prod)
+
+Migración completa del ecosistema Social CRM a producción:
+
+| Grupo | Archivos |
+|-------|----------|
+| `includes/` | ActivityLogger, Container, EmailCampaigns, FacebookApi, InstagramGraphApi, Logger, PhoneBanking, SocialCRM, WhatsAppCloudApi, WorkflowEngine |
+| `api/` | dashboard, emails, facebook, instagram_graph, lideres, llamadas, setup, social_crm, social_territorial, timeline, whatsapp_messages, whatsapp_webhook, workflows |
+| `pages/` | dashboard_territorial, dashboard_territorial_social, emails, instagram_graph, lideres, llamadas, setup, social_crm, whatsapp_messages, workflows |
+| `cron/` | email_processor, facebook_sync, whatsapp_broadcast, workflow_processor |
+| `config/` | di.php |
+| `migrations/` | 8 SQLs (20260628–20260703) |
+
+### 🖥️ Landing Page
+
+- Nueva sección **Plataforma** con 4 targetas de módulos + CTA
+
+### 📊 Monitor Instagram
+
+- Fix sync sin Python: lectura directa desde `maestro_instagram.json`
+- Orden descendente por fecha
+
+### 📚 Documentación
+
+- `docs/04-modulos/GUETA_ANALYTICS.md` — Documento maestro del sistema de analytics
+
+---
+
 ## [2.13.0] — 2026-06-29
 
 ### 🗺️ Dashboard Territorial

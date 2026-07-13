@@ -7,7 +7,26 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
-## [2.15.0] — 2026-07-08
+## [2.18.0] — 2026-07-12
+
+### 🆕 Panorama BI Hub rediseñado: distribuciones + top rankings
+
+**Problema**: Panorama solo mostraba 3 charts básicos (tendencia, composición por perfil, top 5 municipios). Sin visibilidad de distribución por rol/estado/género/nivel de participación, ni rankings de territorios/barrios/líderes.
+
+**Solución**: Rediseño completo del tab Panorama en BI Hub con cards de distribución, top rankings y renombramiento perfil→rol.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/bi.php` | `handlePanorama` ahora retorna `distribuciones` (rol, estado, genero, nivel_participacion), `topLideres` (top 10 con seguidores), `topTerritorios` (top 10), `topBarrios` (top 10). Reemplaza `composicion` + `topMuni` |
+| `pages/bi.php` | Cards distribución Rol/Estado/Género; badges Nivel Participación; charts Top 10 Territorios, Top 10 Barrios, Top 10 Líderes Directos; labels perfil→rol |
+
+### 🐛 Fix: API ahora retorna `label` en distribuciones (normaliza nombres)
+
+**Problema**: `composicion` usaba `d.perfil` como label; nuevo esquema usa `d.label` genérico.
+
+**Solución**: `distribuciones.rol` usa `perfil AS label`, `distribuciones.estado` usa `COALESCE(NULLIF(estado,''), 'Sin estado') AS label`, etc.
+
+---
 
 ### 🐛 Fix: Tab Zonas de Trabajo oculto (HTML estructura)
 

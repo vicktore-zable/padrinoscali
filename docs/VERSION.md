@@ -10,11 +10,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v3.0.0 |
-| **Fecha** | 2026-06-30 |
+| **Versión** | v2.18.0 |
+| **Fecha** | 2026-07-12 |
 | **Estado** | Producción |
-| **Commit** | *(actual)* |
-| **Feature** | Refactor: Logger centralizado, Container DI, PHPUnit tests, Social CRM completo |
+| **Commit** | `792b8f2` |
+| **Feature** | Panorama BI Hub: distribuciones rol/estado/género, top 10 líderes/territorios/barrios |
 
 ## Siguiente Versión
 
@@ -31,6 +31,10 @@
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
 | **v3.0.0** | 2026-06-30 | Refactor: Logger, Container DI, PHPUnit, Social CRM completo | *(actual)* |
+| **v2.18.0** | **2026-07-12** | **Panorama BI Hub: distribuciones + top rankings** | `792b8f2` |
+| **v2.17.1** | **2026-07-12** | **Dashboard v2: fix sin_trabajo, charts barrio/comuna, tabbed map 4 capas, remover ALAS/Recientes** | **(deployed)** |
+| **v2.17.0** | 2026-07-11 | Dashboard Territorial: Semáforo Zonas de Trabajo + KPIs | *(local)* |
+| **v2.16.0** | 2026-07-11 | Zonas Trabajo: Vista Unificada Líder + Botón Recarga GeoJSON | *(local)* |
 | **v2.15.0** | 2026-06-30 | Social CRM: Facebook API + match automático + IG mentions | `214d5c5` |
 | **v2.14.0** | 2026-06-30 | Líder 2.0 (ranking, feed actividad, notificaciones, API líderes) | `2d77755` |
 | **v2.13.0** | 2026-06-29 | Dashboard Territorial (KPIs + gráficos + mapa Leaflet + ALAS) | `6feab7b` |

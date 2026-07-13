@@ -1,6 +1,6 @@
 # CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 2.7.0 | Proyecto: padrinoscali.org | Cali, Colombia*
+*Versión: 2.18.0 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 
@@ -30,35 +30,49 @@
 edisongiraldo.com/
 ├── CLAUDE.md                    ← Esta constitución
 ├── DEPLOY_EDISONGIRALDO.md      ← Credenciales (NO compartir)
-├── .gitignore
+├── Aratio-App-Mirror/           ← Espejo sincronizado del código XAMPP
+│   ├── DIAGNOSTICO_SINCRONIZACION.md
+│   ├── pages/api/includes/cron/config/
+│   ├── mod_*/                   ← 7 módulos activos
+│   ├── documentacion/
+│   │   ├── *.md                 ← 34 docs útiles (31 migrados a docs/)
+│   │   └── archived/            ← 24 docs obsoletos
+│   └── sync-xampp-to-mirror.sh  ← Script de sincronización
 ├── config/
-│   └── config.php              ← Configuración principal
+│   └── config.php               ← Configuración principal
 ├── docs/                        ← Documentación organizada por temas
-│   ├── 00-INDEX.md             ← Índice maestro
+│   ├── 00-INDEX.md             ← Índice maestro (actualizado 2026-07-11)
 │   ├── CHANGELOG.md            ← Changelog unificado
 │   ├── VERSION.md              ← Control de versiones
 │   ├── 01-estrategia/          ← Planes y roadmaps
 │   ├── 02-arquitectura/        ← Diagramas, DB, APIs
 │   ├── 03-despliegue/          ← Deploy, credenciales, mantenimiento
-│   ├── 04-modulos/             ← Docs por módulo
+│   ├── 04-modulos/             ← Docs por módulo (migrados de documentacion/)
 │   ├── 05-integraciones/       ← Instagram, WhatsApp
 │   ├── 06-reportes/            ← Auditorías, diagnósticos
 │   ├── 07-sesiones/            ← Notas de sesiones
-│   ├── 08-guias/              ← How-to guides
-│   ├── 09-referencia/          ← Design system, specs
+│   ├── 08-guias/              ← How-to guides (8 docs)
+│   ├── 09-referencia/          ← Design system, specs (12 docs)
 │   └── versiones/              ← Snapshots por versión
-├── *.py                       ← Scripts de diagnóstico/auditoría
-├── *_content.txt               ← Contenidos extraídos del remoto
-└── quality_reports/          ← Reports auditados
+├── *.py                       ← Scripts de diagnóstico/auditoría/deploy
+└── production_index.html      ← Homepage estática de producción
 
 # Desarrollo Local (XAMPP)
 F:\xampp2\htdocs\aratio\
-├── api/                      ← Endpoints backend
 ├── pages/                    ← Vistas Alpine.js
+├── api/                      ← Endpoints backend
 ├── includes/                 ← Clases núcleo
-├── config/
-│   └── config.php            ← Config local (apunta a DB remota)
-└── mod_*/                   ← Módulos adicionales
+├── cron/                     ← Tareas programadas (birthday_check)
+├── config/config.php         ← Config local (apunta a DB remota)
+└── mod_*/                   ← 7 módulos activos
+
+# Producción
+https://padrinoscali.org/aratio/
+├── index.html                ← Página estática (landing)
+├── index.php                 ← Router de la app (sincronizado con XAMPP)
+├── login.php / landing.php   ← App activa
+├── pages/whatsapp_log.php    ← Módulo cumpleaños (idéntico a XAMPP)
+└── api/*.php                 ← Endpoints funcionales
 ```
 
 ---
@@ -90,6 +104,9 @@ py notebook_agent.py research "Análisis territorial Comuna X Cali"
 # Revisión crítica de contenido
 py notebook_agent.py review <archivo_o_texto>
 
+# === Sincronización XAMPP → Mirror ===
+bash Aratio-App-Mirror/sync-xampp-to-mirror.sh
+
 # === Instagram Sync ===
 # Login manual (cuando cookies expiren — ~1-2 semanas)
 python instagram_login.py
@@ -102,8 +119,8 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 
 ## 🎯 Estado del Proyecto
 
-- **Versión**: v2.7.0 (Instagram Sync — API v1 + Cookies)
-- **Git**: ✅ Inicializado
+- **Versión**: v2.15.0 (WhatsApp Birthday + Zonas Trabajo + CRUD)
+- **Git**: ✅ Inicializado (3 repos: XAMPP, workspace root, Aratio-App-Mirror)
 - **Producción**: https://padrinoscali.org/aratio/ ✅ (DNS propagado)
 - **Legacy**: https://edisongiraldo.com/aratio/
 - **Preview**: https://gold-whale-298635.hostingersite.com/aratio/
@@ -117,6 +134,96 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 ---
 
 ## 📋 Changelog
+
+### v2.18.0 (2026-07-12) — Panorama BI Hub: distribuciones + top rankings
+
+**Problema**: Panorama solo mostraba 3 charts básicos. Sin distribución por rol/estado/género/nivel_participación, ni top líderes/territorios/barrios.
+
+**Solución**: Rediseño del tab Panorama con cards de distribución, charts de top rankings y renombramiento perfil→rol.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/bi.php` | `handlePanorama`: retorna `distribuciones` (rol, estado, genero, nivel_participacion), `topLideres` (top 10), `topTerritorios` (top 10), `topBarrios` (top 10) |
+| `pages/bi.php` | Cards Rol/Estado/Género, badges Nivel Participación, charts Top 10 Territorios/Barrios/Líderes Directos |
+
+### v2.17.0 (2026-07-11) — Dashboard Territorial: Semáforo Zonas de Trabajo
+
+**Problema**: El mapa del Dashboard Territorial solo mostraba polígonos de municipios. No había visibilidad de cobertura de zonas de trabajo ni indicadores de líderes con/sin trabajo social.
+
+**Solución**: Nuevo endpoint `zonas_semaforo` que retorna GeoJSON de zonas de trabajo con colores semáforo (verde≥5, amarillo 3-4, rojo 1-2 responsables) + KPIs de líderes con/sin trabajo social. Capa de zonas superpuesta en el mapa con leyenda, tooltip y popup. Botón de recarga solo para la capa de zonas.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/dashboard.php` | Nuevo `action=zonas_semaforo`: GeoJSON agrupado por territorio+barrio con `n_responsables`, colores semáforo, KPIs `lideres_total/con_trabajo/sin_trabajo` |
+| `pages/dashboard_territorial.php` | 3 KPI cards (Líderes Totales, Con Trabajo Social, Sin Trabajo Social), capa polígonos semáforo, leyenda inline, botón recarga zonas, `agregarCapaZonas()`, `recargarZonasSemaforo()` |
+
+**Deploy**: 2 archivos a padrinoscali.org y edisongiraldo.com.
+
+**Notas técnicas**:
+- Semáforo: ≥5 responsables = verde, 3-4 = amarillo, 1-2 = rojo
+- Capa zonas se superpone a capa municipios (municipios en púrpura claro, zonas en semáforo)
+- Botón recarga elimina y recrea solo la capa de zonas (no la de municipios)
+- `fillOpacity: 0.35` para ver polígonos de municipios debajo
+
+### v2.17.1 (2026-07-12) — Dashboard v2: Filtros + fix conteos + tabbed map
+
+**Problema**: "Sin Trabajo Social" mostraba número incorrecto. ALAS y Actividad Reciente ocupaban espacio sin datos relevantes. Sin visibilidad de compromisos, eventos, acciones ni Instagram en el mapa.
+
+**Solución**: Fix conteos (sin trabajo social = total - con trabajo), remover ALAS/Recientes, nuevo tabbed map con 4 capas temáticas (Compromisos, Eventos, Acciones, Instagram) lazy-load.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/dashboard.php` | `handleZonasSemaforo`: `sin_trabajo = total - conTrabajo` (sin restar admin); nueva `handleOtrosMapas`: 4 GeoJSON (compromisos, eventos, acciones, instagram) con paletas de colores distintas y `$getGeoJSON()` helper |
+| `pages/dashboard_territorial.php` | Removidas ALAS + Actividad Reciente (HTML + Alpine `alas`/`recientes`/`iconoActividad`/`tiempoRelativo`); nueva sección tabbed map con 4 tabs y mapa Leaflet compartido; Alpine: `tabOtros`, `otrosMapa`, `otrosLayer`, `otrosData`, `otrosCargados`, `loadOtrosMapas()`, `initMapaOtros()`, `cargarOtrosMapa()`, `mostrarCapaOtros()`, `cambiarTab()` |
+
+**Deploy**: 2 archivos a padrinoscali.org.
+
+### v2.16.0 (2026-07-11) — Zonas de Trabajo: Vista Unificada Líder + Botón Recarga GeoJSON
+
+**Problema**: Un líder no veía las zonas de trabajo de sus colaboradores en una vista unificada. El mapa Leaflet no tenía botón de recarga de capa geoespacial. Los datos se duplicaban cuando múltiples personas cubrían el mismo barrio.
+
+**Solución**: API `con_seguidores` ahora desduplica por `territorio_id|barrio`, agrega array `responsables[]` por zona y retorna `tipo_display` (propia/seguidor/mixta). Mapa Leaflet con control personalizado de recarga solo para capa GeoJSON (no tabla). Botón "Recargar" general en el header de la pestaña.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/zonas_trabajo.php` | `con_seguidores`: desduplicación, `responsables[]`, `geometry_json`, `tipo_display` |
+| `pages/colaborador_detalle.php` | Template: badges separados, tabla responsables, mapa con control recarga. JS: `inicializarMapaZonas()`, `recargarZonas()`, zoom 11 (Cali), solo cargar en tab click |
+| `index.php` (raíz + Aratio-App-Mirror) | CSS `.leaflet-control-custom.rotating` animación spin |
+
+**Deploy**: 3 archivos a padrinoscali.org y edisongiraldo.com.
+
+**Notas técnicas**:
+- Desduplicación: `key = territorio_id + '|' + barrio`. Primera zona define `tipo_display`
+- Contadores `propias`/`seguidores` usan datos SIN desduplicar (cuentan asignaciones reales)
+- Botón Leaflet recarga SOLO capa GeoJSON (no tabla/stats)
+- Botón "Recargar" UI recarga TODO (tabla + mapa + stats)
+- `loadZonasTrabajo()` solo se ejecuta al clickear tab (no en `loadColaborador()`)
+- Mapa centrado en Cali `[3.4516, -76.5320]` zoom 11
+- `fitBounds(pad(0.1))` ajusta vista a todas las zonas
+
+### v2.15.0 (2026-07-08) — Fix Tab Zonas + CRUD Completo + WhatsApp Redesign
+
+**Problema**: Tab Zonas de Trabajo y Redes Sociales no se mostraban — `<div>` de Actividad nunca se cerraba.
+
+**Solución**: `</div>` agregado en línea 660. Además, Zonas de Trabajo ahora tiene vista completa con tabla, stats, mapa, empty state, modal CRUD y precarga jerárquica async al editar.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/colaborador_detalle.php` | Fix HTML (Actividad tab cerrado); tabla+stats+mapa+empty+toast+precarga+barrios_v2 |
+| `api/zonas_trabajo.php` | `con_seguidores`, PUT con territorio_id, `_method=PUT`, barrios_v2 |
+| `api/territorios.php` | Nueva action `detalle_territorio` |
+| `pages/whatsapp_log.php` | Rediseño tarjetas cumpleaños (grid, countdown, gradiente) |
+| `api/whatsapp.php` | fecha_exacta + dias_faltantes |
+
+**Deploy**: 5 archivos subidos a padrinoscali.org y edisongiraldo.com via SSH key.
+
+**Notas técnicas**:
+- Hostinger no soporta PUT nativo → usar POST con `_method=PUT`
+- `barrios_v2` retorna `{id, barrio}` en vez de strings planos
+- `zonaPrecargarEdicion()` carga 5 niveles jerárquicos en secuencia async
+- La precarga evita que Alpine sobrescriba valores al cargar selectores hijos
+- SSH key auth funciona con `~/.ssh/id_ed25519` en puerto 65002
+- PQ key exchange warnings son informativos, ignorar
 
 ### v2.7.0 (2026-06-19) — Instagram Sync: API v1 + Cookies
 

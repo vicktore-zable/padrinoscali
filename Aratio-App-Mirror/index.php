@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/config.php';
 $pagina = $_GET['page'] ?? 'dashboard';
 
 // Portal as a module: handle portal pages// Redirección condicional para mod_colab (Portal del Líder)
-$portalPages = ['portal_landing', 'portal_login', 'portal_auth', 'portal_red', 'perfil_lider', 'dashboard_lider', 'portal_dashboard', 'portal_registrar_simpatizante', 'portal_eventos', 'portal_change_password', 'portal_perfil'];
+$portalPages = ['portal_landing', 'portal_login', 'portal_auth', 'portal_red', 'perfil_lider', 'dashboard_lider', 'portal_dashboard', 'portal_registrar_simpatizante', 'portal_eventos', 'portal_change_password', 'portal_perfil', 'portal_mis_voluntarios'];
 
 // NUEVO: Redirección para mod_elecciones (Público) (Cambiado para no pisar el panel de admin)
 if (isset($_GET['page']) && strpos($_GET['page'], 'public_elecciones') !== false) {
@@ -61,11 +61,11 @@ if (isset($_GET['page']) && in_array($_GET['page'], $portalPages)) {
 }
 
 // Global Auth for main Aratio system
-$excludeAuth = ['landing', 'dashboard_organizaciones_publico']; // Public pages
+$excludeAuth = ['landing', 'dashboard_organizaciones_publico', 'voluntario_registro']; // Public pages
 
-// CP — Pulso de Campaña: capture form (public, no auth)
-if (isset($_GET['page']) && $_GET['page'] === 'cp_captura') {
-    require_once __DIR__ . '/cp_captura.php';
+// Voluntariado: public registration (no auth required)
+if (isset($_GET['page']) && $_GET['page'] === 'voluntario_registro') {
+    require_once __DIR__ . '/pages/voluntario_registro.php';
     exit;
 }
 
@@ -120,7 +120,9 @@ $paginasPermitidas = [
     'llamadas', 'emails', 'dashboard_territorial',
     'social_crm', 'instagram_graph', 'actividad_instagram', 'mapa_instagram',
     'dashboard_territorial_social', 'lideres', 'cp_pulso', 'setup',
-    'mod_diaD'
+    'mod_diaD', 'zonas_trabajo',
+    'voluntario_asignacion', 'voluntario_listado',
+    'bi'
 ];
 ?>
 <!DOCTYPE html>
@@ -146,7 +148,8 @@ $paginasPermitidas = [
         }
     </script>
     
-    <!-- Alpine.js -->
+    <!-- Alpine.js (Collapse plugin MUST load first) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Leaflet CSS -->
@@ -166,15 +169,10 @@ $paginasPermitidas = [
         .sidebar {
             width: 280px;
             transition: all 0.3s;
+            transform: translateX(-100%);
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
+        .sidebar.open {
+            transform: translateX(0);
         }
         
         .stat-card {
@@ -236,6 +234,109 @@ $paginasPermitidas = [
         [x-cloak] {
             display: none !important;
         }
+
+        .page-header {
+            @apply flex items-center justify-between;
+        }
+        .page-header-icon {
+            @apply w-12 h-12 rounded-xl flex items-center justify-center shadow-lg;
+        }
+        .page-header-title {
+            @apply text-3xl font-bold text-gray-900;
+        }
+        .page-header-desc {
+            @apply text-gray-500;
+        }
+
+        .stat-value {
+            @apply text-2xl font-bold text-gray-900;
+        }
+        .stat-label {
+            @apply text-sm text-gray-500 mb-1;
+        }
+
+        .tab {
+            @apply px-4 py-3 font-medium transition flex items-center gap-2;
+        }
+        .tab-active {
+            @apply border-b-2 border-primary text-primary;
+        }
+        .tab-inactive {
+            @apply text-gray-500;
+        }
+
+        .spinner {
+            @apply animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full;
+        }
+        .spinner-sm {
+            @apply animate-spin w-5 h-5 border-[3px] border-primary border-t-transparent rounded-full;
+        }
+
+        .empty-state {
+            @apply card text-center py-12;
+        }
+        .empty-state-icon {
+            @apply w-16 h-16 text-gray-300 mx-auto mb-4;
+        }
+        .empty-state-title {
+            @apply text-lg font-bold text-gray-900 mb-2;
+        }
+        .empty-state-desc {
+            @apply text-gray-500;
+        }
+
+        .toast {
+            @apply fixed bottom-6 right-6 px-6 py-3 rounded-xl shadow-lg text-white font-medium z-50;
+        }
+        .toast-success {
+            @apply bg-green-500;
+        }
+        .toast-error {
+            @apply bg-red-500;
+        }
+
+        .table-container {
+            @apply overflow-x-auto;
+        }
+        .table {
+            @apply w-full text-sm;
+        }
+        .table th {
+            @apply text-left py-3 px-4 font-semibold text-gray-600;
+        }
+        .table td {
+            @apply py-3 px-4;
+        }
+        .table tr {
+            @apply border-b border-gray-100 hover:bg-gray-50;
+        }
+
+        .badge-gradient-pink {
+            @apply bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-rose-500/30;
+        }
+        .badge-gradient-amber {
+            @apply bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-orange-500/30;
+        }
+        .badge-gradient-blue {
+            @apply bg-gradient-to-r from-blue-400 to-cyan-500 text-white shadow-lg shadow-cyan-500/30;
+        }
+        .icon-gradient-pink {
+            @apply bg-gradient-to-br from-pink-500 to-purple-600 shadow-lg shadow-pink-500/20;
+        }
+
+        .gradient-card {
+            @apply bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-3;
+        }
+
+        .btn-icon {
+            @apply w-8 h-8 flex items-center justify-center rounded-full text-white transition;
+        }
+        .btn-icon-primary {
+            @apply bg-primary hover:bg-primary-dark;
+        }
+        .btn-icon-disabled {
+            @apply bg-gray-400;
+        }
     </style>
 </head>
 <body class="bg-gray-50" x-data="appData()" x-init="init()">
@@ -244,7 +345,7 @@ $paginasPermitidas = [
         <div class="flex items-center justify-between px-6 py-4">
             <!-- Logo y Menu Mobile -->
             <div class="flex items-center gap-4">
-                <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden">
+                <button @click="sidebarOpen = !sidebarOpen; $nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); })">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
                 <div class="flex items-center gap-3">
@@ -314,7 +415,6 @@ $paginasPermitidas = [
 
     <!-- Sidebar -->
     <aside 
-        <aside 
         class="sidebar fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 pt-20"
         :class="{ 'open': sidebarOpen }"
         x-data="sidebarCollapse()"
@@ -327,24 +427,16 @@ $canCamp = $auth->canManageCampanas();
 $canUsers = $auth->canManageUsers();
 ?>
 
-            <!-- Panel (todos los roles ven esto) -->
+            <!-- Panel -->
             <div class="mb-4">
                 <button @click="toggle('panel')" class="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition">
-                    <span>Panel</span>
+                    <span>Inteligencia</span>
                     <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': !open.panel }"></i>
                 </button>
                 <nav x-show="open.panel" x-collapse class="space-y-1 mt-1">
-                    <a href="?page=dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                        <span class="text-sm">Dashboard Principal</span>
-                    </a>
-                    <a href="?page=reportes" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'reportes' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                    <a href="?page=bi" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'bi' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                        <span class="text-sm">Reportes</span>
-                    </a>
-                    <a href="?page=dashboard_territorial" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard_territorial' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="globe" class="w-5 h-5"></i>
-                        <span class="text-sm">Dashboard Territorial</span>
+                        <span class="text-sm">BI Hub</span>
                     </a>
                 </nav>
             </div>
@@ -379,6 +471,32 @@ $canUsers = $auth->canManageUsers();
                     <a href="?page=whatsapp_log" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'whatsapp_log' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="cake" class="w-5 h-5"></i>
                         <span class="text-sm">Cumpleaños</span>
+                    </a>
+                    <a href="?page=zonas_trabajo" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'zonas_trabajo' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                        <span class="text-sm">Zonas de Trabajo</span>
+                    </a>
+                    <a href="?page=dashboard_territorial" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard_territorial' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span class="text-sm">Dashboard Territorial</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Voluntariado (todos los roles ven esto) -->
+            <div class="mb-4">
+                <button @click="toggle('voluntariado')" class="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    <span>Voluntariado</span>
+                    <i data-lucide="chevron-down" class="w-3.5 h-3.5 transition-transform" :class="{ 'rotate-180': !open.voluntariado }"></i>
+                </button>
+                <nav x-show="open.voluntariado" x-collapse class="space-y-1 mt-1">
+                    <a href="?page=voluntario_asignacion" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'voluntario_asignacion' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        <span class="text-sm">Asignación</span>
+                    </a>
+                    <a href="?page=voluntario_listado" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'voluntario_listado' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="list" class="w-5 h-5"></i>
+                        <span class="text-sm">Listado General</span>
                     </a>
                 </nav>
             </div>
@@ -513,6 +631,9 @@ $canUsers = $auth->canManageUsers();
         </div>
     </aside>
 
+    <!-- Overlay -->
+    <div @click="sidebarOpen = false" :class="{ 'hidden': !sidebarOpen }" class="fixed inset-0 bg-black/50 z-30"></div>
+
     <!-- Main Content -->
     <main class="lg:ml-[280px] pt-20 p-6">
         <?php
@@ -551,7 +672,6 @@ $canUsers = $auth->canManageUsers();
 
     <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x/dist/cdn.min.js"></script>
     <script>
         function sidebarCollapse() {
             const STORAGE_KEY = 'aratio_sidebar';
@@ -565,8 +685,9 @@ $canUsers = $auth->canManageUsers();
                     Object.keys(this.open).forEach(k => {
                         if (typeof this.open[k] !== 'boolean') this.open[k] = true;
                     });
-                    if (!this.open.hasOwnProperty('panel')) this.open.panel = true;
+                    if (!this.open.hasOwnProperty('panel')) this.open.panel = false;
                     if (!this.open.hasOwnProperty('gestion')) this.open.gestion = true;
+                    if (!this.open.hasOwnProperty('voluntariado')) this.open.voluntariado = true;
                     if (!this.open.hasOwnProperty('coms')) this.open.coms = true;
                     if (!this.open.hasOwnProperty('crm')) this.open.crm = true;
                     if (!this.open.hasOwnProperty('admin')) this.open.admin = true;

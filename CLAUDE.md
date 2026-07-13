@@ -1,6 +1,6 @@
 # CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 2.18.0 | Proyecto: padrinoscali.org | Cali, Colombia*
+*Versión: 2.18.1 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 

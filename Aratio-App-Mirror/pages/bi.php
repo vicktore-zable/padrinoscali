@@ -31,9 +31,20 @@
         </button>
     </div>
 
+    <!-- Toast -->
+    <div x-show="notificacion" x-transition.duration.300ms class="fixed bottom-6 right-6 z-50 px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-white"
+         :class="notificacionTipo === 'error' ? 'bg-red-600' : notificacionTipo === 'warning' ? 'bg-yellow-600' : 'bg-green-600'"
+         x-text="notificacion"></div>
+
     <!-- ════════════════ PANORAMA ════════════════ -->
     <template x-if="tab == 'panorama'">
         <div>
+            <!-- Loading -->
+            <div x-show="loading && !data.panorama" class="flex items-center justify-center py-12">
+                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <template x-if="data.panorama">
+            <div>
             <!-- KPI row -->
             <div class="grid grid-cols-3 lg:grid-cols-7 gap-2 mb-4">
                 <template x-for="(k, key) in ['colaboradores','lideres','activos','inactivos','donaciones_periodo','eventos_periodo','whatsapp_tasa']" :key="key">
@@ -53,8 +64,10 @@
                                 <span x-text="(data.panorama.kpi[k].vs_periodo > 0 ? '▲ +' : data.panorama.kpi[k].vs_periodo < 0 ? '▼ ' : '― ') + data.panorama.kpi[k].vs_periodo + '%'"></span>
                             </template>
                         </p>
-                    </div>
-                </template>
+            </template>
+        </div>
+        </template>
+    </template>
             </div>
 
             <!-- Alertas -->
@@ -113,19 +126,20 @@
             </div>
 
             <!-- Cards: Nivel Participación -->
-            <template x-if="data.panorama?.distribuciones?.nivel_participacion?.length">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 mb-4">
-                    <h4 class="text-xs font-semibold text-gray-900 mb-2">Nivel de Participación</h4>
-                    <div class="flex flex-wrap gap-2">
-                        <template x-for="d in data.panorama.distribuciones.nivel_participacion" :key="d.label">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                                <span x-text="d.label"></span>
-                                <span class="font-bold" x-text="formatNum(d.total)"></span>
-                            </span>
-                        </template>
-                    </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 mb-4">
+                <h4 class="text-xs font-semibold text-gray-900 mb-2">Nivel de Participación</h4>
+                <template x-if="data.panorama?.distribuciones?.nivel_participacion?.length">
+                <div class="flex flex-wrap gap-2">
+                    <template x-for="d in data.panorama.distribuciones.nivel_participacion" :key="d.label">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                            <span x-text="d.label"></span>
+                            <span class="font-bold" x-text="formatNum(d.total)"></span>
+                        </span>
+                    </template>
                 </div>
-            </template>
+                </template>
+                <p x-show="!data.panorama?.distribuciones?.nivel_participacion?.length" class="text-xs text-gray-400 text-center py-2">Sin datos</p>
+            </div>
 
             <!-- Charts row: Tendencia + Top Territorios + Top Barrios -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
@@ -161,12 +175,19 @@
                     </div>
                 </div>
             </template>
+            </div>
+            </template>  <!-- data.panorama -->
         </div>
     </template>
 
     <!-- ════════════════ TERRITORIO ════════════════ -->
     <template x-if="tab == 'territorio'">
         <div>
+            <div x-show="loading && !data.territorio" class="flex items-center justify-center py-12">
+                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <template x-if="data.territorio">
+            <div>
             <!-- KPI row -->
             <div class="grid grid-cols-4 gap-2 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
@@ -253,13 +274,20 @@
                         </table>
                     </div>
                 </div>
-            </template>
+            </template>  <!-- brechas -->
+            </div>
+            </template>  <!-- data.territorio -->
         </div>
     </template>
 
     <!-- ════════════════ RED SOCIAL ════════════════ -->
     <template x-if="tab == 'red'">
         <div>
+            <div x-show="loading && !data.red" class="flex items-center justify-center py-12">
+                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <template x-if="data.red">
+            <div>
             <!-- KPI row -->
             <div class="grid grid-cols-5 gap-2 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
@@ -337,7 +365,9 @@
                         </table>
                     </div>
                 </div>
-            </template>
+            </template>  <!-- Top 15 table -->
+            </div>
+            </template>  <!-- data.red -->
         </div>
     </template>
 </div>
@@ -346,6 +376,8 @@
 function biHub() {
     return {
         loading: false,
+        notificacion: '',
+        notificacionTipo: 'success',
         tab: 'panorama',
         periodo: '12',
         data: { panorama: null, territorio: null, red: null },
@@ -357,8 +389,16 @@ function biHub() {
         capasActivas: { viven: true, zonas: false, actividad: false, compromisos: false, eventos: false, instagram: false },
 
         async init() {
-            await this.refreshAll();
+            try {
+                await this.refreshAll();
+            } catch(e) { console.error('BI Hub init error:', e); }
             setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
+        },
+
+        notificar(msg, tipo = 'success') {
+            this.notificacion = msg;
+            this.notificacionTipo = tipo;
+            setTimeout(() => { this.notificacion = ''; }, 3000);
         },
 
         async refreshAll() {
@@ -370,7 +410,7 @@ function biHub() {
                     this.loadRed(),
                 ]);
             } catch(e) { console.error('BI Hub error:', e); }
-            this.loading = false;
+            finally { this.loading = false; }
             this.$nextTick(() => {
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 if (this.tab == 'panorama') this.initGraficosPanorama();
@@ -391,21 +431,27 @@ function biHub() {
 
         // === API LOADERS ===
         async loadPanorama() {
-            const r = await fetch('api/bi.php?action=panorama');
-            const j = await r.json();
-            if (j.success) this.data.panorama = j.data;
+            try {
+                const r = await fetch('api/bi.php?action=panorama');
+                const j = await r.json();
+                if (j.success) this.data.panorama = j.data;
+            } catch(e) { console.error('Error loadPanorama:', e); this.notificar('Error al cargar Panorama', 'error'); }
         },
 
         async loadTerritorio() {
-            const r = await fetch('api/bi.php?action=territorio');
-            const j = await r.json();
-            if (j.success) this.data.territorio = j.data;
+            try {
+                const r = await fetch('api/bi.php?action=territorio');
+                const j = await r.json();
+                if (j.success) this.data.territorio = j.data;
+            } catch(e) { console.error('Error loadTerritorio:', e); this.notificar('Error al cargar Territorio', 'error'); }
         },
 
         async loadRed() {
-            const r = await fetch('api/bi.php?action=red');
-            const j = await r.json();
-            if (j.success) this.data.red = j.data;
+            try {
+                const r = await fetch('api/bi.php?action=red');
+                const j = await r.json();
+                if (j.success) this.data.red = j.data;
+            } catch(e) { console.error('Error loadRed:', e); this.notificar('Error al cargar Red Social', 'error'); }
         },
 
         // === GRÁFICOS PANORAMA ===

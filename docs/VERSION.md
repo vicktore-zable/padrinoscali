@@ -10,18 +10,18 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.18.0 |
+| **Versión** | v2.18.1 |
 | **Fecha** | 2026-07-12 |
 | **Estado** | Producción |
-| **Commit** | `792b8f2` |
-| **Feature** | Panorama BI Hub: distribuciones rol/estado/género, top 10 líderes/territorios/barrios |
+| **Commit** | `58490f4` |
+| **Feature** | Sidebar colapsable, Dashboard Territorial standalone, fixes BI Hub (loading, notificaciones, nivel_participacion) |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v3.1.0** |
-| **Feature** | Migrar APIs a Container DI + mejoras continuas |
+| **Próxima** | **v2.19.0** |
+| **Feature** | *(por definir)* |
 | **Estado** | Por definir |
 
 ---
@@ -31,7 +31,8 @@
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
 | **v3.0.0** | 2026-06-30 | Refactor: Logger, Container DI, PHPUnit, Social CRM completo | *(actual)* |
-| **v2.18.0** | **2026-07-12** | **Panorama BI Hub: distribuciones + top rankings** | `792b8f2` |
+| **v2.18.1** | **2026-07-12** | **Sidebar colapsable, Dashboard Territorial standalone, fixes BI Hub** | `58490f4` |
+| **v2.18.0** | **2026-07-12** | **Panorama BI Hub: distribuciones + top rankings** | `6b00ac3` |
 | **v2.17.1** | **2026-07-12** | **Dashboard v2: fix sin_trabajo, charts barrio/comuna, tabbed map 4 capas, remover ALAS/Recientes** | **(deployed)** |
 | **v2.17.0** | 2026-07-11 | Dashboard Territorial: Semáforo Zonas de Trabajo + KPIs | *(local)* |
 | **v2.16.0** | 2026-07-11 | Zonas Trabajo: Vista Unificada Líder + Botón Recarga GeoJSON | *(local)* |

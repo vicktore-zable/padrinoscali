@@ -186,6 +186,20 @@ try {
             $response = ['success' => true, 'data' => $data, 'count' => count($data)];
             break;
             
+        case 'detalle_territorio':
+            $id = $_GET['id'] ?? null;
+            if (!$id) {
+                throw new Exception('ID de territorio requerido');
+            }
+            $stmt = $db->prepare("SELECT id, departamento, municipio, cod_mpio, Tipo_territorio, Territorio, barrio FROM territorios WHERE id = ?");
+            $stmt->execute([$id]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$data) {
+                throw new Exception('Territorio no encontrado');
+            }
+            $response = ['success' => true, 'data' => $data];
+            break;
+
         default:
             throw new Exception('Acción no válida: ' . $accion);
     }

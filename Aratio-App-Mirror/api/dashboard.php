@@ -26,6 +26,18 @@ try {
         case 'alas_stats':
             handleAlasStats($db);
             break;
+        case 'zonas_semaforo':
+            handleZonasSemaforo($db, $campanaId);
+            break;
+        case 'distribucion':
+            handleDistribucion($db, $campanaId);
+            break;
+        case 'otros_mapas':
+            handleOtrosMapas($db, $campanaId);
+            break;
+        case 'lideres_por_territorio':
+            handleLideresPorTerritorio($db, $campanaId);
+            break;
         default:
             jsonResponse(['success' => false, 'message' => 'Acción no válida'], 400);
     }
@@ -269,4 +281,250 @@ function handleAlasStats(PDO $db): void
     ];
 
     jsonResponse(['success' => true, 'data' => $data]);
+}
+
+function handleZonasSemaforo(PDO $db, int $campanaId): void
+{
+    $totalLideres = (int)$db->query("SELECT COUNT(DISTINCT c.id) FROM colaboradores c WHERE c.campana_id = $campanaId AND (c.perfil LIKE '%Lider%' OR c.perfil LIKE '%Líder%')")->fetchColumn();
+    $conTrabajo = (int)$db->query("SELECT COUNT(DISTINCT z.colaborador_id) FROM zonas_trabajo_social z JOIN colaboradores c ON z.colaborador_id = c.id WHERE c.campana_id = $campanaId AND z.activo = 1 AND (c.perfil LIKE '%Lider%' OR c.perfil LIKE '%Líder%')")->fetchColumn();
+    $sinTrabajo = max(0, $totalLideres - $conTrabajo);
+
+    $stmt = $db->prepare("
+        SELECT z.territorio_id, t.barrio, t.Territorio, t.municipio,
+               COUNT(DISTINCT z.colaborador_id) AS n_responsables,
+               t.Tipo_territorio,
+               ST_AsGeoJSON(t.geometria) AS geometry_json
+        FROM zonas_trabajo_social z
+        JOIN territorios t ON z.territorio_id = t.id
+        JOIN colaboradores c ON z.colaborador_id = c.id
+        WHERE z.activo = 1 AND c.campana_id = ? AND t.geometria IS NOT NULL
+        GROUP BY z.territorio_id, t.barrio
+        ORDER BY n_responsables DESC
+    ");
+    $stmt->execute([$campanaId]);
+    $zonas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $features = [];
+    foreach ($zonas as $z) {
+        $geometry = json_decode($z['geometry_json'], true);
+        $n = (int)$z['n_responsables'];
+        if ($n >= 5) {
+            $color = '#16a34a';
+            $fillColor = '#22c55e';
+            $nivel = 'Alta';
+        } elseif ($n >= 3) {
+            $color = '#ca8a04';
+            $fillColor = '#eab308';
+            $nivel = 'Media';
+        } else {
+            $color = '#dc2626';
+            $fillColor = '#ef4444';
+            $nivel = 'Baja';
+        }
+        $features[] = [
+            'type' => 'Feature',
+            'geometry' => $geometry,
+            'properties' => [
+                'territorio_id' => $z['territorio_id'],
+                'barrio' => $z['barrio'],
+                'Territorio' => $z['Territorio'],
+                'municipio' => $z['municipio'],
+                'Tipo_territorio' => $z['Tipo_territorio'],
+                'n_responsables' => $n,
+                'color' => $color,
+                'fillColor' => $fillColor,
+                'nivel' => $nivel
+            ]
+        ];
+    }
+
+    jsonResponse([
+        'success' => true,
+        'data' => [
+            'lideres_total' => $totalLideres,
+            'con_trabajo' => $conTrabajo,
+            'sin_trabajo' => $sinTrabajo,
+            'geojson' => [
+                'type' => 'FeatureCollection',
+                'features' => $features
+            ]
+        ]
+    ]);
+}
+
+function handleDistribucion(PDO $db, int $campanaId): void
+{
+    $stmt = $db->prepare("
+        SELECT c.territorio, c.barrio, c.municipio, COUNT(*) AS total,
+               SUM(CASE WHEN c.perfil LIKE '%Lider%' OR c.perfil LIKE '%Líder%' THEN 1 ELSE 0 END) AS lideres
+        FROM colaboradores c
+        WHERE c.campana_id = ? AND c.barrio IS NOT NULL AND c.barrio != ''
+        GROUP BY c.territorio, c.barrio, c.municipio
+        ORDER BY total DESC LIMIT 15
+    ");
+    $stmt->execute([$campanaId]);
+    $barrios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $db->prepare("
+        SELECT c.territorio, c.tipo_territorio, COUNT(*) AS total,
+               SUM(CASE WHEN c.perfil LIKE '%Lider%' OR c.perfil LIKE '%Líder%' THEN 1 ELSE 0 END) AS lideres
+        FROM colaboradores c
+        WHERE c.campana_id = ? AND c.territorio IS NOT NULL AND c.territorio != ''
+        GROUP BY c.territorio
+        ORDER BY total DESC LIMIT 15
+    ");
+    $stmt->execute([$campanaId]);
+    $territorios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    jsonResponse(['success' => true, 'data' => [
+        'barrios' => $barrios ?: [],
+        'territorios' => $territorios ?: [],
+    ]]);
+}
+
+function handleOtrosMapas(PDO $db, int $campanaId): void
+{
+    $getGeoJSON = function(array $rows, string $labelField, string $countField, array $palette): array {
+        $max = max(array_column($rows, $countField)) ?: 1;
+        $features = [];
+        foreach ($rows as $r) {
+            $n = (int)$r[$countField];
+            $ratio = $n / $max;
+            $level = $ratio >= 0.67 ? 0 : ($ratio >= 0.33 ? 1 : 2);
+            $geometry = json_decode($r['geometry_json'], true);
+            if (!$geometry) continue;
+            $label = $r[$labelField] ?? '';
+            $features[] = [
+                'type' => 'Feature',
+                'geometry' => $geometry,
+                'properties' => [
+                    'label' => $label, 'count' => $n,
+                    'nivel' => ['Alta','Media','Baja'][$level],
+                    'color' => $palette[$level * 2], 'fillColor' => $palette[$level * 2 + 1],
+                    'tooltip' => "<b>{$label}</b><br>{$n} — {$countField}",
+                    'popup' => "<b>{$label}</b><br>{$countField}: <b>{$n}</b><br>Cobertura: <b style='color:{$palette[$level*2]}'>" . ['Alta','Media','Baja'][$level] . "</b>",
+                ]
+            ];
+        }
+        return ['type' => 'FeatureCollection', 'features' => $features];
+    };
+
+    $palettes = [
+        'compromisos' => ['#7c3aed','#8b5cf6','#a78bfa','#c4b5fd','#ddd6fe'],
+        'eventos'     => ['#ea580c','#f97316','#fb923c','#fdba74','#fed7aa'],
+        'acciones'    => ['#0d9488','#14b8a6','#2dd4bf','#5eead4','#ccfbf1'],
+        'instagram'   => ['#db2777','#ec4899','#f472b6','#f9a8d4','#fbcfe8'],
+    ];
+
+    // Compromisos
+    $stmt = $db->prepare("SELECT c.territorio, c.barrio, COUNT(*) AS total, ST_AsGeoJSON(t.geometria) AS geometry_json FROM compromisos c LEFT JOIN territorios t ON LOWER(TRIM(c.municipio))=LOWER(TRIM(t.municipio)) AND LOWER(TRIM(c.barrio))=LOWER(TRIM(t.barrio)) WHERE c.campana_id=? AND t.geometria IS NOT NULL GROUP BY c.barrio ORDER BY total DESC LIMIT 50");
+    $stmt->execute([$campanaId]);
+    $c = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $datos['compromisos'] = $getGeoJSON($c, 'barrio', 'total', $palettes['compromisos']);
+
+    // Eventos
+    $stmt = $db->prepare("SELECT t.Territorio, t.barrio, COUNT(*) AS total, ST_AsGeoJSON(t.geometria) AS geometry_json FROM eventos e JOIN territorios t ON e.territorio_id=t.id WHERE e.campana_id=? AND t.geometria IS NOT NULL GROUP BY e.territorio_id ORDER BY total DESC LIMIT 50");
+    $stmt->execute([$campanaId]);
+    $e = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $datos['eventos'] = $getGeoJSON($e, 'Territorio', 'total', $palettes['eventos']);
+
+    // Acciones comunitarias
+    $stmt = $db->prepare("SELECT c.territorio, c.barrio, COUNT(*) AS total, ST_AsGeoJSON(t.geometria) AS geometry_json FROM acciones_comunitarias c LEFT JOIN territorios t ON LOWER(TRIM(c.municipio))=LOWER(TRIM(t.municipio)) AND LOWER(TRIM(c.barrio))=LOWER(TRIM(t.barrio)) WHERE c.campana_id=? AND t.geometria IS NOT NULL GROUP BY c.barrio ORDER BY total DESC LIMIT 50");
+    $stmt->execute([$campanaId]);
+    $a = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $datos['acciones'] = $getGeoJSON($a, 'barrio', 'total', $palettes['acciones']);
+
+    // Instagram — colaboradores con IG por territorio
+    $stmt = $db->prepare("SELECT c.territorio, c.barrio, COUNT(*) AS total, ST_AsGeoJSON(t.geometria) AS geometry_json FROM colaboradores c LEFT JOIN territorios t ON LOWER(TRIM(c.municipio))=LOWER(TRIM(t.municipio)) AND LOWER(TRIM(c.barrio))=LOWER(TRIM(t.barrio)) WHERE c.campana_id=? AND t.geometria IS NOT NULL AND c.instagram_username IS NOT NULL AND c.instagram_username != '' GROUP BY c.barrio ORDER BY total DESC LIMIT 50");
+    $stmt->execute([$campanaId]);
+    $ig = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $datos['instagram'] = $getGeoJSON($ig, 'barrio', 'total', $palettes['instagram']);
+
+    jsonResponse(['success' => true, 'data' => $datos]);
+}
+
+function handleLideresPorTerritorio(PDO $db, int $campanaId): void
+{
+    // Get all collaborators grouped by municipio + barrio
+    $stmt = $db->prepare("
+        SELECT c.municipio, c.barrio, COUNT(*) AS n_colaboradores
+        FROM colaboradores c
+        WHERE c.campana_id = ? AND c.municipio IS NOT NULL AND c.municipio != ''
+        GROUP BY c.municipio, c.barrio
+        ORDER BY n_colaboradores DESC
+    ");
+    $stmt->execute([$campanaId]);
+    $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get all territory geometries — index by key for O(1) lookup
+    $geoStmt = $db->query("SELECT id, municipio, barrio, Territorio, Tipo_territorio, ST_AsGeoJSON(geometria) AS geometry_json FROM territorios WHERE geometria IS NOT NULL");
+    $territorioPorKey = [];
+    $territorioPorMuni = [];
+    foreach ($geoStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+        $key = strtolower(trim($t['municipio'] ?? '')) . '|' . strtolower(trim($t['barrio'] ?? ''));
+        $territorioPorKey[$key] = $t;
+        $mk = strtolower(trim($t['municipio'] ?? ''));
+        if (!isset($territorioPorMuni[$mk])) {
+            $territorioPorMuni[$mk] = $t;
+        }
+    }
+
+    $totalColaboradores = 0;
+    $features = [];
+
+    foreach ($groups as $g) {
+        $n = (int)$g['n_colaboradores'];
+        $totalColaboradores += $n;
+
+        $barrio = $g['barrio'] ?? '';
+        $municipio = $g['municipio'] ?? '';
+        $key = strtolower(trim($municipio)) . '|' . strtolower(trim($barrio));
+        $match = $territorioPorKey[$key] ?? $territorioPorMuni[strtolower(trim($municipio))] ?? null;
+
+        if (!$match) continue;
+
+        $geometry = json_decode($match['geometry_json'], true);
+        if (!$geometry) continue;
+
+        if ($n >= 5) {
+            $color = '#1d4ed8';
+            $fillColor = '#3b82f6';
+            $nivel = 'Alta';
+        } elseif ($n >= 3) {
+            $color = '#2563eb';
+            $fillColor = '#60a5fa';
+            $nivel = 'Media';
+        } else {
+            $color = '#93c5fd';
+            $fillColor = '#bfdbfe';
+            $nivel = 'Baja';
+        }
+
+        $features[] = [
+            'type' => 'Feature',
+            'geometry' => $geometry,
+            'properties' => [
+                'territorio_id' => $match['id'],
+                'barrio' => $match['barrio'] ?? $barrio,
+                'Territorio' => $match['Territorio'] ?? $municipio,
+                'municipio' => $municipio,
+                'Tipo_territorio' => $match['Tipo_territorio'] ?? '',
+                'n_colaboradores' => $n,
+                'color' => $color,
+                'fillColor' => $fillColor,
+                'nivel' => $nivel
+            ]
+        ];
+    }
+
+    jsonResponse([
+        'success' => true,
+        'data' => [
+            'total_colaboradores' => $totalColaboradores,
+            'geojson' => [
+                'type' => 'FeatureCollection',
+                'features' => $features
+            ]
+        ]
+    ]);
 }

@@ -16,7 +16,7 @@ class EmailCampaigns
 
     public static function sendMail(string $to, string $subject, string $htmlBody, ?string $from = null): bool
     {
-        $from = $from ?: (defined('SMTP_FROM') ? SMTP_FROM : 'admin@aratio.mrmtech.net');
+        $from = $from ?: (defined('SMTP_FROM') ? SMTP_FROM : 'admin@padrinoscali.org');
         $fromName = defined('SMTP_FROM_NAME') ? SMTP_FROM_NAME : 'Sistema Aratio';
 
         $headers = [

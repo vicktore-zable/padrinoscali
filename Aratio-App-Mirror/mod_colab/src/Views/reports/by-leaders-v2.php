@@ -3,8 +3,8 @@
  * Vista Mejorada de Reporte de Líderes
  * Ranking con estadísticas avanzadas
  */
-$pageTitle = 'Ranking de Líderes';
-$pageDescription = 'Top líderes por número de seguidores directos y métricas de red';
+$pageTitle = 'Ranking de Padrinos';
+$pageDescription = 'Top padrinos por número de seguidores directos y métricas de red';
 ?>
 
 <div class="container mx-auto px-4 py-8">
@@ -12,8 +12,8 @@ $pageDescription = 'Top líderes por número de seguidores directos y métricas 
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">🏆 Ranking de Líderes</h1>
-                <p class="text-gray-600">Top líderes por número de seguidores directos y métricas de red</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">🏆 Ranking de Padrinos</h1>
+                <p class="text-gray-600">Top padrinos por número de seguidores directos y métricas de red</p>
             </div>
             <div class="flex space-x-4">
                 <a href="/reports" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
@@ -36,7 +36,7 @@ $pageDescription = 'Top líderes por número de seguidores directos y métricas 
                 </div>
                 <div class="ml-3">
                     <p class="text-sm text-yellow-700">
-                        <strong>No hay datos disponibles.</strong> No se encontraron líderes con seguidores.
+                        <strong>No hay datos disponibles.</strong> No se encontraron padrinos con seguidores.
                     </p>
                 </div>
             </div>
@@ -179,15 +179,15 @@ $pageDescription = 'Top líderes por número de seguidores directos y métricas 
         <!-- Tabla completa de líderes -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h3 class="text-lg font-semibold text-gray-900">📊 Ranking Completo de Líderes</h3>
-                <p class="text-sm text-gray-600 mt-1">Top <?= count($leaders) ?> líderes ordenados por número de seguidores directos</p>
+                <h3 class="text-lg font-semibold text-gray-900">📊 Ranking Completo de Padrinos</h3>
+                <p class="text-sm text-gray-600 mt-1">Top <?= count($leaders) ?> padrinos ordenados por número de seguidores directos</p>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ranking</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Líder</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Padrino</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Territorio</th>

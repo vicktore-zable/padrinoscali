@@ -1,0 +1,28 @@
+# =====================================================
+# .htaccess — edisongiraldo.com/aratio/ (DEPRECADO)
+# Redirección 301 → padrinoscali.org/aratio/
+# Fecha: 2026-07-09
+# Backup del .htaccess anterior: .htaccess.legacy-bak-20260709
+# =====================================================
+
+RewriteEngine On
+RewriteBase /aratio/
+
+# Redirigir TODO el tráfico a padrinoscali.org/aratio/
+# Preserva path y query string (?page=, ?api=, etc.)
+RewriteRule ^(.*)$ https://padrinoscali.org/aratio/$1 [R=301,L,QSA]
+
+# =====================================================
+# PROTECCIÓN DE ARCHIVOS SENSIBLES (defensiva)
+# Aunque la regla anterior redirige todo, esto evita
+# acceso directo si RewriteEngine se deshabilitara.
+# =====================================================
+<FilesMatch "^\." >
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(env|sql|log|sh|py|ps1|bat|md|json)$">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes

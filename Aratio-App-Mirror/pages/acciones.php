@@ -198,7 +198,7 @@ function accionesData() {
 
         async cargarDepartamentos() {
             try {
-                const response = await fetch('/api/territorios.php?accion=departamentos');
+                const response = await fetch('/aratio/api/territorios.php?accion=departamentos');
                 const result = await response.json();
                 if (result.success) {
                     this.listas.departamentos = result.data;
@@ -222,7 +222,7 @@ function accionesData() {
             if (!this.form.departamento) return;
 
             try {
-                const response = await fetch(`/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.form.departamento)}`);
+                const response = await fetch(`/aratio/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.form.departamento)}`);
                 const result = await response.json();
                 if (result.success) {
                     this.listas.municipios = result.data;
@@ -254,7 +254,7 @@ function accionesData() {
             if (!this.form.departamento || !this.form.municipio) return;
 
             try {
-                const response = await fetch(`/api/territorios.php?accion=tipos_territorio&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}`);
+                const response = await fetch(`/aratio/api/territorios.php?accion=tipos_territorio&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}`);
                 const result = await response.json();
                 if (result.success) {
                     this.listas.tipos_territorio = result.data;
@@ -273,7 +273,7 @@ function accionesData() {
             if (!this.form.departamento || !this.form.municipio || !this.form.tipo_territorio) return;
 
             try {
-                const response = await fetch(`/api/territorios.php?accion=territorios&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}&tipo_territorio=${encodeURIComponent(this.form.tipo_territorio)}`);
+                const response = await fetch(`/aratio/api/territorios.php?accion=territorios&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}&tipo_territorio=${encodeURIComponent(this.form.tipo_territorio)}`);
                 const result = await response.json();
                 if (result.success) {
                     this.listas.territorios = result.data;
@@ -290,7 +290,7 @@ function accionesData() {
             if (!this.form.departamento || !this.form.municipio || !this.form.tipo_territorio || !this.form.territorio) return;
 
             try {
-                const response = await fetch(`/api/territorios.php?accion=barrios&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}&tipo_territorio=${encodeURIComponent(this.form.tipo_territorio)}&territorio=${encodeURIComponent(this.form.territorio)}`);
+                const response = await fetch(`/aratio/api/territorios.php?accion=barrios&departamento=${encodeURIComponent(this.form.departamento)}&municipio=${encodeURIComponent(this.form.municipio)}&tipo_territorio=${encodeURIComponent(this.form.tipo_territorio)}&territorio=${encodeURIComponent(this.form.territorio)}`);
                 const result = await response.json();
                 if (result.success) {
                     this.listas.barrios = result.data;
@@ -304,7 +304,7 @@ function accionesData() {
             const method = this.form.id ? 'PUT' : 'POST';
 
             try {
-                const response = await fetch('/api/acciones.php', {
+                const response = await fetch('/aratio/api/acciones.php', {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -332,7 +332,7 @@ function accionesData() {
             if (!confirm('¿Estás seguro de eliminar esta acción?')) return;
 
             try {
-                const response = await fetch(`/api/acciones.php?id=${id}`, {
+                const response = await fetch(`/aratio/api/acciones.php?id=${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'

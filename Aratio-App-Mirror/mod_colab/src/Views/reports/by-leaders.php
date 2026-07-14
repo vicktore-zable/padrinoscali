@@ -2,16 +2,16 @@
 /**
  * Vista de Reporte de Líderes
  */
-$pageTitle = 'Reporte de Líderes';
-$pageDescription = 'Ranking y métricas de líderes';
+$pageTitle = 'Reporte de Padrinos';
+$pageDescription = 'Ranking y métricas de padrinos';
 ?>
 
 <div class="container mx-auto px-4 py-8">
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Reporte de Líderes</h1>
-                <p class="text-gray-600">Ranking y métricas de líderes</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Reporte de Padrinos</h1>
+                <p class="text-gray-600">Ranking y métricas de padrinos</p>
             </div>
             <div class="flex space-x-4">
                 <a href="/reports" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
@@ -34,7 +34,7 @@ $pageDescription = 'Ranking y métricas de líderes';
                 </div>
                 <div class="ml-3">
                     <p class="text-sm text-yellow-700">
-                        <strong>No hay datos disponibles.</strong> No se encontraron líderes con seguidores.
+                        <strong>No hay datos disponibles.</strong> No se encontraron padrinos con seguidores.
                     </p>
                 </div>
             </div>
@@ -49,7 +49,7 @@ $pageDescription = 'Ranking y métricas de líderes';
                     </svg>
                 </div>
                 <div class="text-2xl font-bold text-gray-900"><?php echo count($leaders); ?></div>
-                <div class="text-gray-600">Total Líderes</div>
+                <div class="text-gray-600">Total Padrinos</div>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow">
@@ -86,14 +86,14 @@ $pageDescription = 'Ranking y métricas de líderes';
         <!-- Tabla de líderes -->
         <div class="bg-white rounded-lg shadow overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Ranking de Líderes</h3>
+                <h3 class="text-lg font-semibold text-gray-900">Ranking de Padrinos</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ranking</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Líder</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Padrino</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perfil</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Territorio</th>

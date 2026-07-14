@@ -328,6 +328,7 @@ class PublicController extends Controller
             $sql = "SELECT documento, nombres, apellidos, perfil 
                     FROM colaboradores 
                     WHERE campana_id = ? 
+                    AND (perfil LIKE '%Lider%' OR perfil LIKE '%Líder%' OR perfil LIKE '%Candidato%' OR perfil LIKE '%Coordinador%') 
                     AND estado IN ('Activo', 'Nuevo')";
 
             $params = [$campanaId];

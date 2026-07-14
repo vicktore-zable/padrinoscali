@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padrinos Cali — Programa de Liderazgo Social</title>
+    <meta name="description" content="Padrinos Cali es un programa de liderazgo social que conecta padrinos con la comunidad para transformar Cali desde los barrios.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#003366',
+                        'padrinos-blue': '#003366',
+                        'padrinos-aqua': '#7FFFD4',
+                        'padrinos-gold': '#D4AF37',
+                        'dark': '#001A33',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #003366 0%, #7FFFD4 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #003366 0%, #7FFFD4 100%);
+        }
+
+        .hero-pattern {
+            background-color: #000b1a;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(127, 255, 212, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.15) 0px, transparent 50%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900" x-data="{ mobileMenuOpen: false }">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-padrinos-blue rounded-lg flex items-center justify-center border border-padrinos-aqua/30 transform rotate-3 shadow-lg shadow-padrinos-aqua/10">
+                        <i data-lucide="heart-handshake" class="w-6 h-6 text-padrinos-aqua transform -rotate-3"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-tighter text-padrinos-blue uppercase">Padrinos <span
+                            class="text-padrinos-gold">Cali</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#features"
+                        class="text-gray-600 hover:text-primary transition font-medium">Funcionalidades</a>
+                    <a href="#about" class="text-gray-600 hover:text-primary transition font-medium">Nosotros</a>
+
+                    <div class="flex items-center gap-4 ml-4">
+                        <a href="index.php?page=portal_landing"
+                            class="text-padrinos-blue font-black hover:text-padrinos-gold transition flex items-center gap-1 text-sm uppercase tracking-tighter">
+                            <i data-lucide="layout-grid" class="w-4 h-4"></i> Soy Padrino
+                        </a>
+                        <a href="registro-simpatizante"
+                            class="px-5 py-2.5 rounded-xl bg-padrinos-blue text-white font-black text-sm uppercase tracking-widest shadow-lg hover:shadow-xl hover:bg-padrinos-blue/90 transform hover:-translate-y-0.5 transition-all border-b-4 border-black/20">
+                            Registro
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mobile Button -->
+                <div class="md:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-600 p-2">
+                        <i data-lucide="menu" class="w-7 h-7"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (identical to desktop) -->
+        <div x-show="mobileMenuOpen" x-transition
+            class="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-xl p-6 flex flex-col gap-4">
+            <a href="#features"
+                class="text-lg font-bold text-padrinos-blue uppercase tracking-tighter">Funcionalidades</a>
+            <a href="#about"
+                class="text-lg font-bold text-padrinos-blue uppercase tracking-tighter">Nosotros</a>
+            <a href="index.php?page=portal_landing"
+                class="text-lg font-black text-padrinos-gold uppercase tracking-tighter">Soy Padrino</a>
+            <a href="registro-simpatizante"
+                class="w-full text-center px-5 py-3 rounded-xl bg-padrinos-blue text-white font-black uppercase tracking-widest">
+                Registro
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-pattern text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm mb-8 animate-fade-in-up">
+                <span class="w-2 h-2 rounded-full bg-green-400"></span>
+                <span class="text-sm font-medium tracking-wide text-gray-200">Programa de Liderazgo Social</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+                Conecta tu comunidad, <br>
+                <span class="gradient-text">transforma Cali</span>
+            </h1>
+
+            <p class="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+                Padrinos Cali conecta padrinos comprometidos con líderes barriales para fortalecer el tejido social,
+                gestionar territorio y generar oportunidades reales en cada comuna.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                <!-- Botón Registrarse (Simpatizante) -->
+                <a href="registro-simpatizante"
+                    class="px-8 py-5 rounded-[2rem] bg-white text-padrinos-blue text-lg font-black shadow-2xl hover:bg-padrinos-aqua transition-all flex items-center justify-center gap-3 transform hover:-translate-y-2 border-b-8 border-gray-100">
+                    <i data-lucide="rocket" class="w-6 h-6"></i>
+                    REGISTRARSE
+                </a>
+
+                <!-- Botón Soy Líder -->
+                <a href="index.php?page=portal_landing"
+                    class="px-8 py-5 rounded-[2rem] bg-padrinos-blue text-white text-lg font-black shadow-2xl hover:bg-padrinos-blue/90 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-2 border-b-8 border-black/30 text-padrinos-aqua">
+                    <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                    SOY PADRINO
+                </a>
+
+                <!-- Botón Mapa Puestos -->
+                <a href="https://aratio.mrmtech.net/mapa-puestos"
+                    class="px-8 py-5 rounded-[2rem] bg-white text-padrinos-blue text-lg font-black shadow-2xl hover:bg-padrinos-aqua transition-all flex items-center justify-center gap-3 transform hover:-translate-y-2 border-b-8 border-gray-100">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-padrinos-gold"></i>
+                    MAPA PUESTOS
+                </a>
+
+                <!-- Botón Acceso Admin -->
+                <a href="login.php"
+                    class="px-8 py-5 rounded-[2rem] bg-white/10 border-2 border-white/20 backdrop-blur-md text-white text-lg font-black hover:bg-white hover:text-padrinos-blue transition-all flex items-center justify-center gap-3 transform hover:-translate-y-2">
+                    <i data-lucide="shield-check" class="w-6 h-6 text-padrinos-aqua"></i>
+                    ACCESO ADMIN
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto border-t border-white/10 pt-12">
+                <div>
+                    <div class="text-3xl font-bold text-white mb-1">+50</div>
+                    <div class="text-sm text-gray-400">Padrinos Activos</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-white mb-1">16</div>
+                    <div class="text-sm text-gray-400">Comunas en Red</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-white mb-1">100%</div>
+                    <div class="text-sm text-gray-400">Territorio Cali</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-white mb-1">Total</div>
+                    <div class="text-sm text-gray-400">Gestión Comunitaria</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Todo lo que necesitas para liderar</h2>
+                <div class="w-20 h-1 gradient-bg mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="heart-handshake" class="w-7 h-7 text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Red de Padrinos</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Conecta padrinos comunitarios con ciudadanos comprometidos que respaldan proyectos sociales, gestionan recursos y fortalecen el impacto territorial.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="users" class="w-7 h-7 text-secondary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Gestión de Padrinos</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Estructura tu red territorial, asigna metas, evalúa participación y mantén a tu equipo de padrinos motivado y organizado.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="p-8 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-xl transition-shadow group">
+                    <div
+                        class="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <i data-lucide="bar-chart-3" class="w-7 h-7 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Analytics Social</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        Dashboard en tiempo real con cobertura por comuna, cumplimiento de metas y alertas tempranas para la toma de decisiones.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nosotros Section -->
+    <section id="about" class="py-24 bg-gray-50 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">¿Qué es Padrinos Cali?</h2>
+                <div class="w-20 h-1 gradient-bg mx-auto rounded-full"></div>
+            </div>
+            <div class="max-w-3xl mx-auto text-center">
+                <p class="text-lg text-gray-600 leading-relaxed mb-8">
+                    Padrinos Cali es un programa de liderazgo social que articula ciudadanos comprometidos con padrinos barriales
+                    para gestionar territorio, impulsar proyectos comunitarios y construir una red de apoyo real en cada rincón de Cali.
+                </p>
+                <p class="text-lg text-gray-600 leading-relaxed">
+                    Creemos en el poder de la comunidad organizada. Cada padrino, cada simpatizante suma para hacer de Cali
+                    una ciudad con más oportunidades, más gestión y más corazón.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center gap-2 mb-4 md:mb-0">
+                    <div class="w-8 h-8 gradient-bg rounded flex items-center justify-center">
+                        <i data-lucide="heart-handshake" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold">Padrinos Cali</span>
+                </div>
+                <div class="text-gray-400 text-sm text-center">
+                    &copy; 2026 Padrinos Cali — Programa de Liderazgo Social<br>
+                    <span class="text-gray-500">Creado con <a href="https://aratio.mrmtech.net" class="text-padrinos-gold hover:underline" target="_blank">Aratio PRO</a> by MRM Tech</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

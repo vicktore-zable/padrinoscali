@@ -132,7 +132,6 @@
     <body class="h-full" 
           x-data="{ 
             sidebarOpen: true, 
-            profileModal: false, 
             memberModal: false, 
             currentMember: {},
             geo: {
@@ -143,7 +142,7 @@
                     this.loading = true;
                     this.error = null;
                     try {
-                        let url = '<?= url('api/territorios.php') ?>?accion=' + accion;
+                        let url = '/aratio/api/territorios.php?accion=' + accion;
                         Object.keys(params).forEach(k => {
                             if(params[k]) url += `&${k}=${encodeURIComponent(params[k])}`;
                         });
@@ -250,6 +249,14 @@
                     <i data-lucide="network" class="w-5 h-5"></i>
                     <span>Mi Red</span>
                 </a>
+                <a href="?page=portal_registrar_simpatizante" class="nav-link flex items-center gap-3 <?= (isset($_GET['page']) && $_GET['page'] === 'portal_registrar_simpatizante') ? 'active' : '' ?>">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    <span>Registrar</span>
+                </a>
+                <a href="?page=portal_mis_voluntarios" class="nav-link flex items-center gap-3 <?= (isset($_GET['page']) && $_GET['page'] === 'portal_mis_voluntarios') ? 'active' : '' ?>">
+                    <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                    <span>Mis Voluntarios</span>
+                </a>
                 <!-- 
                 <a href="?page=portal_mapa" class="nav-link flex items-center gap-3 <?= (isset($_GET['page']) && $_GET['page'] === 'portal_mapa') ? 'active' : '' ?>">
                     <i data-lucide="map" class="w-5 h-5"></i>
@@ -260,10 +267,10 @@
                     <i data-lucide="calendar" class="w-5 h-5"></i>
                     <span>Eventos</span>
                 </a>
-                <button @click="profileModal = true" class="w-full nav-link flex items-center gap-3">
+                <a href="?page=portal_perfil" class="nav-link flex items-center gap-3 <?= (isset($_GET['page']) && $_GET['page'] === 'portal_perfil') ? 'active' : '' ?>">
                     <i data-lucide="user" class="w-5 h-5"></i>
                     <span>Mi Perfil</span>
-                </button>
+                </a>
             </nav>
             
             <!-- User Info Sidebar bottom -->
@@ -280,7 +287,10 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Activo
                         </p>
                     </div>
-                    <a href="<?= url('logout.php') ?>" class="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg">
+                    <a href="?page=portal_change_password" title="Cambiar Contraseña" class="text-gray-400 hover:text-aratio-blue transition-colors p-2 hover:bg-aratio-blue/5 rounded-lg">
+                        <i data-lucide="key-round" class="w-5 h-5"></i>
+                    </a>
+                    <a href="logout.php" class="text-gray-400 hover:text-red-500 transition-colors p-2 hover:bg-red-50 rounded-lg">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
                     </a>
                 </div>
@@ -327,136 +337,6 @@
                 <a href="#" class="hover:text-aratio-blue transition-colors">Términos</a>
             </div>
         </footer>
-    </div>
-
-    <!-- Modal Perfil (Líder) -->
-    <div x-show="profileModal" 
-         x-cloak
-         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" 
-         @keydown.escape.window="profileModal = false">
-        
-        <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl overflow-y-auto max-h-[90vh] animate-fade-in-up" 
-             @click.away="profileModal = false">
-            
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-black text-gray-900 tracking-tight">Editar Mi Perfil</h3>
-                <button @click="profileModal = false" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-6 h-6 text-gray-400"></i>
-                </button>
-            </div>
-            
-            <form action="?page=portal_dashboard" method="POST" class="space-y-4" x-data="{ 
-                form: {
-                    departamento: '<?= strtoupper($lider['departamento'] ?? '') ?>',
-                    municipio: '<?= $lider['municipio'] ?? '' ?>',
-                    tipo_territorio: '<?= $lider['tipo_territorio'] ?? '' ?>',
-                    territorio: '<?= $lider['territorio'] ?? '' ?>',
-                    barrio: '<?= $lider['barrio'] ?? '' ?>',
-                    puesto_votacion: '<?= $lider['puesto_votacion'] ?? '' ?>',
-                    mesa_votacion: '<?= $lider['mesa_votacion'] ?? '' ?>'
-                },
-                opts: { municipios: [], tipos: [], territorios: [], barrios: [], puestos: [] },
-                isSyncing: false
-            }" x-init="isSyncing = true; await syncGeo(form, opts); isSyncing = false;">
-                <template x-if="geo.error">
-                    <div class="p-3 bg-red-50 border border-red-100 text-red-600 text-xs rounded-xl flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-                        <span x-text="geo.error"></span>
-                    </div>
-                </template>
-                
-                <input type="hidden" name="action" value="update_profile">
-                <?= \App\Utils\Security::csrfField() ?>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" :class="geo.loading || isSyncing ? 'opacity-50 pointer-events-none' : ''">
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nombre Completo</label>
-                        <input type="text" name="nombres" value="<?= htmlspecialchars($lider['nombres'] ?? $_SESSION['user']['nombres'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Correo Electrónico</label>
-                        <input type="email" name="email" value="<?= htmlspecialchars($lider['email'] ?? $_SESSION['user']['email'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Teléfono (Contraseña)</label>
-                        <input type="text" name="telefono" value="<?= htmlspecialchars($lider['celular'] ?? $lider['telefono'] ?? '') ?>" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                    </div>
-
-                    <!-- Geografía -->
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Departamento</label>
-                        <select name="departamento" x-model="form.departamento" 
-                                @change="form.municipio=''; form.tipo_territorio=''; form.territorio=''; form.barrio=''; opts.municipios = await geo.fetch('municipios', {departamento: form.departamento})" 
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                            <option value="">Seleccione...</option>
-                            <template x-for="d in geo.departamentos" :key="d">
-                                <option :value="d" x-text="d"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Municipio</label>
-                        <select name="municipio" x-model="form.municipio" 
-                                @change="form.territorio=''; form.barrio=''; form.puesto_votacion='';
-                                        const ters = await geo.fetch('territorios', {departamento: form.departamento, municipio: form.municipio});
-                                        opts.territorios = Array.isArray(ters) ? ters : [];
-                                        const ps = await geo.fetch('puestos', {departamento: form.departamento, municipio: form.municipio});
-                                        opts.puestos = Array.isArray(ps) ? ps : [];" 
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                            <option value="">Seleccione...</option>
-                            <template x-for="(m, index) in opts.municipios" :key="m.cod_mpio || index">
-                                <option :value="m.municipio" x-text="m.municipio"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Territorio (Comuna/Correg.)</label>
-                        <select name="territorio" x-model="form.territorio" 
-                                @change="form.barrio=''; 
-                                        const bars = await geo.fetch('barrios', {departamento: form.departamento, municipio: form.municipio, territorio: form.territorio});
-                                        opts.barrios = Array.isArray(bars) ? bars : [];" 
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                            <option value="">Seleccione...</option>
-                            <template x-for="(t, index) in opts.territorios" :key="index">
-                                <option :value="t" x-text="t"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Barrio / Vereda</label>
-                        <select name="barrio" x-model="form.barrio" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                            <option value="">Seleccione...</option>
-                            <template x-for="b in opts.barrios" :key="b">
-                                <option :value="b" x-text="b"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <!-- Votación -->
-                    <div class="md:col-span-2 pt-2 border-t border-gray-100">
-                        <h4 class="text-[10px] font-bold text-aratio-gold uppercase tracking-widest mb-3">Información de Votación</h4>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Puesto de Votación</label>
-                        <select name="puesto_votacion" x-model="form.puesto_votacion" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                            <option value="">Seleccione...</option>
-                            <template x-for="(p, index) in opts.puestos" :key="p.id || index">
-                                <option :value="p.puesto" x-text="p.puesto"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Mesa</label>
-                        <input type="text" name="mesa_votacion" x-model="form.mesa_votacion" placeholder="Mesa #" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-1 focus:ring-aratio-blue outline-none">
-                    </div>
-                </div>
-
-                <div class="flex gap-3 pt-4">
-                    <button type="button" @click="profileModal = false" class="flex-1 px-6 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-colors text-sm">Cancelar</button>
-                    <button type="submit" class="flex-1 px-6 py-3 bg-aratio-blue text-white font-bold rounded-xl shadow-lg hover:shadow-aratio-blue/20 transition-all text-sm">Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <!-- Modal Editar Miembro del Equipo -->
@@ -593,6 +473,9 @@
             </form>
         </div>
     </div>
+
+    <!-- QRCode.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => { lucide.createIcons(); });

@@ -79,7 +79,7 @@
                     <i data-lucide="home" class="w-4 h-4"></i> <span class="hidden sm:inline">Inicio</span>
                 </a>
 
-                <a href="https://aratio.mrmtech.net/index.php?page=portal_landing" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all text-xs font-bold shadow-md shadow-slate-200">
+                <a href="/aratio/index.php?page=portal_landing" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all text-xs font-bold shadow-md shadow-slate-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i> <span>Módulo Líder</span>
                 </a>
             </div>

@@ -438,6 +438,10 @@ $canUsers = $auth->canManageUsers();
                         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
                         <span class="text-sm">BI Hub</span>
                     </a>
+                    <a href="?page=dashboard_territorial" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard_territorial' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span class="text-sm">Dashboard Territorial</span>
+                    </a>
                 </nav>
             </div>
 
@@ -475,10 +479,6 @@ $canUsers = $auth->canManageUsers();
                     <a href="?page=zonas_trabajo" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'zonas_trabajo' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
                         <i data-lucide="map-pin" class="w-5 h-5"></i>
                         <span class="text-sm">Zonas de Trabajo</span>
-                    </a>
-                    <a href="?page=dashboard_territorial" class="flex items-center gap-3 px-4 py-3 rounded-lg <?= $pagina === 'dashboard_territorial' ? 'bg-primary/10 text-primary' : 'text-gray-600 hover:bg-gray-50' ?>">
-                        <i data-lucide="map" class="w-5 h-5"></i>
-                        <span class="text-sm">Dashboard Territorial</span>
                     </a>
                 </nav>
             </div>

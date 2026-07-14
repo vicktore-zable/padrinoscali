@@ -68,6 +68,11 @@ function handleCumpleanos(PDO $db): void
         SELECT c.id, c.nombres, c.apellidos, c.fecha_nacimiento, c.perfil, 
                c.telefono, c.telefono_whatsapp, c.departamento, c.municipio,
                TIMESTAMPDIFF(YEAR, c.fecha_nacimiento, CURDATE()) as edad,
+               DATEDIFF(
+                   CONCAT(YEAR(CURDATE()), '-', DATE_FORMAT(c.fecha_nacimiento, '%m-%d')),
+                   CURDATE()
+               ) as dias_faltantes,
+               DATE_FORMAT(c.fecha_nacimiento, '%d de %M') as fecha_exacta,
                wl.estado as ultimo_estado, wl.sent_at as ultimo_envio, wl.id as log_id
         FROM colaboradores c
         LEFT JOIN (
@@ -79,7 +84,7 @@ function handleCumpleanos(PDO $db): void
         ) wl ON wl.colaborador_id = c.id
         WHERE {$condicion}
           AND (c.estado IS NULL OR c.estado NOT IN ('inactivo','Inactivo'))
-        ORDER BY DATE_FORMAT(c.fecha_nacimiento, '%m-%d')
+        ORDER BY dias_faltantes ASC, DATE_FORMAT(c.fecha_nacimiento, '%m-%d')
     ";
 
     $stmt = $db->query($sql);

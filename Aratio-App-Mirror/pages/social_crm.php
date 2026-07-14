@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto" x-data="socialCRM()" x-init="init()">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="page-header mb-6">
         <div>
             <h2 class="text-2xl font-bold text-gray-900">Social CRM</h2>
             <p class="text-sm text-gray-500 mt-1">Integración Facebook + Instagram con CRM</p>
@@ -14,7 +14,7 @@
             </template>
             <template x-if="configured">
                 <button @click="syncNow()" :disabled="syncing"
-                        class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center gap-2">
+                        class="btn-primary disabled:opacity-50 flex items-center gap-2">
                     <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': syncing}"></i>
                     <span x-text="syncing ? 'Sincronizando...' : 'Sincronizar ahora'"></span>
                 </button>
@@ -45,24 +45,24 @@
 
     <!-- Stats Bar -->
     <div x-show="configured" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p class="text-xs text-gray-400 uppercase mb-1">Posts</p>
-            <p class="text-2xl font-extrabold text-gray-900" x-text="stats.total_posts || 0"></p>
+        <div class="stat-card p-4 border border-gray-100">
+            <p class="stat-label uppercase">Posts</p>
+            <p class="stat-value" x-text="stats.total_posts || 0"></p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p class="text-xs text-gray-400 uppercase mb-1">Reacciones</p>
+        <div class="stat-card p-4 border border-gray-100">
+            <p class="stat-label uppercase">Reacciones</p>
             <p class="text-2xl font-extrabold text-blue-600" x-text="stats.total_reactions || 0"></p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p class="text-xs text-gray-400 uppercase mb-1">Comentarios</p>
+        <div class="stat-card p-4 border border-gray-100">
+            <p class="stat-label uppercase">Comentarios</p>
             <p class="text-2xl font-extrabold text-purple-600" x-text="stats.total_comments || 0"></p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p class="text-xs text-gray-400 uppercase mb-1">Match Rate</p>
+        <div class="stat-card p-4 border border-gray-100">
+            <p class="stat-label uppercase">Match Rate</p>
             <p class="text-2xl font-extrabold text-green-600" x-text="(stats.match_rate || 0) + '%'"></p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
-            <p class="text-xs text-gray-400 uppercase mb-1">Leads</p>
+        <div class="stat-card p-4 border border-gray-100">
+            <p class="stat-label uppercase">Leads</p>
             <p class="text-2xl font-extrabold text-amber-600" x-text="stats.leads_nuevos || 0"></p>
         </div>
     </div>
@@ -95,8 +95,8 @@
     <div x-show="tab === 'feed'">
         <div class="space-y-4">
             <template x-for="post in posts" :key="post.id">
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="p-6">
+                <div class="card border border-gray-100 overflow-hidden">
+                    <div>
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
@@ -132,7 +132,7 @@
                             <div class="px-6 py-3 flex items-center justify-between text-sm hover:bg-gray-50">
                                 <div class="flex items-center gap-2">
                                     <span class="font-medium text-gray-700" x-text="r.user_name"></span>
-                                    <span x-show="r.nombres" class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                    <span x-show="r.nombres" class="badge badge-success px-2 py-0.5">
                                         Match: <span x-text="r.nombres + ' ' + r.apellidos"></span>
                                     </span>
                                 </div>
@@ -149,7 +149,7 @@
                             <div class="px-6 py-3 hover:bg-gray-50">
                                 <div class="flex items-center gap-2 mb-1">
                                     <span class="text-sm font-semibold text-gray-800" x-text="c.user_name"></span>
-                                    <span x-show="c.nombres" class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                    <span x-show="c.nombres" class="badge badge-success px-2 py-0.5">
                                         Match: <span x-text="c.nombres + ' ' + c.apellidos"></span>
                                     </span>
                                 </div>
@@ -162,12 +162,12 @@
                     </button>
                 </div>
             </template>
-            <div x-show="posts.length === 0 && !loading" class="p-12 text-center text-gray-400">
+            <div x-show="posts.length === 0 && !loading" class="empty-state">
                 <i data-lucide="facebook" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
                 <p>No hay posts sincronizados. Haz clic en "Sincronizar ahora"</p>
             </div>
-            <div x-show="loading" class="p-12 text-center">
-                <i data-lucide="loader" class="w-8 h-8 mx-auto animate-spin text-primary"></i>
+            <div x-show="loading" class="empty-state">
+                <div class="spinner mx-auto"></div>
             </div>
         </div>
     </div>
@@ -176,16 +176,16 @@
     <div x-show="tab === 'commenters'">
         <div class="flex gap-2 mb-4">
             <button @click="commenterFilter = 'unmatched'; loadCommenters('unmatched')"
-                    :class="commenterFilter === 'unmatched' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">Sin match</button>
+                    :class="commenterFilter === 'unmatched' ? 'bg-primary text-white' : ''"
+                    class="btn-secondary py-1.5 text-xs">Sin match</button>
             <button @click="commenterFilter = 'pending'; loadCommenters('pending')"
-                    :class="commenterFilter === 'pending' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">Pendientes</button>
+                    :class="commenterFilter === 'pending' ? 'bg-primary text-white' : ''"
+                    class="btn-secondary py-1.5 text-xs">Pendientes</button>
             <button @click="commenterFilter = 'matched'; loadCommenters('matched')"
-                    :class="commenterFilter === 'matched' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-                    class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all">Matched</button>
+                    :class="commenterFilter === 'matched' ? 'bg-primary text-white' : ''"
+                    class="btn-secondary py-1.5 text-xs">Matched</button>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="card border border-gray-100 overflow-hidden">
             <template x-for="c in commenters" :key="c.id">
                 <div class="px-6 py-4 hover:bg-gray-50 border-b border-gray-50 flex items-center justify-between">
                     <div class="flex items-center gap-3 flex-1">
@@ -203,10 +203,10 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span :class="{
-                            'bg-green-50 text-green-700': c.estado === 'convertido',
-                            'bg-amber-50 text-amber-700': c.estado === 'pendiente_revision',
-                            'bg-gray-50 text-gray-500': c.estado === 'nuevo' || !c.estado,
-                        }" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" x-text="c.estado || 'nuevo'"></span>
+                            'badge-success': c.estado === 'convertido',
+                            'badge-warning': c.estado === 'pendiente_revision',
+                            'badge-info': c.estado === 'nuevo' || !c.estado,
+                        }" class="badge text-[10px] font-bold uppercase px-2 py-0.5" x-text="c.estado || 'nuevo'"></span>
                         <button @click="openMatchModal(c)" x-show="commenterFilter !== 'matched'"
                                 class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-all">
                             Asignar
@@ -214,7 +214,7 @@
                     </div>
                 </div>
             </template>
-            <div x-show="commenters.length === 0" class="p-12 text-center text-gray-400">
+            <div x-show="commenters.length === 0" class="empty-state">
                 <p>No hay comentaristas en este estado</p>
             </div>
         </div>
@@ -222,7 +222,7 @@
 
     <!-- LEADS TAB -->
     <div x-show="tab === 'leads'">
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="card border border-gray-100 overflow-hidden">
             <template x-for="l in leads" :key="l.id">
                 <div class="px-6 py-4 hover:bg-gray-50 border-b border-gray-50 flex items-center justify-between">
                     <div>
@@ -235,10 +235,10 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span :class="{
-                            'bg-green-50 text-green-700': l.estado === 'convertido',
-                            'bg-amber-50 text-amber-700': l.estado === 'pendiente_revision',
-                            'bg-gray-50 text-gray-500': l.estado === 'nuevo',
-                        }" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase" x-text="l.estado"></span>
+                            'badge-success': l.estado === 'convertido',
+                            'badge-warning': l.estado === 'pendiente_revision',
+                            'badge-info': l.estado === 'nuevo',
+                        }" class="badge text-[10px] font-bold uppercase px-2 py-0.5" x-text="l.estado"></span>
                         <button @click="openMatchModal(l, 'lead')" x-show="!l.colaborador_id"
                                 class="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-all">
                             Asignar a colaborador
@@ -246,7 +246,7 @@
                     </div>
                 </div>
             </template>
-            <div x-show="leads.length === 0" class="p-12 text-center text-gray-400">
+            <div x-show="leads.length === 0" class="empty-state">
                 <i data-lucide="user-plus" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
                 <p>No hay leads pendientes</p>
             </div>
@@ -255,11 +255,11 @@
 
     <!-- MATCH TAB -->
     <div x-show="tab === 'match'">
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 mb-4">
+        <div class="card border border-gray-100 mb-4">
             <h3 class="text-lg font-bold text-gray-900 mb-2">Match Automático</h3>
             <p class="text-sm text-gray-500 mb-4">Busca coincidencias entre usuarios de Facebook y colaboradores del CRM por nombre</p>
             <button @click="runAutoMatch()" :disabled="autoMatching"
-                    class="px-6 py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-all disabled:opacity-50">
+                    class="btn-primary px-6 disabled:opacity-50">
                 <span x-text="autoMatching ? 'Procesando...' : 'Ejecutar Match Automático'"></span>
             </button>
             <div x-show="autoMatchResult" class="mt-4 p-4 bg-green-50 rounded-xl text-sm text-green-700">
@@ -267,7 +267,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="card border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100">
                 <h4 class="text-sm font-bold text-gray-700">Sugerencias pendientes</h4>
             </div>
@@ -284,7 +284,7 @@
                     </div>
                 </div>
             </template>
-            <div x-show="suggestions.length === 0" class="p-12 text-center text-gray-400">
+            <div x-show="suggestions.length === 0" class="empty-state">
                 <p>No hay sugerencias pendientes</p>
             </div>
         </div>
@@ -293,42 +293,42 @@
     <!-- STATS TAB -->
     <div x-show="tab === 'stats'">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Posts</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Posts</p>
                 <p class="text-3xl font-extrabold text-gray-900" x-text="stats.total_posts || 0"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Reacciones totales</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Reacciones totales</p>
                 <p class="text-3xl font-extrabold text-blue-600" x-text="stats.total_reactions || 0"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Comentarios totales</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Comentarios totales</p>
                 <p class="text-3xl font-extrabold text-purple-600" x-text="stats.total_comments || 0"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Comentaristas únicos</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Comentaristas únicos</p>
                 <p class="text-3xl font-extrabold text-amber-600" x-text="stats.total_commenters || 0"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Match rate</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Match rate</p>
                 <p class="text-3xl font-extrabold text-green-600" x-text="(stats.match_rate || 0) + '%'"></p>
                 <p class="text-xs text-gray-400 mt-1" x-text="'(' + (stats.matched || 0) + ' de ' + (stats.total_commenters || 0) + ')'"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Pendientes revisión</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Pendientes revisión</p>
                 <p class="text-3xl font-extrabold text-amber-600" x-text="stats.pending_review || 0"></p>
             </div>
-            <div class="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-                <p class="text-xs text-gray-400 uppercase mb-1">Leads nuevos</p>
+            <div class="card border border-gray-100">
+                <p class="stat-label uppercase">Leads nuevos</p>
                 <p class="text-3xl font-extrabold text-red-600" x-text="stats.leads_nuevos || 0"></p>
             </div>
         </div>
     </div>
 
     <!-- Match Modal -->
-    <div x-show="matchModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    <div x-show="matchModal" x-cloak class="modal z-[100] backdrop-blur-sm"
          @keydown.escape.window="matchModal = false">
-        <div class="bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl animate-fade-in-up" @click.away="matchModal = false">
+        <div class="modal-content max-w-lg shadow-2xl animate-fade-in-up rounded-3xl p-8 overflow-visible" @click.away="matchModal = false">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-black text-gray-900">Asignar a colaborador</h3>
                 <button @click="matchModal = false" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -343,7 +343,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Buscar colaborador</label>
                 <input type="text" x-model="searchQuery" @input.debounce="searchCollaborator()"
                        placeholder="Nombre, documento o email..."
-                       class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm">
+                       class="input rounded-xl">
             </div>
             <div class="space-y-2 max-h-60 overflow-y-auto">
                 <template x-for="c in searchResults" :key="c.id">
@@ -353,7 +353,7 @@
                         <p class="text-xs text-gray-400" x-text="c.documento + ' · ' + (c.perfil || 'Sin perfil') + ' · ' + (c.municipio || '')"></p>
                     </div>
                 </template>
-                <div x-show="searchResults.length === 0 && searchQuery.length > 0" class="p-4 text-center text-gray-400 text-sm">
+                <div x-show="searchResults.length === 0 && searchQuery.length > 0" class="empty-state !py-4 text-sm">
                     Sin resultados
                 </div>
             </div>

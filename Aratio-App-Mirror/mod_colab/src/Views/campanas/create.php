@@ -16,7 +16,7 @@ unset($_SESSION['old_input'], $_SESSION['errors']);
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-gray-900"><?= htmlspecialchars($pageTitle) ?></h1>
-            <p class="mt-2 text-sm text-gray-600">Registre una nueva campaña compatible con aratio.mrmtech.net</p>
+            <p class="mt-2 text-sm text-gray-600">Registre una nueva campaña</p>
         </div>
         <a href="/campanas" class="btn btn-secondary">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>

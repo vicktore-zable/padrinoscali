@@ -8,14 +8,6 @@
  * @version 1.0
  */
 
-// REGRESIÓN: Redirección de colaboradores.aratio... a aratio.mrmtech...
-// Solo si el host es el subdominio antiguo
-if (isset($_SERVER['HTTP_HOST']) && stripos($_SERVER['HTTP_HOST'], 'colaboradores.aratio.mrmtech.net') !== false) {
-    header('HTTP/1.1 301 Moved Permanently');
-    header('Location: https://aratio.mrmtech.net/registro-simpatizante');
-    exit;
-}
-
 // Configurar UTF-8
 header('Content-Type: text/html; charset=UTF-8');
 mb_internal_encoding('UTF-8');

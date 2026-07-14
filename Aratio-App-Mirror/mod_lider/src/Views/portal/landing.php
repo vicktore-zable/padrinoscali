@@ -22,16 +22,12 @@
                         <span class="block gradient-text">Liderazgo</span>
                     </h1>
                     <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 font-light leading-relaxed">
-                        Bienvenido al centro estratégico de tu campaña. Una herramienta premium diseñada para líderes que buscan resultados, organización y crecimiento exponencial de su red.
+                        Bienvenido al centro estratégico de tu campaña. Una herramienta premium diseñada para padrinos que buscan resultados, organización y crecimiento exponencial de su red.
                     </p>
                     <div class="mt-8 sm:mt-12 flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                         <a href="?page=portal_login" class="flex items-center justify-center px-8 py-4 rounded-2xl text-lg btn-premium-gold shadow-xl">
                             <i data-lucide="log-in" class="w-5 h-5 mr-3"></i>
                             Ingresar al Portal
-                        </a>
-                        <a href="?page=registro_lider" class="flex items-center justify-center px-8 py-4 rounded-2xl text-lg bg-[#002244] text-[#FFD700] hover:bg-[#003366] transition-all shadow-lg">
-                            <i data-lucide="user-plus" class="w-5 h-5 mr-3"></i>
-                            Registrarse
                         </a>
                         <a href="?page=consulta_electoral" class="flex items-center justify-center px-8 py-4 rounded-2xl text-lg border-2 border-[#FFD700] text-[#002244] hover:bg-[#FFD700]/10 transition-all shadow-lg font-bold">
                             <i data-lucide="vote" class="w-5 h-5 mr-3"></i>
@@ -69,7 +65,7 @@
                     </div>
                     <dt class="text-xl font-bold text-gray-900 mb-3">Gestión Multinivel</dt>
                     <dd class="text-gray-500 leading-relaxed">
-                        Visualiza y gestiona tu estructura completa. Conoce el impacto real de cada líder en tu red de forma jerárquica y organizada.
+                        Visualiza y gestiona tu estructura completa. Conoce el impacto real de cada padrino en tu red de forma jerárquica y organizada.
                     </dd>
                 </div>
 

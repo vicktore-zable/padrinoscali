@@ -604,9 +604,30 @@ class ColaboradorController extends Controller
                 }
             }
 
+            // Datos completos de miembros para la tabla
+            $miembros = [];
+            if (!empty($red)) {
+                $docs = array_map(fn($n) => $n['documento'], $red);
+                $placeholders = implode(',', array_fill(0, count($docs), '?'));
+                $miembros = $db->fetchAll(
+                    "SELECT c.documento, c.nombres, c.apellidos, c.telefono, c.email,
+                            c.genero, c.fecha_nacimiento, c.tipo_documento,
+                            c.direccion, c.departamento, c.municipio,
+                            c.barrio, c.detalle_ubicacion, c.puesto_votacion,
+                            c.mesa_votacion, c.perfil, c.nivel_participacion,
+                            c.lider_directo, c.dato_potencial, c.dato_historico,
+                            c.areas_interes, c.observaciones, c.estado,
+                            (SELECT COUNT(*) FROM colaboradores s WHERE s.lider_directo = c.documento) as seguidores_directos
+                     FROM colaboradores c
+                     WHERE c.documento IN ($placeholders)",
+                    $docs
+                );
+            }
+
             $this->jsonSuccess([
                 'nodes' => $nodes,
                 'edges' => $edges,
+                'miembros' => $miembros,
                 'stats' => [
                     'total' => count($nodes),
                     'niveles' => max(array_column($red, 'nivel'))

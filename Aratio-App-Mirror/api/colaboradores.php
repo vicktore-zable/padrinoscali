@@ -114,7 +114,7 @@ function calcularEstado($dato_potencial, $dato_historico)
     if ($dato_potencial == 0)
         return 'Nuevo';
     if ($dato_historico == 0)
-        return 'Desvinculado';
+        return 'Vinculado';
     if ($dato_historico > $dato_potencial)
         return 'Creció';
     if ($dato_historico < $dato_potencial)
@@ -452,6 +452,16 @@ function handlePost($db, $userId)
 
     $foto = isset($data['foto']) ? saveBase64Image($data['foto'], 'colab_' . $data['documento'] . '_') : null;
 
+    // observaciones puede ser JSON, no aplicarle htmlspecialchars
+    $obs = $data['observaciones'] ?? null;
+    if ($obs !== null) {
+        $obs = trim(strip_tags($obs));
+        $decoded = json_decode($obs, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $obs = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+        }
+    }
+
     $stmt->execute([
         $data['campana_id'],
         sanitize($data['nombres']),
@@ -480,7 +490,7 @@ function handlePost($db, $userId)
         sanitize($data['puesto_votacion'] ?? null),
         sanitize($data['mesa_votacion'] ?? null),
         $foto,
-        sanitize($data['observaciones'] ?? null),
+        $obs,
         $userId
     ]);
 
@@ -596,6 +606,16 @@ function handlePut($db, $userId)
 
     $foto = isset($data['foto']) ? saveBase64Image($data['foto'], 'colab_' . ($data['documento'] ?? $existing['documento']) . '_') : null;
 
+    // observaciones puede ser JSON, no aplicarle htmlspecialchars
+    $obs = $data['observaciones'] ?? null;
+    if ($obs !== null) {
+        $obs = trim(strip_tags($obs));
+        $decoded = json_decode($obs, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $obs = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+        }
+    }
+
     $stmt->execute([
         sanitize($data['nombres']),
         sanitize($data['apellidos']),
@@ -623,7 +643,7 @@ function handlePut($db, $userId)
         sanitize($data['puesto_votacion'] ?? null),
         sanitize($data['mesa_votacion'] ?? null),
         $foto,
-        sanitize($data['observaciones'] ?? null),
+        $obs,
         $id
     ]);
 
@@ -917,9 +937,10 @@ function handleNetwork($db)
                 WHERE c.campana_id = ?
             )
             SELECT * FROM red_jerarquica
+            WHERE nivel_jerarquico < ?
             ORDER BY nivel_jerarquico, nombres
         ");
-        $stmt->execute([$rootDoc, $campanaId, $campanaId]);
+        $stmt->execute([$rootDoc, $campanaId, $campanaId, $depth]);
         $colaboradores = $stmt->fetchAll();
 
         // NO agregar el líder directo cuando hay focus - solo mostrar la red del colaborador
@@ -1929,6 +1950,16 @@ function procesarFilaUnica($db, $data, $campanaId, $userId, $liderDocumento, &$r
                 observaciones, usuario_registro_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
+
+        $obsInsert = $data['observaciones'] ?? null;
+        if ($obsInsert !== null) {
+            $obsInsert = trim(strip_tags($obsInsert));
+            $decoded = json_decode($obsInsert, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $obsInsert = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+            }
+        }
+
         $stmtInsert->execute([
             $campanaId, sanitize($data['nombres']), sanitize($data['apellidos']),
             $data['tipo_documento'], $documento, $data['fecha_nacimiento'], $data['genero'],
@@ -1936,7 +1967,7 @@ function procesarFilaUnica($db, $data, $campanaId, $userId, $liderDocumento, &$r
             $data['dato_historico'], sanitize($data['departamento']), sanitize($data['municipio']),
             sanitize($data['tipo_territorio']), sanitize($data['territorio']), sanitize($data['barrio']),
             $liderFinal, sanitize($data['puesto_votacion']), sanitize($data['mesa_votacion']),
-            sanitize($data['observaciones']), $userId
+            $obsInsert, $userId
         ]);
         $resultado['exitosos']++;
     }

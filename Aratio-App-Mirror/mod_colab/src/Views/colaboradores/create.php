@@ -17,7 +17,7 @@ $customStyles = '
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-extrabold mb-2">Nuevo Colaborador</h1>
-                <p class="text-white/80 text-sm">Registra un nuevo líder o colaborador</p>
+                <p class="text-white/80 text-sm">Registra un nuevo padrino o colaborador</p>
             </div>
             <a href="/colaboradores" class="inline-flex items-center bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium transition-all border border-white/20">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,9 +281,9 @@ $customStyles = '
                             <p class="text-xs text-gray-500 mt-1">Votos históricos en elecciones anteriores</p>
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Líder Directo</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Padrino Directo</label>
                             <select name="lider_directo" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent" x-model="form.lider_directo">
-                                <option value="">Sin líder (es líder raíz)</option>
+                                <option value="">Sin padrino (es padrino raíz)</option>
                                 <?php if (isset($lideres) && !empty($lideres)): ?>
                                     <?php foreach ($lideres as $lider): ?>
                                         <option value="<?= $lider['documento'] ?>">
@@ -292,7 +292,7 @@ $customStyles = '
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Solo colaboradores con perfil de líder</p>
+                            <p class="text-xs text-gray-500 mt-1">Solo colaboradores con perfil de padrino</p>
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Áreas de Interés</label>

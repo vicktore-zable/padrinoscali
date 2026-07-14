@@ -50,7 +50,7 @@ $campanas = $campanas ?? [];
                     </div>
                     <div class="bg-indigo-50 p-3 rounded-lg text-center">
                         <span class="block text-2xl font-bold text-indigo-600"><?= number_format($campana['stats']['total_lideres'] ?? 0) ?></span>
-                        <span class="text-xs text-indigo-800 uppercase font-semibold">Líderes</span>
+                        <span class="text-xs text-indigo-800 uppercase font-semibold">Padrinos</span>
                     </div>
                 </div>
 

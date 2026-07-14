@@ -225,7 +225,7 @@ $grupos = $stmt->fetchAll();
                 this.loading = true;
                 const method = this.form.id ? 'PUT' : 'POST';
                 try {
-                    const response = await fetch('/api/grupos.php', {
+                    const response = await fetch('/aratio/api/grupos.php', {
                         method: method,
                         headers: {
                             'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ $grupos = $stmt->fetchAll();
             async eliminar(id) {
                 if (!confirm('¿Estás seguro de eliminar este grupo político?\n\nEsta acción no se puede deshacer.')) return;
                 try {
-                    const response = await fetch(`/api/grupos.php?id=${id}`, {
+                    const response = await fetch(`/aratio/api/grupos.php?id=${id}`, {
                         method: 'DELETE',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     });

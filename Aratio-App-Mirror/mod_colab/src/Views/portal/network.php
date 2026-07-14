@@ -131,7 +131,7 @@
         try {
             const liderId = <?= json_encode($liderId) ?>;
             // Use the centralized router via query param for local dev compatibility
-            const response = await fetch(`api/colaboradores/${liderId}/network-data`);
+            const response = await fetch(`/mod_colab/public/index.php?route=/api/colaboradores/${liderId}/network-data`);
             
             // Check if response is ok
             if (!response.ok) {

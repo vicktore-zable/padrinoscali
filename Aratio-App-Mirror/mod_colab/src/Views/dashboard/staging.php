@@ -200,7 +200,7 @@ $pageDescription = 'Pruebas de gráficos avanzados - Chord Diagram';
             <span class="text-sm font-normal text-gray-500 ml-2">— Arrastra los nodos para explorar</span>
         </h3>
         <p class="text-sm text-gray-500 mt-1">
-            Visualización de la red completa de líderes y seguidores. El tamaño del nodo indica la cantidad de seguidores directos.
+            Visualización de la red completa de padrinos y seguidores. El tamaño del nodo indica la cantidad de seguidores directos.
         </p>
     </div>
     <div class="p-2">
@@ -210,11 +210,11 @@ $pageDescription = 'Pruebas de gráficos avanzados - Chord Diagram';
                 <div class="font-semibold mb-2 text-gray-700">Tamaño = Seguidores</div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #3b82f6; width: 20px; height: 20px;"></div>
-                    <span>Líder con muchos seguidores</span>
+                    <span>Padrino con muchos seguidores</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #10b981; width: 12px; height: 12px;"></div>
-                    <span>Líder con pocos seguidores</span>
+                    <span>Padrino con pocos seguidores</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-dot" style="background: #94a3b8; width: 8px; height: 8px;"></div>
@@ -288,9 +288,9 @@ $pageDescription = 'Pruebas de gráficos avanzados - Chord Diagram';
                 <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                 </svg>
-                Top 10 Líderes
+                Top 10 Padrinos
             </h3>
-            <p class="text-sm text-gray-500 mt-1">Red simplificada de los principales líderes</p>
+            <p class="text-sm text-gray-500 mt-1">Red simplificada de los principales padrinos</p>
         </div>
         <div class="p-4">
             <div id="force-graph-secondary" style="height: 400px;"></div>
@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .domain([0, maxSeguidores])
             .interpolator(d3.interpolateBlues);
 
-        // Color especial para líderes vs no líderes
+        // Color especial para padrinos vs no padrinos
         function getNodeColor(d) {
             if (d.seguidores > 10) return '#1e40af'; // Azul oscuro - muchos seguidores
             if (d.seguidores > 5) return '#3b82f6';  // Azul - varios seguidores
@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideTooltip();
             });
 
-        // Labels solo para líderes importantes
+        // Labels solo para padrinos importantes
         node.filter(d => d.seguidores > 3)
             .append('text')
             .attr('class', 'force-label')
@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!topLeaders || topLeaders.length === 0) {
             container.append('div')
                 .attr('class', 'flex items-center justify-center h-full text-gray-500')
-                .html('<p>No hay datos de líderes</p>');
+                .html('<p>No hay datos de padrinos</p>');
             return;
         }
 

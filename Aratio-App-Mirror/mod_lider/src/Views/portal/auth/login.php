@@ -10,7 +10,9 @@
         <!-- Logo y Título -->
         <div class="text-center mb-8">
             <h1 class="text-5xl font-black text-white mb-2 tracking-tighter">A RATIO</h1>
-            <p class="text-[#FFD700] uppercase tracking-[0.3em] font-bold text-xs">Leader Portal</p>
+            <p class="text-[#FFD700] uppercase tracking-[0.2em] font-bold text-xs">
+                Padrinos Cali &mdash; Programa de Liderazgo Social
+            </p>
         </div>
 
         <!-- Card de Login -->
@@ -55,14 +57,14 @@
                     </div>
                 </div>
 
-                <!-- Contraseña -->
+                <!-- Contraseña / Teléfono -->
                 <div>
                     <label for="password" class="block text-xs font-bold text-[#002244] uppercase tracking-wider mb-2">
-                        Contraseña (Número de Teléfono)
+                        Teléfono
                     </label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
+                            <i data-lucide="phone" class="h-5 w-5 text-gray-400"></i>
                         </div>
                         <input type="password"
                                id="password"
@@ -71,6 +73,7 @@
                                placeholder="Ingrese su número de teléfono"
                                required>
                     </div>
+                    <p class="mt-2 text-xs text-gray-400">Si ya tienes contraseña, también puedes usarla.</p>
                 </div>
 
                 <!-- Remember Me -->
@@ -91,24 +94,21 @@
                     <i data-lucide="log-in" class="w-5 h-5"></i>
                     <span>Ingresar al Portal</span>
                 </button>
+
+                <!-- Guidance text -->
+                <div class="p-4 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-2xl text-center">
+                    <p class="text-sm text-[#002244] font-medium">
+                        ¿No tienes credenciales? Solicítalas a tu <strong>Padrino</strong> de campaña
+                    </p>
+                </div>
             </form>
 
-            <!-- Info adicional -->
-            <div class="mt-8 text-center border-t border-gray-100 pt-6">
-                <p class="text-sm text-gray-500">¿No tiene una cuenta?
-                    <a href="?page=registro_lider" class="font-bold text-[#002244] hover:underline">
-                        Regístrese aquí
-                    </a>
-                </p>
-                <a href="/" class="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-                    ← Volver al Inicio
-                </a>
-            </div>
         </div>
 
         <!-- Footer -->
-        <div class="mt-8 text-center text-sm text-white/50">
-            <p>&copy; <?= date('Y') ?> A RATIO. Todos los derechos reservados.</p>
+        <div class="mt-8 text-center text-sm">
+            <p class="text-white/50">&copy; <?= date('Y') ?> Padrinos Cali &mdash; Programa de Liderazgo Social</p>
+            <p class="text-white/30 text-xs mt-1">Creado con Aratio PRO by MRM Tech</p>
         </div>
     </div>
 </div>

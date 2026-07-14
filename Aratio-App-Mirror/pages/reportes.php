@@ -63,15 +63,15 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
 <div class="space-y-6" x-data="reportesData()" x-init="init()">
     <!-- KPIs -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="stat-card">
             <p class="text-2xl font-black text-[#1e3a5f]"><?= number_format($kpiColab) ?></p>
             <p class="text-xs font-semibold text-gray-400 uppercase mt-1">Colaboradores</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="stat-card">
             <p class="text-2xl font-black text-amber-600"><?= number_format($kpiLideres) ?></p>
             <p class="text-xs font-semibold text-gray-400 uppercase mt-1">Líderes</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="stat-card">
             <div class="flex items-center gap-3">
                 <span class="text-2xl font-black text-pink-600"><?= number_format($kpiMujeres) ?></span>
                 <span class="text-gray-300 text-lg">/</span>
@@ -79,7 +79,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
             </div>
             <p class="text-xs font-semibold text-gray-400 uppercase mt-1">Mujeres / Hombres</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="stat-card">
             <span class="text-2xl font-black text-green-600"><?= number_format($kpiCompromisosCumplidos) ?>/<?= number_format($kpiCompromisosTotal) ?></span>
             <p class="text-xs font-semibold text-gray-400 uppercase mt-1">Compromisos</p>
         </div>
@@ -124,7 +124,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                 </div>
             </div>
             <!-- Dona de perfiles (más pequeña) -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="card">
                 <h3 class="text-xs font-black text-[#1e3a5f] uppercase tracking-wide mb-3">Perfiles</h3>
                 <div class="flex items-center gap-4">
                     <div class="w-32 h-32 flex-shrink-0">
@@ -146,7 +146,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                 </div>
             </div>
             <!-- Nivel de participación -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="card">
                 <h3 class="text-xs font-black text-[#1e3a5f] uppercase tracking-wide mb-3">Nivel de Participación</h3>
                 <div class="space-y-2">
                     <?php foreach ($niveles as $n):
@@ -165,7 +165,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                 </div>
             </div>
             <!-- Quick stats -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="card">
                 <h3 class="text-xs font-black text-[#1e3a5f] uppercase tracking-wide mb-3">Indicadores Rápidos</h3>
                 <div class="space-y-3">
                     <div class="flex items-center justify-between py-1.5 border-b border-gray-50">
@@ -187,7 +187,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                 </div>
             </div>
             <!-- Top 5 municipios -->
-            <div class="md:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <div class="md:col-span-2 card">
                 <h3 class="text-xs font-black text-[#1e3a5f] uppercase tracking-wide mb-3">Top Municipios</h3>
                 <div class="space-y-2">
                     <?php foreach (array_slice($municipios, 0, 5) as $m):
@@ -206,10 +206,10 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                 </div>
             </div>
             <!-- Departamentos compactos -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 md:col-span-3">
+            <div class="card md:col-span-3">
                 <h3 class="text-xs font-black text-[#1e3a5f] uppercase tracking-wide mb-3">Distribución por Departamento</h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                <div class="table-container">
+                    <table class="table">
                         <thead>
                             <tr class="border-b text-left text-xs text-gray-500 uppercase">
                                 <th class="pb-2 pr-4">Departamento</th>
@@ -245,13 +245,13 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
 
     <!-- ==================== LÍDERES ==================== -->
     <div x-show="tab === 'lideres'" x-cloak>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div class="card p-0">
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-sm font-black text-[#1e3a5f] uppercase tracking-wide">Ranking de Padrinos</h3>
                 <p class="text-xs text-gray-400 mt-1">Haz clic en un padrino para ver su ficha completa.</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-sm">
+            <div class="table-container">
+                <table class="table">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">#</th>
@@ -275,7 +275,7 @@ if (!isset($tabs[$defaultTab])) $defaultTab = 'general';
                                 <div class="text-xs text-gray-400"><?= htmlspecialchars($lr['documento']) ?></div>
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold <?= $lr['seguidore'] > 0 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500' ?>">
+                                <span class="inline-flex items-center gap-1 badge font-bold <?= $lr['seguidore'] > 0 ? 'badge-info' : 'bg-gray-100 text-gray-500' ?>">
                                     <i data-lucide="users" class="w-3 h-3"></i>
                                     <?= $lr['seguidores'] ?>
                                 </span>

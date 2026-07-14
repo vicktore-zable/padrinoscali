@@ -8,17 +8,6 @@
  * @version 1.0
  */
 
-// DEBUG HIT
-file_put_contents(__DIR__ . '/hit.log', date('Y-m-d H:i:s') . " - HIT " . $_SERVER['REQUEST_URI'] . "\n", FILE_APPEND);
-
-// REGRESIÓN: Redirección de colaboradores.aratio... a aratio.mrmtech...
-// Solo si el host es el subdominio antiguo
-if (isset($_SERVER['HTTP_HOST']) && stripos($_SERVER['HTTP_HOST'], 'colaboradores.aratio.mrmtech.net') !== false) {
-    header('HTTP/1.1 301 Moved Permanently');
-    header('Location: https://aratio.mrmtech.net/registro-simpatizante');
-    exit;
-}
-
 // Configurar UTF-8
 header('Content-Type: text/html; charset=UTF-8');
 mb_internal_encoding('UTF-8');
@@ -112,7 +101,13 @@ if (strpos($requestUri, '/api/') === 0) {
     $requestUri = substr($requestUri, 4); // Remover /api
 }
 
-// 2. Manejo de subdirectorios (si aplica)
+// 2. Manejo de prefijo de aplicación en subdirectorio (p.ej. /aratio/api/... → /api/...)
+$appPrefix = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(dirname(PUBLIC_PATH)));
+if ($appPrefix !== '/' && strpos($requestUri, $appPrefix) === 0) {
+    $requestUri = substr($requestUri, strlen($appPrefix));
+}
+
+// 3. Manejo de subdirectorios (si aplica)
 if (APP_ENV === 'production' && strpos($requestUri, '/colaboradores') === 0) {
     // Solo remover el prefijo si es una ruta general (como /dashboard) que no está agrupada
     // En las rutas de mod_colab ya tenemos el grupo /colaboradores

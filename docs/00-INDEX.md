@@ -1,7 +1,7 @@
 # Índice Maestro de Documentación
 
 > **Proyecto:** Aratio — Padrinos Cali
-> **Última actualización:** 2026-07-08
+> **Última actualización:** 2026-07-11
 
 ---
 
@@ -36,23 +36,25 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 
 ### Colaboradores
 
-| Documento | Ubicación original |
-|-----------|-------------------|
-| DOCUMENTACION_INTEGRACION_COLABORADORES.md | `documentacion/` en XAMPP |
-| CAMBIOS_PUESTOS_Y_CURRICULUM.md | `documentacion/` en XAMPP |
-| DOC_CURRICULUM_2026-02-09.md | `documentacion/` en XAMPP |
+| Documento | Estado |
+|-----------|--------|
+| DOCUMENTACION_INTEGRACION_COLABORADORES.md | ✅ `04-modulos/colaboradores/` |
+| CAMBIOS_PUESTOS_Y_CURRICULUM.md | ✅ `04-modulos/colaboradores/` |
+| DOC_CURRICULUM_2026-02-09.md | ✅ `04-modulos/colaboradores/` |
 
 ### Portal Líder
 
-| Documento | Ubicación original |
-|-----------|-------------------|
-| PLAN_PORTAL_LIDER.md | `documentacion/` en XAMPP |
-| DOCUMENTACION_PORTAL_LIDER.md | `documentacion/` en XAMPP |
-| DOCUMENTACION_PORTAL_LIDER_PRODUCCION_2026-02-17.md | `documentacion/` en XAMPP |
-| DOCUMENTACION_SETUP_LIDER_2026-02-17.md | `documentacion/` en XAMPP |
-| INVENTARIO_CAMBIOS_PORTAL_LIDER.md | `documentacion/` en XAMPP |
-| ESTADO_ACTUAL_PORTAL_LIDER.md | `documentacion/` en XAMPP |
-| DOC_AJUSTES_LIDERES_2026-02-10.md | `documentacion/` en XAMPP |
+| Documento | Estado |
+|-----------|--------|
+| PLAN_PORTAL_LIDER.md | ✅ `04-modulos/portal-lider/` |
+| DOCUMENTACION_PORTAL_LIDER.md | ✅ `04-modulos/portal-lider/` |
+| DOCUMENTACION_PORTAL_LIDER_PRODUCCION_2026-02-17.md | ✅ `04-modulos/portal-lider/` |
+| DOCUMENTACION_SETUP_LIDER_2026-02-17.md | ✅ `04-modulos/portal-lider/` |
+| INVENTARIO_CAMBIOS_PORTAL_LIDER.md | ✅ `04-modulos/portal-lider/` |
+| ESTADO_ACTUAL_PORTAL_LIDER.md | ✅ `04-modulos/portal-lider/` |
+| DOC_AJUSTES_LIDERES_2026-02-10.md | ✅ `04-modulos/portal-lider/` |
+| DOC_AJUSTES_INSCRIPCION_2026-02-06.md | ✅ `04-modulos/portal-lider/` |
+| DOCUMENTACION_EVENTOS_2026_02_15.md | ✅ `04-modulos/portal-lider/` |
 
 ### WhatsApp
 
@@ -63,9 +65,9 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 
 ### JAC
 
-| Documento | Ubicación original |
-|-----------|-------------------|
-| DOCUMENTACION_MOD_JAC.md | `documentacion/` en XAMPP |
+| Documento | Estado |
+|-----------|--------|
+| DOCUMENTACION_MOD_JAC.md | ✅ `04-modulos/jac/` |
 
 ### Dia D
 
@@ -101,11 +103,11 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 |-----------|-------------|
 | `REPORTE_CREACION_EVENTOS.md` | Reporte de creación de eventos |
 
-**Documentación relacionada en `documentacion/` (XAMPP):**
-- REPORTE_REVISION_SISTEMA.md (57 KB)
-- ESTADO_SISTEMA.md
-- DIAGNOSTICO_LOCAL_2026-02-12.md
-- RESUMEN_EJECUTIVO.md
+**Documentos archivados (movidos a `documentacion/archived/`):**
+- REPORTE_REVISION_SISTEMA.md — Obsoleto, ver `09-referencia/RESUMEN_EJECUTIVO.md`
+- ESTADO_SISTEMA.md — Obsoleto (v1.4.0), reemplazado por `02-arquitectura/ARQUITECTURA_ACTUAL.md`
+- DIAGNOSTICO_LOCAL_2026-02-12.md — Diagnóstico único, sin valor residual
+- Otros 21 documentos de fix/deploy archivados
 
 ## 07 — Sesiones
 
@@ -116,29 +118,42 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 
 ## 08 — Guías
 
-| Documento | Ubicación original |
-|-----------|-------------------|
-| GUIA_INICIO_LOCAL.md | `documentacion/` en XAMPP |
-| GUIA_SINCRONIZAR_PRODUCCION.md | `documentacion/` en XAMPP |
-| SYNC_XAMPP.md | `documentacion/` en XAMPP |
-| INSTRUCCIONES_DESPLIEGUE.md | `documentacion/` en XAMPP |
-| INSTRUCCIONES_SUBIR_HOSTINGER.md | `documentacion/` en XAMPP |
+| Documento | Estado |
+|-----------|--------|
+| `SETUP_ALAS.md` | ✅ Presente |
+| GUIA_INICIO_LOCAL.md | ✅ `08-guias/` |
+| GUIA_SINCRONIZAR_PRODUCCION.md | ✅ `08-guias/` |
+| INSTRUCCIONES_DESPLIEGUE.md | ✅ `08-guias/` |
+| REGISTRO_WEB_Y_SOLUCION_GOLD.md | ✅ `08-guias/` |
+| PRODUCCION_ESTRUCTURA.md | ✅ `08-guias/` |
+| REDIRECCION_COLABORADORES_A_ARATIO.md | ✅ `08-guias/` |
+| README_SEED_JAIMITO_CARTERO.md | ✅ `08-guias/` |
+| DOCUMENTACION_MIGRACION_GOLD.md | ✅ `08-guias/` |
+| ~~SYNC_XAMPP.md~~ | 🔴 Archivado (obsoleto) |
+| ~~INSTRUCCIONES_SUBIR_HOSTINGER.md~~ | 🔴 Archivado (obsoleto) |
 
 ## 09 — Referencia
 
-| Documento | Ubicación original |
-|-----------|-------------------|
-| design_system.md | `documentacion/` en XAMPP |
-| DOCUMENTACION_TECNICA_C4.md | `documentacion/` en XAMPP |
+| Documento | Estado |
+|-----------|--------|
+| design_system.md | ✅ `09-referencia/` |
+| DOCUMENTACION_TECNICA_C4.md | ✅ `09-referencia/` |
+| DOCUMENTACION.md | ✅ `09-referencia/` |
+| DOCUMENTACION_SINCRONIZACION.md | ✅ `09-referencia/` |
+| DOCUMENTACION_SISTEMA_GEOGRAFICO.md | ✅ `09-referencia/` |
+| DOCUMENTACION_FINAL_CORRECCION_INSCRIPCION.md | ✅ `09-referencia/` |
+| CREDENCIALES_ACCESO.md | ✅ `09-referencia/` |
+| NOTAS_SISTEMA.md | ✅ `09-referencia/` |
+| RESUMEN_EJECUTIVO.md | ✅ `09-referencia/` |
+| SELECTORES_GEOGRAFICOS_IMPLEMENTADOS.md | ✅ `09-referencia/` |
+| LANDING_PAGE_CREADA.md | ✅ `09-referencia/` |
+| RESUMEN_CAMBIOS_MAPA_DASHBOARD_EVENTOS.md | ✅ `09-referencia/` |
 
 ---
 
 ## Documentación externa referenciada
 
-> La mayoría de los documentos históricos (2025-2026) residen en:
-> **`F:\xampp2\htdocs\aratio\documentacion\`** (57 archivos)
-> **`F:\xampp2\htdocs\aratio\docs\`** (2 archivos)
-> **`Aratio-App-Mirror\documentacion\`** (espejo en workspace)
+> **Consolidación completada 2026-07-11:** Los 31 documentos útiles de `documentacion/` fueron copiados a `docs/`. Los 24 documentos obsoletos (fix/deploy/diagnóstico) están en `documentacion/archived/`.
 
 ## Planes
 
@@ -146,4 +161,4 @@ Credenciales SSH, SFTP, DB, SMTP y rutas de producción.
 |-----------|-------------|
 | `PLAN_SPRINTS.md` | **NUEVO** — Plan detallado por 5 sprints: tareas, prioridades, esfuerzo estimado, criterios de aceptación para cada sprint |
 
-Para buscar documentación histórica, usar `grep -r "tema" documentacion/` en la terminal.
+Para buscar documentación histórica archivada, usar `grep -r "tema" Aratio-App-Mirror/documentacion/archived/` en la terminal.

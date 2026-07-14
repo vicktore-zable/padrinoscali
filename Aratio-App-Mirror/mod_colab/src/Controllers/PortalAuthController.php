@@ -57,7 +57,7 @@ class PortalAuthController extends Controller {
     }
 
     /**
-     * Procesar login de líder (Documento/Documento)
+     * Procesar login de líder (Documento/Teléfono)
      */
     public function login() {
         $documento = $this->input('documento');
@@ -65,7 +65,14 @@ class PortalAuthController extends Controller {
 
         // Validar
         if (empty($documento) || empty($password)) {
-            $this->setFlash('Por favor ingrese su documento', 'error');
+            $this->setFlash('Por favor ingrese su documento y teléfono', 'error');
+            $this->redirect('?page=portal_login');
+            return;
+        }
+
+        // Verificar CSRF
+        if (!Security::checkCsrf()) {
+            $this->setFlash('Token de seguridad inválido', 'error');
             $this->redirect('?page=portal_login');
             return;
         }
@@ -95,13 +102,13 @@ class PortalAuthController extends Controller {
                 return;
             }
 
-            // 3. Verificar si es el primer acceso (Password == Documento)
-            if ($password === $documento) {
+            // 3. Verificar si es el primer acceso (Password == Teléfono del colaborador)
+            if ($password === $colaborador['telefono']) {
                 // Crear usuario automáticamente
                 $userId = $this->usuarioModel->create([
-                    'usuario' => $documento, // Usuario es el documento
-                    'email' => 'lider_' . $documento . '@aratio.tmp', // Email temporal si no tiene
-                    'password' => password_hash($documento, PASSWORD_BCRYPT), // Password inicial = documento
+                    'usuario' => $documento,
+                    'email' => 'lider_' . $documento . '@aratio.tmp',
+                    'password' => $password, // Usuario::create() lo hashea automáticamente
                     'nombres' => $colaborador['nombres'],
                     'apellidos' => $colaborador['apellidos'],
                     'tipo_usuario' => 'lider',
@@ -119,7 +126,7 @@ class PortalAuthController extends Controller {
                 // $this->redirect('/portal/profile/change-password');
                 return;
             } else {
-                // Usuario no existe y password no es documento -> Error
+                // Usuario no existe y password no coincide con teléfono -> Error
                 $this->setFlash('Credenciales incorrectas.', 'error');
                 $this->redirect('?page=portal_login');
             }
@@ -140,6 +147,7 @@ class PortalAuthController extends Controller {
         }
 
         // Crear sesión
+        unset($user['password']);
         $_SESSION['user'] = $user;
         $_SESSION['user_id'] = $user['id']; // Legacy compatibility
         $_SESSION['session_token'] = $this->usuarioModel->createSession(

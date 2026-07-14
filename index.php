@@ -236,6 +236,14 @@ $paginasPermitidas = [
         [x-cloak] {
             display: none !important;
         }
+
+        .leaflet-control-custom.rotating {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-50" x-data="appData()" x-init="init()">

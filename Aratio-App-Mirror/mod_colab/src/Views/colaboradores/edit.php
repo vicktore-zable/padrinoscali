@@ -286,9 +286,9 @@ if (!empty($colaborador['areas_interes'])) {
                             <p class="text-xs text-gray-500 mt-1">Votos históricos</p>
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Líder Directo</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Padrino Directo</label>
                             <select name="lider_directo" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent" x-model="form.lider_directo">
-                                <option value="">Sin líder (es líder raíz)</option>
+                                <option value="">Sin padrino (es padrino raíz)</option>
                                 <?php if (isset($lideres) && !empty($lideres)): ?>
                                     <?php foreach ($lideres as $lider): ?>
                                         <?php if ($lider['documento'] !== $colaborador['documento']): ?>

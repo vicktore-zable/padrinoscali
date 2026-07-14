@@ -39,9 +39,9 @@ if ($campanaId) {
 <div class="space-y-6 pb-20" x-data="jacAdmin()" x-init="init()">
 
   <!-- ── Header ───────────────────────────────────────────────────────── -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <div class="page-header">
     <div>
-      <h1 class="text-3xl font-black text-[#1e3a5f] tracking-tight flex items-center gap-3">
+      <h1 class="page-header-title">
         <div class="w-12 h-12 bg-[#1e3a5f] rounded-2xl flex items-center justify-center shadow-lg">
           <i data-lucide="building-2" class="w-6 h-6 text-[#d4af37]"></i>
         </div>
@@ -52,12 +52,12 @@ if ($campanaId) {
     <?php if ($campanaActiva): ?>
     <div class="flex items-center gap-3">
       <a href="?page=mod_jac" 
-         class="flex items-center gap-2 px-5 py-2.5 bg-[#0d9488] text-white rounded-xl font-black text-sm hover:bg-[#0f766e] transition shadow-lg">
+         class="btn-secondary">
         <i data-lucide="map" class="w-4 h-4"></i> Dashboard JAC
       </a>
       <?php if ($isAdmin): ?>
       <button @click="openJacModal()"
-              class="flex items-center gap-2 px-6 py-2.5 bg-[#1e3a5f] text-white rounded-xl font-black text-sm hover:bg-[#d4af37] hover:text-[#1e3a5f] transition shadow-xl">
+              class="btn-primary">
         <i data-lucide="plus" class="w-5 h-5"></i> Nueva Entidad / Organización
       </button>
       <?php endif; ?>
@@ -68,15 +68,15 @@ if ($campanaId) {
   <?php if ($campanaActiva): ?>
 
   <!-- ── Filtros ──────────────────────────────────────────────────────── -->
-  <div class="jac-card rounded-3xl overflow-hidden p-6 flex flex-wrap gap-4 items-center">
+  <div class="card">
     <div class="relative flex-1 min-w-[300px]">
         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3.5 text-gray-400"></i>
         <input type="text" x-model="filters.search" @input.debounce.400ms="loadData()"
                placeholder="Buscar por Organización, Presidente o Barrio..."
-               class="pl-10 pr-4 py-3 border border-gray-100 rounded-2xl text-sm focus:ring-2 focus:ring-[#1e3a5f] w-full bg-gray-50/50">
+               class="input">
     </div>
     <select x-model="filters.municipio" @change="loadData()"
-            class="px-4 py-3 border border-gray-100 rounded-2xl text-sm bg-gray-50/50 focus:ring-2 focus:ring-[#1e3a5f]">
+            class="input">
         <option value="">Todos los Municipios</option>
         <template x-for="m in municipios" :key="m"><option :value="m" x-text="m"></option></template>
     </select>
@@ -86,11 +86,11 @@ if ($campanaId) {
   <!-- ── Lista ────────────────────────────────────────────────────────── -->
   <div class="grid grid-cols-1 gap-4">
     <template x-if="loading">
-        <div class="py-20 text-center"><i data-lucide="loader-2" class="w-10 h-10 spin mx-auto text-[#1e3a5f]"></i></div>
+        <div class="spinner"><i data-lucide="loader-2" class="w-10 h-10 spin mx-auto text-[#1e3a5f]"></i></div>
     </template>
     
     <template x-for="row in rows" :key="row.id">
-        <div class="jac-card rounded-3xl overflow-hidden group">
+        <div class="card">
             <div class="p-6 transition-colors hover:bg-gray-50/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 
                 <div class="flex items-center gap-5">
@@ -100,8 +100,8 @@ if ($campanaId) {
                     <div>
                         <h4 class="text-lg font-black text-[#1e3a5f] uppercase tracking-tight" x-text="row.nombre_jac"></h4>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] font-black rounded" x-text="row.tipo_organizacion || 'Entidad'"></span>
-                            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-black rounded" x-text="row.municipio"></span>
+                            <span class="badge" x-text="row.tipo_organizacion || 'Entidad'"></span>
+                            <span class="badge" x-text="row.municipio"></span>
                             <span class="text-[10px] text-gray-400 font-bold" x-text="row.sector || 'Sin Barrio'"></span>
                         </div>
                     </div>
@@ -109,23 +109,23 @@ if ($campanaId) {
 
                 <div class="grid grid-cols-2 gap-6 text-sm flex-1 max-w-xl">
                     <div>
-                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Presidente / Coordinador</p>
+                        <p class="stat-label">Presidente / Coordinador</p>
                         <p class="font-bold text-[#1e3a5f]" x-text="row.presidente || 'No asignado'"></p>
                         <p class="text-[10px] text-gray-400" x-text="row.telefono || ''"></p>
                     </div>
                     <div class="hidden lg:block">
-                        <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Carga Electoral</p>
+                        <p class="stat-label">Carga Electoral</p>
                         <div class="flex items-center gap-3">
-                            <div><p class="font-black text-gray-700" x-text="row.afiliados_count || 0"></p><p class="text-[8px] uppercase text-gray-400">Afiliados</p></div>
+                            <div><p class="stat-value" x-text="row.afiliados_count || 0"></p><p class="stat-label">Afiliados</p></div>
                             <div class="w-px h-6 bg-gray-100"></div>
-                            <div><p class="font-black text-[#d4af37]" x-text="row.votos_comprometidos || 0"></p><p class="text-[8px] uppercase text-gray-400">Votos</p></div>
+                            <div><p class="stat-value" x-text="row.votos_comprometidos || 0"></p><p class="stat-label">Votos</p></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2" @click.stop>
-                    <button @click="editJac(row)" class="p-2 border border-gray-100 rounded-xl text-gray-400 hover:bg-gray-100 transition"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                    <button @click="deleteJac(row.id, row.nombre_jac)" class="p-2 border border-gray-100 rounded-xl text-red-300 hover:bg-red-50 hover:text-red-500 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <button @click="editJac(row)" class="btn-ghost"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                    <button @click="deleteJac(row.id, row.nombre_jac)" class="btn-ghost"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
             </div>
 
@@ -137,7 +137,7 @@ if ($campanaId) {
                         Estructura Organizacional
                     </h5>
                     <div class="flex gap-2">
-                      <button @click="openNewPlancha(row)" class="px-4 py-2 bg-[#1e3a5f] text-white text-[10px] font-black rounded-lg hover:bg-magenta transition">CREAR NUEVA PLANCHA</button>
+                      <button @click="openNewPlancha(row)" class="btn-primary">CREAR NUEVA PLANCHA</button>
                     </div>
                 </div>
 
@@ -147,26 +147,26 @@ if ($campanaId) {
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <template x-for="pl in (planchasCache[row.id] || [])" :key="pl.id">
-                        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+                        <div class="card">
                             <div class="p-4 bg-gray-50/50 flex items-center justify-between border-b border-gray-50">
                                 <div>
                                     <span class="font-black text-[#1e3a5f] text-sm uppercase mr-2" x-text="pl.nombre"></span>
-                                    <span class="px-2 py-0.5 rounded text-[8px] font-black" :class="pl.estado==='activa'?'bg-green-100 text-green-700':'bg-gray-200 text-gray-500'" x-text="pl.estado.toUpperCase()"></span>
+                                    <span class="badge" :class="pl.estado==='activa'?'bg-green-100 text-green-700':'bg-gray-200 text-gray-500'" x-text="pl.estado.toUpperCase()"></span>
                                 </div>
                                 <div class="flex gap-1">
                                     <button @click="editPlancha(pl, row)" class="p-1.5 text-gray-400 hover:text-[#1e3a5f]"><i data-lucide="edit-3" class="w-3 h-3"></i></button>
                                     <button @click="deletePlancha(pl.id, pl.nombre, row.id)" class="p-1.5 text-red-300 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                                     <template x-if="pl.estado !== 'activa'">
-                                        <button @click="activarPlancha(pl.id, row.id)" class="ml-2 px-3 py-1 bg-green-500 text-white text-[9px] font-black rounded hover:bg-green-600">ACTIVAR</button>
+                                        <button @click="activarPlancha(pl.id, row.id)" class="btn-primary ml-2">ACTIVAR</button>
                                     </template>
                                 </div>
                             </div>
                             <!-- Tabla Miembros (Agrupados por Bloque) -->
-                            <div class="flex-1 overflow-y-auto max-h-[300px]">
+                            <div class="table-container">
                                 <template x-for="bloq in bloquesLegales" :key="bloq">
                                     <div>
                                         <div class="bloque-header" x-text="bloq"></div>
-                                        <table class="w-full text-[11px]">
+                                        <table class="table">
                                             <template x-for="m in (pl.miembros || []).filter(mb => mb.bloque === bloq)" :key="m.id">
                                                 <tr class="border-b border-gray-50">
                                                     <td class="px-4 py-2 font-bold text-gray-700 w-1/2" x-text="m.nombre"></td>
@@ -191,8 +191,8 @@ if ($campanaId) {
   <?php endif; ?>
 
   <!-- ── MODAL JAC 1.7.0 (Geografía Completa) ─────────────────────────── -->
-  <div x-show="showJacModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center p-4 z-50" x-cloak>
-    <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-hidden flex flex-col">
+  <div x-show="showJacModal" class="modal" x-cloak>
+    <div class="modal-content">
         <div class="p-8 border-b border-gray-50 flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-black text-[#1e3a5f]" x-text="isEditingJac ? 'Actualizar Entidad' : 'Nueva Entidad / Organización'"></h3>
@@ -205,14 +205,14 @@ if ($campanaId) {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="md:col-span-2 space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Nombre del Grupo / Organización *</label>
-                    <input type="text" x-model="jacForm.nombre_jac" required class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f]" placeholder="Ej: Club Deportivo X / JAC Barrio Popular">
+                    <input type="text" x-model="jacForm.nombre_jac" required class="input" placeholder="Ej: Club Deportivo X / JAC Barrio Popular">
                 </div>
                 
 
                 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Departamento *</label>
-                    <select x-model="jacForm.depto" required @change="onDeptoChange()" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f]">
+                    <select x-model="jacForm.depto" required @change="onDeptoChange()" class="input">
                         <option value="">Seleccione...</option>
                         <template x-for="(d, index) in geos.deptos" :key="'adm-dep-'+index"><option :value="d" x-text="d"></option></template>
                     </select>
@@ -220,7 +220,7 @@ if ($campanaId) {
 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Municipio *</label>
-                    <select x-model="jacForm.municipio" required @change="onMpioChange()" :disabled="!jacForm.depto" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f] disabled:opacity-50">
+                    <select x-model="jacForm.municipio" required @change="onMpioChange()" :disabled="!jacForm.depto" class="input">
                         <option value="">Seleccione...</option>
                         <template x-for="(m, index) in geos.mpios" :key="'adm-mun-'+index"><option :value="m" x-text="m"></option></template>
                     </select>
@@ -228,7 +228,7 @@ if ($campanaId) {
                 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Tipo Territorio *</label>
-                    <select x-model="jacForm.tipo_territorio" required @change="onTipoChange()" :disabled="!jacForm.municipio" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f] disabled:opacity-50">
+                    <select x-model="jacForm.tipo_territorio" required @change="onTipoChange()" :disabled="!jacForm.municipio" class="input">
                         <option value="">Seleccione...</option>
                         <template x-for="(t, index) in geos.tipos" :key="'adm-tipo-'+index"><option :value="t" x-text="t"></option></template>
                     </select>
@@ -236,7 +236,7 @@ if ($campanaId) {
 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Comuna / Corregimiento *</label>
-                    <select x-model="jacForm.territorio_valle_nombre" required @change="onSectorChange()" :disabled="!jacForm.tipo_territorio" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f] disabled:opacity-50">
+                    <select x-model="jacForm.territorio_valle_nombre" required @change="onSectorChange()" :disabled="!jacForm.tipo_territorio" class="input">
                         <option value="">Seleccione...</option>
                         <template x-for="(s, index) in geos.sectores" :key="'adm-sec-'+index"><option :value="s" x-text="s"></option></template>
                     </select>
@@ -244,7 +244,7 @@ if ($campanaId) {
 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Barrio / Vereda *</label>
-                    <select x-model="jacForm.sector" required :disabled="!jacForm.territorio_valle_nombre" class="w-full px-5 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f] disabled:opacity-50">
+                    <select x-model="jacForm.sector" required :disabled="!jacForm.territorio_valle_nombre" class="input">
                         <option value="">Seleccione...</option>
                         <template x-for="(b, index) in geos.barrios" :key="'adm-bar-'+index"><option :value="b" x-text="b"></option></template>
                     </select>
@@ -252,7 +252,7 @@ if ($campanaId) {
 
                 <div class="md:col-span-2 space-y-1 mt-2 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
                     <label class="text-[10px] font-black text-[#1e3a5f] uppercase tracking-widest pl-1">Clasificación Específica *</label>
-                    <select x-model="jacForm.tipo_organizacion" required class="w-full px-5 py-4 bg-white border-none shadow-sm rounded-xl text-sm font-bold focus:ring-2 focus:ring-[#1e3a5f] text-[#1e3a5f]">
+                    <select x-model="jacForm.tipo_organizacion" required class="input">
                         <option value="JAC">✅ Junta de Acción Comunal</option>
                         <option value="Deporte">⚽ Grupo Deportivo</option>
                         <option value="Cultura">🎭 Gestor Cultural</option>
@@ -266,48 +266,48 @@ if ($campanaId) {
 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Presidente Actual</label>
-                    <input type="text" x-model="jacForm.presidente" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold" placeholder="Nombre completo">
+                    <input type="text" x-model="jacForm.presidente" class="input" placeholder="Nombre completo">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Teléfono Contacto</label>
-                    <input type="text" x-model="jacForm.telefono" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold" placeholder="Ej: 300 000 0000">
+                    <input type="text" x-model="jacForm.telefono" class="input" placeholder="Ej: 300 000 0000">
                 </div>
                 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Dirección / Dirección de Reunión</label>
-                    <input type="text" x-model="jacForm.direccion" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold" placeholder="Ej: Calle 10 # 5-20">
+                    <input type="text" x-model="jacForm.direccion" class="input" placeholder="Ej: Calle 10 # 5-20">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Correo Electrónico</label>
-                    <input type="email" x-model="jacForm.email" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold" placeholder="ejemplo@entidad.com">
+                    <input type="email" x-model="jacForm.email" class="input" placeholder="ejemplo@entidad.com">
                 </div>
                 
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Metas Votos</label>
-                    <input type="number" x-model.number="jacForm.votos_comprometidos" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold">
+                    <input type="number" x-model.number="jacForm.votos_comprometidos" class="input">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Total Afiliados</label>
-                    <input type="number" x-model.number="jacForm.afiliados_count" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold">
+                    <input type="number" x-model.number="jacForm.afiliados_count" class="input">
                 </div>
 
                 <div class="md:col-span-2 space-y-1">
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Observaciones / Notas Adicionales</label>
-                    <textarea x-model="jacForm.observaciones" class="w-full px-5 py-3.5 bg-gray-50 border-none rounded-2xl text-sm font-bold min-h-[80px]" placeholder="Información relevante sobre la entidad..."></textarea>
+                    <textarea x-model="jacForm.observaciones" class="input" placeholder="Información relevante sobre la entidad..."></textarea>
                 </div>
             </div>
 
             <div class="flex justify-end gap-3 mt-4">
-                <button type="button" @click="showJacModal=false" class="px-6 py-3 text-sm font-black text-gray-400 uppercase">Cerrar</button>
-                <button type="submit" class="px-8 py-3 bg-[#1e3a5f] text-white rounded-2xl text-sm font-black shadow-xl hover:bg-[#d4af37] transition">GUARDAR</button>
+                <button type="button" @click="showJacModal=false" class="btn-ghost">Cerrar</button>
+                <button type="submit" class="btn-primary">GUARDAR</button>
             </div>
         </form>
     </div>
   </div>
 
   <!-- ── MODAL PLANCHA LEGAL 1.7.0 (Jerárquico) ───────────────────────── -->
-  <div x-show="showPlanchaModal" class="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-[60]" x-cloak>
-    <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-hidden flex flex-col">
+  <div x-show="showPlanchaModal" class="modal" x-cloak>
+    <div class="modal-content">
         <div class="p-8 bg-[#1e3a5f] text-white flex items-center justify-between">
             <div>
                 <h3 class="text-2xl font-black italic tracking-tight" x-text="isEditingPlancha ? 'Editar Estructura Entidad' : 'Nueva Estructura Entidad'"></h3>
@@ -320,7 +320,7 @@ if ($campanaId) {
             <!-- Nombre de Plancha -->
             <div class="max-w-md">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-2">Título de la Plancha *</label>
-                <input type="text" x-model="planchaForm.nombre" class="w-full px-6 py-4 bg-white border-2 border-gray-100 rounded-2xl text-lg font-black text-[#1e3a5f] outline-none focus:border-[#d4af37] transition-all" placeholder="Ej: Plancha 1 - Mi Barrio Crece">
+                <input type="text" x-model="planchaForm.nombre" class="input" placeholder="Ej: Plancha 1 - Mi Barrio Crece">
             </div>
 
             <div class="grid grid-cols-1 gap-12">
@@ -334,21 +334,21 @@ if ($campanaId) {
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <!-- Template para Miembros del Bloque -->
                             <template x-for="(m, idx) in planchaForm.miembros.filter(item => item.bloque === bloq)" :key="idx">
-                                <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3 relative group">
+                                <div class="card">
                                     <button @click="removeMiembro(m)" class="absolute top-3 right-3 p-1 text-gray-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>
                                     
-                                    <input type="text" x-model="m.nombre" class="w-full bg-transparent border-b border-gray-100 py-1 font-black text-[#1e3a5f] text-sm focus:border-magenta outline-none" placeholder="Nombre Completo">
+                                    <input type="text" x-model="m.nombre" class="input" placeholder="Nombre Completo">
                                     <div class="flex gap-2">
-                                        <input type="text" x-model="m.cedula" class="flex-1 bg-gray-50 border-none rounded-lg px-3 py-1.5 text-[10px] font-bold" placeholder="Cédula">
-                                        <input type="text" x-model="m.cargo" class="flex-1 bg-gray-50 border-none rounded-lg px-3 py-1.5 text-[10px] font-bold" placeholder="Cargo">
+                                        <input type="text" x-model="m.cedula" class="input" placeholder="Cédula">
+                                        <input type="text" x-model="m.cargo" class="input" placeholder="Cargo">
                                     </div>
                                     <div class="flex gap-2">
-                                        <select x-model="m.genero" class="bg-gray-50 border-none rounded-lg px-3 py-1.5 text-[9px] font-black">
+                                        <select x-model="m.genero" class="input">
                                             <option value="M">Masc</option>
                                             <option value="F">Fem</option>
                                             <option value="O">Otro</option>
                                         </select>
-                                        <input type="text" x-model="m.telefono" class="flex-1 bg-gray-50 border-none rounded-lg px-3 py-1.5 text-[10px] font-bold" placeholder="Teléfono">
+                                        <input type="text" x-model="m.telefono" class="input" placeholder="Teléfono">
                                     </div>
                                 </div>
                             </template>
@@ -366,13 +366,13 @@ if ($campanaId) {
 
         <div class="p-8 border-t border-gray-100 flex items-center justify-between bg-white">
             <div class="flex items-center gap-6">
-                 <div><p class="text-lg font-black text-[#1e3a5f]" x-text="planchaForm.miembros.length"></p><p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Postulados</p></div>
+                 <div><p class="stat-value" x-text="planchaForm.miembros.length"></p><p class="stat-label">Postulados</p></div>
                  <div class="w-px h-10 bg-gray-100"></div>
                  <div><p class="text-lg font-black text-magenta" x-text="Math.round((planchaForm.miembros.filter(m=>m.genero==='F').length / (planchaForm.miembros.length||1)) * 100) + '%'"></p><p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Cuota Género Fem</p></div>
             </div>
             <div class="flex gap-4">
-                <button type="button" @click="showPlanchaModal=false" class="px-8 py-3 bg-gray-100 rounded-2xl text-xs font-black text-gray-600">CANCELAR</button>
-                <button @click="savePlancha()" class="px-12 py-4 bg-[#1e3a5f] text-white rounded-2xl text-sm font-black shadow-2xl hover:bg-magenta transition">GUARDAR & CERRAR</button>
+                <button type="button" @click="showPlanchaModal=false" class="btn-ghost">CANCELAR</button>
+                <button @click="savePlancha()" class="btn-primary">GUARDAR & CERRAR</button>
             </div>
         </div>
     </div>

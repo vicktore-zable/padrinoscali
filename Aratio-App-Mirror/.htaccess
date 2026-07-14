@@ -4,10 +4,16 @@
 # =====================================================
 
 Options -MultiViews
-DirectoryIndex index.php index.html
+DirectoryIndex index.html index.php
 
 RewriteEngine On
 RewriteBase /aratio/
+
+# =====================================================
+# SESSION ROUTING: Si hay ?page= en raiz, servir index.php
+# =====================================================
+RewriteCond %{QUERY_STRING} (^|&)page= [NC]
+RewriteRule ^$ index.php [L,QSA]
 
 # =====================================================
 # RUTAS PRINCIPALES

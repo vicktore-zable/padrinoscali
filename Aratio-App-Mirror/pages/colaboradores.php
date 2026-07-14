@@ -95,10 +95,10 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                 <i data-lucide="upload" class="w-5 h-5 inline mr-2"></i>Importar Excel/CSV
             </button>
             <a href="registro-lider.php" target="_blank" class="px-6 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 flex items-center shadow-lg shadow-fuchsia-600/30 transform hover:scale-105 transition-all text-base font-medium">
-                <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i>Registrar Líderes
+                <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i>Registrar Padrinos
             </a>
             <button @click="abrirModalNuevo()" class="btn-primary shadow-lg shadow-primary/30 transform hover:scale-105 transition-all text-base px-6 py-2">
-                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>Nuevo
+                <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>Nuevo Padrino
             </button>
         </div>
     </div>
@@ -183,7 +183,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                             <div class="flex items-center gap-1">Documento <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors"></i></div>
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-100 transition-colors group select-none" @click="ordenar('lider_nombre')">
-                            <div class="flex items-center gap-1">Líder Referente <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors"></i></div>
+                            <div class="flex items-center gap-1">Padrino Referente <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors"></i></div>
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase cursor-pointer hover:bg-gray-100 transition-colors group select-none" @click="ordenar('perfil')">
                             <div class="flex items-center gap-1">Perfil <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400 group-hover:text-primary transition-colors"></i></div>
@@ -207,7 +207,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                     <template x-for="c in colaboradoresFiltrados" :key="c.id">
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-4">
-                                <div class="flex items-center gap-3 cursor-pointer group" @click="editar(c)" title="Ver detalles y editar">
+                                <div class="flex items-center gap-3 cursor-pointer group" @click="window.location='?page=colaborador_detalle&id=' + c.id" title="Ver detalle completo">
                                     <template x-if="c.foto">
                                         <img :src="'<?= url('') ?>' + c.foto" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-gray-100">
                                     </template>
@@ -228,7 +228,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                 <span class="font-mono" x-text="c.documento"></span>
                             </td>
                             <td class="px-4 py-4">
-                                <div @click.stop="abrirModalLider(c)" class="inline-flex items-center p-2 -m-2 rounded-lg hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm cursor-pointer transition-all group/lider" title="Asignar o Cambiar Líder">
+                                <div @click.stop="abrirModalLider(c)" class="inline-flex items-center p-2 -m-2 rounded-lg hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm cursor-pointer transition-all group/lider" title="Asignar o Cambiar Padrino">
                                     <template x-if="c.lider_nombre">
                                         <div class="flex items-center">
                                             <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs mr-2" x-text="c.lider_nombre.charAt(0)"></div>
@@ -272,20 +272,17 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                 }" x-text="c.estado"></span>
                             </td>
                              <td class="px-4 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a :href="'?page=colaborador_detalle&id=' + c.id" class="p-2 text-gray-400 hover:text-blue-500 transition-colors" title="Detalle Completo" @click.stop>
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                <div class="flex items-center justify-end gap-1">
+                                    <a :href="'?page=colaborador_detalle&id=' + c.id" class="p-2.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all" title="Detalle Completo" @click.stop>
+                                        <i data-lucide="eye" class="w-5 h-5"></i>
                                     </a>
                                     <a :href="'?page=colaboradores_red&root_doc=' + c.documento" 
                                        x-show="c.num_seguidores > 0 || c.perfil.toLowerCase().includes('lider') || c.perfil.toLowerCase().includes('coordinador') || c.perfil.toLowerCase().includes('líder')"
-                                       class="p-2 text-gray-400 hover:text-purple-500 transition-colors" title="Ver Red" @click.stop>
-                                        <i data-lucide="network" class="w-4 h-4"></i>
+                                       class="p-2.5 rounded-lg text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all" title="Ver Red" @click.stop>
+                                        <i data-lucide="share-2" class="w-5 h-5"></i>
                                     </a>
-                                    <button @click.stop="editar(c)" class="p-2 text-gray-400 hover:text-primary transition-colors" title="Editar">
-                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                    </button>
-                                    <button @click.stop="eliminar(c.id)" class="p-2 text-gray-400 hover:text-red-500 transition-colors" title="Eliminar">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    <button @click.stop="eliminar(c.id)" class="p-2.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all" title="Eliminar">
+                                        <i data-lucide="trash-2" class="w-5 h-5"></i>
                                     </button>
                                 </div>
                             </td>
@@ -300,7 +297,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
     </div>
 
     <!-- Modal Crear/Editar -->
-    <div x-show="modalNuevo" @paste.window="handlePaste($event)" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" style="display: none;">
+    <div x-show="modalNuevo" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]" style="display: none;">
         <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative z-[10000]">
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-xl font-bold" x-text="form.id ? 'Editar Colaborador' : 'Nuevo Colaborador'"></h2>
@@ -369,7 +366,6 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                             <div class="text-center p-4">
                                                 <i data-lucide="user" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
                                                 <p class="text-[9px] font-black text-slate-400 uppercase">Sin Identidad</p>
-                                                <p class="text-[8px] font-semibold text-slate-400 mt-1 lowercase">(o presiona Ctrl+V)</p>
                                             </div>
                                         </template>
                                     </div>
@@ -404,9 +400,6 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                 <input type="file" x-ref="fileInput" @change="handleFileUpload($event)" accept="image/*" class="hidden">
                                 <button type="button" @click="$refs.fileInput.click()" x-show="!mostrandoCamara" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all">
                                     SUBIR ARCHIVO
-                                </button>
-                                <button type="button" @click="alert('Para pegar, simplemente haz clic en cualquier parte de este recuadro y presiona Ctrl+V (o Cmd+V).')" x-show="!mostrandoCamara" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all flex items-center gap-2">
-                                    <i data-lucide="clipboard-paste" class="w-4 h-4"></i> PEGAR
                                 </button>
                                 
                                 <template x-if="form.foto">
@@ -443,7 +436,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">¿Quién te invitó? (Líder Referente)</label>
+                            <label class="block text-sm font-medium mb-2">¿Quién te invitó? (Padrino Referente)</label>
                             <div class="relative">
                                 <input type="text" x-model="searchLider" @input="buscarLideres()" placeholder="Buscar por nombre o documento..." class="input">
                                 <div x-show="lideresEncontrados.length > 0" class="absolute z-10 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-40 overflow-y-auto">
@@ -455,7 +448,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                                     </template>
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-1" x-show="form.lider_directo">Lider: <span x-text="form.lider_directo"></span></p>
+                            <p class="text-xs text-gray-500 mt-1" x-show="form.lider_directo">Padrino: <span x-text="form.lider_directo"></span></p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Dato Potencial</label>
@@ -642,7 +635,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
         <div class="bg-white rounded-2xl max-w-md w-full relative z-[10000] overflow-hidden">
             <div class="p-6 border-b flex items-center justify-between bg-primary/5">
                 <h2 class="text-xl font-bold flex items-center text-gray-900">
-                    <i data-lucide="user-check" class="w-5 h-5 mr-2 text-primary"></i> Asignar Líder
+                    <i data-lucide="user-check" class="w-5 h-5 mr-2 text-primary"></i> Asignar Padrino
                 </h2>
                 <button @click="cerrarModalLider()" class="text-gray-400 hover:text-gray-600">
                     <i data-lucide="x" class="w-6 h-6"></i>
@@ -651,7 +644,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
             <div class="p-6 space-y-4">
                 <div class="text-sm text-gray-500">Asignando líder para <b class="text-gray-900" x-text="colaboradorSeleccionado?.nombres + ' ' + colaboradorSeleccionado?.apellidos"></b></div>
                 <div>
-                    <label class="block text-sm font-medium mb-2">Buscar y Seleccionar Líder</label>
+                    <label class="block text-sm font-medium mb-2">Buscar y Seleccionar Padrino</label>
                     <div class="relative">
                         <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         <input type="text" x-model="searchLiderRapido" @input="buscarLideresRapido()" placeholder="Buscar por nombre o cédula..." class="input pl-9 border-primary/30 focus:border-primary">
@@ -672,7 +665,7 @@ $userDocumento = $_SESSION['user_documento'] ?? '';
                 <div x-show="nuevoLiderDocumento" class="bg-green-50 rounded-lg p-3 border border-green-200 flex items-start gap-3">
                     <i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 mt-0.5"></i>
                     <div>
-                        <p class="text-xs text-green-800 font-semibold uppercase">Líder Seleccionado</p>
+                        <p class="text-xs text-green-800 font-semibold uppercase">Padrino Seleccionado</p>
                         <p class="text-sm font-bold text-gray-900" x-text="nuevoLiderNombre"></p>
                     </div>
                     <button type="button" @click="limpiarLiderRapido()" class="ml-auto text-gray-400 hover:text-red-500" title="Quitar">
@@ -931,60 +924,11 @@ function colaboradoresData() {
         handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-            this.processImage(file);
-        },
-
-        async handlePaste(e) {
-            if (!this.modalNuevo) return;
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let index in items) {
-                const item = items[index];
-                if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
-                    const file = item.getAsFile();
-                    await this.processImage(file);
-                    e.preventDefault();
-                    break;
-                }
-            }
-        },
-
-        async processImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 800;
-                        const MAX_HEIGHT = 800;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width *= MAX_HEIGHT / height;
-                                height = MAX_HEIGHT;
-                            }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Compress to JPEG 70% quality to ensure lightweight base64
-                        this.form.foto = canvas.toDataURL('image/jpeg', 0.7);
-                        resolve();
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.form.foto = event.target.result;
+            };
+            reader.readAsDataURL(file);
         },
 
         editar(c) {
@@ -1234,12 +1178,10 @@ function colaboradoresData() {
 
         async guardar() {
             this.loading = true;
-            // Usar siempre POST. Si es actualización, usar action=update
-            const method = 'POST';
-            const endpoint = this.form.id ? '/aratio/api/colaboradores.php?action=update' : '/aratio/api/colaboradores.php';
+            const method = this.form.id ? 'PUT' : 'POST';
 
             try {
-                const response = await fetch(endpoint, {
+                const response = await fetch('/aratio/api/colaboradores.php', {
                     method: method,
                     headers: {
                         'Content-Type': 'application/json',
@@ -1410,19 +1352,20 @@ function colaboradoresData() {
             };
 
             try {
-                const response = await fetch('/aratio/api/colaboradores.php?action=update', {
+                const putPayload = { ...payload, _method: 'PUT' };
+                const response = await fetch('/aratio/api/colaboradores.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(putPayload)
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
-                    showNotification('Líder asignado correctamente', 'success');
+                    showNotification('Padrino asignado correctamente', 'success');
                     this.cerrarModalLider();
                     window.location.reload();
                 } else {

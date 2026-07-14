@@ -2,34 +2,23 @@
 require_once __DIR__ . '/config/config.php';
 
 if (isset($_SESSION['user_id'])) {
-    $rol = $_SESSION['user_rol'] ?? '';
-    if ($rol === 'lider') {
-        header('Location: index.php?page=portal_dashboard');
-    } else {
-        header('Location: index.php');
-    }
+    header('Location: index.php');
     exit;
 }
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $tipo = $_POST['tipo_login'] ?? 'admin';
     $auth = new Auth();
-
-    if ($tipo === 'lider') {
-        $result = $auth->loginColaborador($_POST['documento'] ?? '', $_POST['telefono'] ?? '');
-        if ($result['success']) {
-            header('Location: index.php?page=portal_dashboard');
-            exit;
-        }
+    $result = $auth->login($_POST['email'] ?? '', $_POST['password'] ?? '');
+    
+    if ($result['success']) {
+        $rol = $_SESSION['user_rol'] ?? '';
+        
+        header('Location: index.php');
+        exit;
     } else {
-        $result = $auth->login($_POST['email'] ?? '', $_POST['password'] ?? '');
-        if ($result['success']) {
-            header('Location: index.php');
-            exit;
-        }
+        $error = $result['message'];
     }
-    $error = $result['message'];
 }
 ?>
 <!DOCTYPE html>
@@ -72,62 +61,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px -5px rgba(218, 165, 32, 0.4);
         }
-        .tab-active {
-            border-bottom: 3px solid #FFD700;
-            color: #002244;
-            font-weight: 700;
-        }
-        .tab-inactive {
-            color: #6B7280;
-            font-weight: 500;
-        }
-        .tab-inactive:hover {
-            color: #002244;
-        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#002244] to-[#004488]">
+<body class="bg-gradient-to-br from-[#002244] to-[#004488] font-(['Outfit']">
 
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full">
 
             <div class="text-center mb-8">
-                <h1 class="text-5xl font-black text-white mb-2 tracking-tighter">A RATIO</h1>
+                <h1 class="text-5x font-black text-white mb-2 tracking-tighter">A RATIO</h1>
                 <p class="text-[#FFD700] uppercase tracking-[0.2em] font-bold text-xs">
                     Padrinos Cali &mdash; Programa de Liderazgo Social
                 </p>
             </div>
 
-            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-10 border border-white/20" x-data="loginApp()">
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-10 border border-white/20" x-data="loginForm()">
 
-                <h2 class="text-3xl font-extrabold text-[#002244] mb-6 text-center tracking-tight">
+                <h2 class="text-3xl font-extrabold text-[#002244] mb-8 text-center tracking-tight">
                     Iniciar Sesión
                 </h2>
 
-                <!-- Tabs -->
-                <div class="flex border-b border-gray-200 mb-6">
-                    <button @click="tab = 'admin'" :class="tab === 'admin' ? 'tab-active' : 'tab-inactive'"
-                            class="flex-1 pb-3 text-center text-sm transition-all">
-                        <i data-lucide="shield" class="w-4 h-4 inline mr-1"></i>
-                        Administrador
-                    </button>
-                    <button @click="tab = 'lider'" :class="tab === 'lider' ? 'tab-active' : 'tab-inactive'"
-                            class="flex-1 pb-3 text-center text-sm transition-all">
-                        <i data-lucide="users" class="w-4 h-4 inline mr-1"></i>
-                        Líder Social
-                    </button>
-                </div>
-
                 <?php if ($error): ?>
                 <div class="mb-6 p-4 rounded-xl bg-red-50 text-red-600 border border-red-100 flex items-center gap-3">
-                    <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
                     <span class="text-sm font-medium"><?= htmlspecialchars($error) ?></span>
                 </div>
                 <?php endif; ?>
 
-                <!-- Admin Form -->
-                <form method="POST" action="" x-show="tab === 'admin'" @submit="validateAdmin" class="space-y-6">
-                    <input type="hidden" name="tipo_login" value="admin">
+                <form method="POST" action="" @submit="validateForm" class="space-y-6">
 
                     <div>
                         <label class="block text-xs font-bold text-[#002244] uppercase tracking-wider mb-2">
@@ -160,88 +121,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                    x-model="password"
                                    required
                                    class="block w-full pl-12 pr-12 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all outline-none"
-                                   placeholder="••••••••">
-                            <button type="button" @click="showPassword = !showPassword"
-                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-                                <i :data-lucide="showPassword ? 'eye-off' : 'eye'" class="w-5 h-5"></i>
-                            </button>
+                                   placeholder="Ingrese su contraseña">
                         </div>
                         <p x-show="errors.password" x-text="errors.password" class="text-sm text-red-600 mt-1"></p>
                     </div>
 
-                    <button type="submit"
-                            class="w-full btn-premium-gold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3">
-                        <i data-lucide="log-in" class="w-5 h-5"></i>
-                        <span>Ingresar como Admin</span>
-                    </button>
-                </form>
-
-                <!-- Leader Form -->
-                <form method="POST" action="" x-show="tab === 'lider'" @submit="validateLider" class="space-y-6" x-cloak>
-                    <input type="hidden" name="tipo_login" value="lider">
-
-                    <div>
-                        <label class="block text-xs font-bold text-[#002244] uppercase tracking-wider mb-2">
-                            Documento de Identidad
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="remember"
+                                   class="h-4 w-4 text-[#002244] focus:ring-[#FFD700] border-gray-300 rounded focus:ring-offset-0">
+                            <span class="ml-2 text-sm text-gray-600">Recordar sesión</span>
                         </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i data-lucide="credit-card" class="h-5 w-5 text-gray-400"></i>
-                            </div>
-                            <input type="text"
-                                   name="documento"
-                                   x-model="documento"
-                                   required
-                                   class="block w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all outline-none"
-                                   placeholder="Ingrese su documento">
-                        </div>
-                        <p x-show="errors.documento" x-text="errors.documento" class="text-sm text-red-600 mt-1"></p>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-[#002244] uppercase tracking-wider mb-2">
-                            Teléfono (Contraseña)
-                        </label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i data-lucide="smartphone" class="h-5 w-5 text-gray-400"></i>
-                            </div>
-                            <input type="tel"
-                                   name="telefono"
-                                   x-model="telefono"
-                                   required
-                                   class="block w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 focus:ring-2 focus:ring-[#FFD700] focus:border-[#FFD700] transition-all outline-none"
-                                   placeholder="Ingrese su número de teléfono">
-                        </div>
-                        <p x-show="errors.telefono" x-text="errors.telefono" class="text-sm text-red-600 mt-1"></p>
                     </div>
 
                     <button type="submit"
                             class="w-full btn-premium-gold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3">
                         <i data-lucide="log-in" class="w-5 h-5"></i>
-                        <span>Ingresar al Portal</span>
+                        <span>Iniciar Sesión</span>
                     </button>
-                </form>
 
-                <!-- Info -->
-                <div class="mt-6 p-4 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-2xl text-center">
-                    <p class="text-sm text-[#002244] font-medium">
-                        ¿No tienes credenciales? Solicítalas a tu <strong>Padrino</strong> de campaña
-                    </p>
-                </div>
+                    <div class="p-4 bg-[#FFD700]/10 border border-[#FFD700]/30 rounded-2xl text-center">
+                        <p class="text-sm text-[#002244] font-medium">
+                            ¿No tienes credenciales? Solicítalas a tu <strong>Padrino</strong> de campaña
+                        </p>
+                    </div>
 
-                <div class="text-center border-t border-gray-100 pt-6 mt-6">
-                    <p class="text-sm text-gray-500">
-                        <a href="<?= url('registro-simpatizante.php') ?>"
-                           class="font-bold text-[#002244] hover:underline block">
-                            Regístrate como Simpatizante
+                    <div class="text-center border-t border-gray-100 pt-6">
+                        <a href="<?= url('') ?>"
+                           class="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">
+                            &larr; Volver al Inicio
                         </a>
-                    </p>
-                    <a href="<?= url('') ?>"
-                       class="inline-block mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">
-                        &larr; Volver al Inicio
-                    </a>
-                </div>
+                    </div>
+                </form>
             </div>
 
             <div class="mt-8 text-center">
@@ -254,44 +165,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         lucide.createIcons();
 
-        function loginApp() {
+        function loginForm() {
             return {
-                tab: 'admin',
                 email: '',
                 password: '',
-                documento: '',
-                telefono: '',
                 showPassword: false,
                 errors: {},
 
-                validateAdmin(e) {
+                validateForm(e) {
                     this.errors = {};
+
                     if (!this.email) {
                         this.errors.email = 'El email es requerido';
-                    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+                    } else if (!this.isValidEmail(this.email)) {
                         this.errors.email = 'Email inválido';
                     }
+
                     if (!this.password) {
                         this.errors.password = 'La contraseña es requerida';
+                    } else if (this.password.length < 6) {
+                        this.errors.password = 'La contraseña debe tener al menos 6 caracteres';
                     }
+
                     if (Object.keys(this.errors).length > 0) {
                         e.preventDefault();
                     }
                 },
 
-                validateLider(e) {
-                    this.errors = {};
-                    if (!this.documento) {
-                        this.errors.documento = 'El documento es requerido';
-                    }
-                    if (!this.telefono) {
-                        this.errors.telefono = 'El teléfono es requerido';
-                    } else if (this.telefono.length < 7) {
-                        this.errors.telefono = 'Teléfono inválido';
-                    }
-                    if (Object.keys(this.errors).length > 0) {
-                        e.preventDefault();
-                    }
+                isValidEmail(email) {
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
                 }
             }
         }

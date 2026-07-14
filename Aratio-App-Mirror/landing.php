@@ -106,6 +106,10 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <a href="?page=portal_landing" class="bg-secondary text-primary px-5 py-2 rounded-xl text-sm font-semibold hover:bg-amber-300 transition-all flex items-center gap-2">
+                    <i data-lucide="crown" class="w-4 h-4"></i>
+                    Soy Padrino
+                </a>
                 <a href="login.php" class="bg-primary text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-slate-800 transition-all flex items-center gap-2">
                     <i data-lucide="lock" class="w-4 h-4"></i>
                     Acceso Interno
@@ -139,9 +143,13 @@
                         <i data-lucide="map" class="w-5 h-5"></i>
                         Ver Mapa Social
                     </a>
-                    <a href="?page=cp_captura" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-600 transition-all shadow-xl shadow-green-500/20 flex items-center gap-3">
-                        <i data-lucide="message-circle" class="w-5 h-5"></i>
-                        Quiero sumarme
+                    <a href="?page=portal_landing" class="bg-secondary/20 text-secondary px-8 py-4 rounded-2xl font-bold hover:bg-secondary hover:text-primary transition-all flex items-center gap-3 border-2 border-secondary">
+                        <i data-lucide="crown" class="w-5 h-5"></i>
+                        Soy Padrino
+                    </a>
+                    <a href="?page=voluntario_registro" class="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold hover:bg-green-600 transition-all shadow-xl shadow-green-500/20 flex items-center gap-3">
+                        <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                        Quiero ser Voluntario
                     </a>
                 </div>
                 
@@ -517,7 +525,6 @@
                         <li><a href="#perfil" class="hover:text-secondary transition-colors">Nosotros</a></li>
                         <li><a href="#gestion" class="hover:text-secondary transition-colors">Gestión Social</a></li>
                         <li><a href="#plataforma" class="hover:text-secondary transition-colors">Plataforma</a></li>
-                        <li><a href="?page=cp_captura" class="hover:text-secondary transition-colors">Sumarme</a></li>
                         <li><a href="?page=dashboard_organizaciones_publico&campana_id=2" class="hover:text-secondary transition-colors">Territorios</a></li>
                     </ul>
                 </div>
@@ -536,7 +543,7 @@
             <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 uppercase tracking-widest">
                 <div>
                     <p>&copy; 2026 Padrinos Cali — Programa de Liderazgo Social.</p>
-                    <p class="text-slate-600 normal-case tracking-normal mt-1">Creado con <a href="https://aratio.mrmtech.net" class="text-secondary hover:underline" target="_blank">Aratio PRO</a> by MRM Tech</p>
+                    <p class="text-slate-600 normal-case tracking-normal mt-1">Creado con <span class="text-secondary">Aratio PRO</span> by MRM Tech</p>
                 </div>
                 <p>Cali Nos Inspira</p>
             </div>

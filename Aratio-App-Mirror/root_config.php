@@ -24,9 +24,8 @@ date_default_timezone_set('America/Bogota');
 // DETECCIÓN DE ENTORNO
 // =============================================
 // localhost / 127.0.0.1 = desarrollo | else = producción Hostinger
-// Detección de entorno: localhost / aratio.edisongiraldo.com = desarrollo | else = producción Hostinger
 $currentHost = $_SERVER['HTTP_HOST'] ?? '';
-$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', 'edisongiraldo.localhost', 'padrinoscali.localhost', '127.0.0.1', 'aratio.edisongiraldo.com']);
+$isLocal = in_array($currentHost, ['localhost', 'aratio.localhost', 'padrinoscali.localhost', '127.0.0.1']);
 
 // Si estamos en CLI, verificar si es el entorno de Hostinger por la ruta absoluta
 if (php_sapi_name() === 'cli') {
@@ -65,9 +64,8 @@ define('APP_NAME', 'Aratio — Padrinos Cali');
 define('APP_VERSION', '2.5.0');
 
 // APP_SUBPATH dinámico según el HOST
-// Si es el dominio personalizado, no hay subfolder. Si es localhost, es /aratio
-$detectedSubpath = ($currentHost === 'aratio.edisongiraldo.com') ? '' : '/aratio';
-if (!$isLocal) $detectedSubpath = '/aratio'; // En producción siempre es /aratio
+$detectedSubpath = '/aratio';
+if ($isLocal) $detectedSubpath = '/aratio';
 
 define('APP_SUBPATH', $detectedSubpath);
 
@@ -117,9 +115,9 @@ define('COLOR_ACCENT', 'hsla(220, 93%, 30%, 1.00)');    // Azul Oscuro Accent
 // =============================================
 define('SMTP_HOST', 'smtp.hostinger.com');
 define('SMTP_PORT', 465);
-define('SMTP_USER', 'admin@aratio.mrmtech.net');
-define('SMTP_PASS', 'tu_password_email'); // Configurar después
-define('SMTP_FROM', 'admin@aratio.mrmtech.net');
+define('SMTP_USER', 'admin@padrinoscali.org');
+define('SMTP_PASS', '');
+define('SMTP_FROM', 'admin@padrinoscali.org');
 define('SMTP_FROM_NAME', 'Sistema Aratio — Padrinos Cali');
 
 // =============================================

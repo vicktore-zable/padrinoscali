@@ -43,7 +43,7 @@ $administradores = $administradores ?? [];
             </div>
             <div class="card p-6 bg-white overflow-hidden relative">
                 <div class="relative z-10">
-                    <span class="text-sm font-medium text-gray-500 uppercase">Líderes Activos</span>
+                    <span class="text-sm font-medium text-gray-500 uppercase">Padrinos Activos</span>
                     <span class="block text-4xl font-bold text-gray-900 mt-2"><?= number_format($stats['total_lideres'] ?? 0) ?></span>
                 </div>
             </div>
@@ -119,7 +119,7 @@ $administradores = $administradores ?? [];
             <p class="text-blue-100 text-sm mb-4">Los administradores asignados a esta campaña solo podrán ver y gestionar los colaboradores que pertenezcan a la misma.</p>
             <div class="flex items-center text-xs bg-blue-700 bg-opacity-50 p-3 rounded-lg">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Sincronizado con aratio.mrmtech.net</span>
+                <span>Sincronizado con Padrinos Cali</span>
             </div>
         </div>
     </div>

@@ -11,7 +11,7 @@ use App\Utils\Helpers;
                 <div>
                     <h3 class="card-title">Red Jerárquica</h3>
                     <p class="text-sm text-gray-600 mt-1">
-                        Líder: <?= Helpers::formatFullName($colaborador['nombres'], $colaborador['apellidos']) ?>
+                        Padrino: <?= Helpers::formatFullName($colaborador['nombres'], $colaborador['apellidos']) ?>
                     </p>
                 </div>
                 <div class="flex gap-2">
@@ -52,7 +52,7 @@ use App\Utils\Helpers;
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-4 rounded-full bg-perfil-lider-opinion"></div>
-                        <span class="text-sm text-gray-600">Líder de Opinión</span>
+                        <span class="text-sm text-gray-600">Padrino de Opinión</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <div class="w-4 h-4 rounded-full bg-perfil-influencer"></div>
@@ -98,7 +98,7 @@ use App\Utils\Helpers;
 
         <!-- Root Node Info -->
         <div class="card">
-            <h3 class="font-semibold text-gray-900 mb-4">Líder Principal</h3>
+            <h3 class="font-semibold text-gray-900 mb-4">Padrino Principal</h3>
             <div class="space-y-3">
                 <div>
                     <p class="text-sm text-gray-600">Nombre</p>

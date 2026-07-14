@@ -53,11 +53,11 @@ if (!$colaboradorId) {
                     <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
                     Editar
                 </button>
-                <button @click="showModal = 'cambiarLider'" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center">
+                <button @click="showModal = 'cambiarLider'" class="btn-secondary flex items-center">
                     <i data-lucide="user-check" class="w-4 h-4 mr-2"></i>
                     Cambiar Líder
                 </button>
-                <button @click="showModal = 'reevaluar'" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center">
+                <button @click="showModal = 'reevaluar'" class="btn-secondary flex items-center">
                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                     Reevaluar
                 </button>
@@ -111,6 +111,13 @@ if (!$colaboradorId) {
                         <i data-lucide="share-2" class="w-4 h-4 mr-2"></i>
                         Redes Sociales
                         <span x-show="socialCount > 0" class="ml-2 px-2 py-0.5 bg-fuchsia-100 text-fuchsia-600 rounded-full text-xs" x-text="socialCount"></span>
+                    </button>
+                    <button @click="activeTab = 'zonas_trabajo'; loadZonasTrabajo()"
+                            :class="activeTab === 'zonas_trabajo' ? 'border-fuchsia-500 text-fuchsia-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                            class="px-6 py-4 border-b-2 font-medium text-sm flex items-center">
+                        <i data-lucide="map-pin" class="w-4 h-4 mr-2"></i>
+                        Zonas de Trabajo
+                        <span x-show="zonasTrabajo.length > 0" class="ml-2 px-2 py-0.5 bg-fuchsia-100 text-fuchsia-600 rounded-full text-xs" x-text="zonasTrabajo.length"></span>
                     </button>
                 </nav>
             </div>
@@ -185,14 +192,14 @@ if (!$colaboradorId) {
                                 <div class="flex justify-between items-center">
                                     <dt class="text-gray-500">Estado:</dt>
                                     <dd>
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium"
-                                              :class="{
-                                                  'bg-blue-100 text-blue-700': colaborador.estado === 'Nuevo',
-                                                  'bg-green-100 text-green-700': colaborador.estado === 'Crecio',
-                                                  'bg-gray-100 text-gray-700': colaborador.estado === 'Igual',
-                                                  'bg-red-100 text-red-700': colaborador.estado === 'Decrece',
-                                                  'bg-yellow-100 text-yellow-700': colaborador.estado === 'Desvinculado'
-                                              }"
+<span class="badge"
+      :class="{
+          'badge-info': colaborador.estado === 'Nuevo',
+          'badge-success': colaborador.estado === 'Crecio',
+          'bg-gray-100 text-gray-700': colaborador.estado === 'Igual',
+          'badge-error': colaborador.estado === 'Decrece',
+          'badge-warning': colaborador.estado === 'Desvinculado'
+      }"
                                               x-text="colaborador.estado"></span>
                                     </dd>
                                 </div>
@@ -484,7 +491,7 @@ if (!$colaboradorId) {
                             <!-- Territorial Breakdown -->
                             <div x-show="statsSeguidores.desglose_territorio && statsSeguidores.desglose_territorio.length > 0">
                                 <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                    <i data-lucide="map" class="w-5 h-5 text-gray-400"></i>
+                                    <i data-lucide="map-pin" class="w-5 h-5 text-gray-400"></i>
                                     Impacto Territorial
                                 </h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -496,10 +503,9 @@ if (!$colaboradorId) {
                                             </div>
                                             <h4 class="text-sm font-bold text-gray-800 truncate" x-text="zona.barrio"></h4>
                                             <div class="w-full bg-gray-100 rounded-full h-1 mt-3">
-                                                <div class="bg-fuchsia-600 h-1 rounded-full opacity-60" :style="'width: ' + Math.min(100, (zona.total / Math.max(statsSeguidores.total_red, 1)) * 100) + '%'"></div>
-                                            </div>
-                                        </div>
-                                    </template>
+<div class="bg-fuchsia-600 h-1 rounded-full opacity-60" :style="'width: ' + Math.min(100, (zona.total / Math.max(statsSeguidores.total_red, 1)) * 100) + '%'"></div>
+                 </div>
+                                     </template>
                                 </div>
                             </div>
 
@@ -511,7 +517,7 @@ if (!$colaboradorId) {
                                 </h3>
                                 
                                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                    <div class="overflow-x-auto">
+                                    <div class="table-container">
                                         <table class="w-full text-left">
                                             <thead>
                                                 <tr class="text-[10px] text-gray-500 uppercase tracking-widest border-b border-gray-100 bg-gray-50/50">
@@ -533,11 +539,10 @@ if (!$colaboradorId) {
                                                                     <a :href="'index.php?page=colaborador_detalle&id=' + seg.id" class="font-bold text-gray-800 hover:text-fuchsia-600 transition-colors" x-text="seg.nombre_completo"></a>
                                                                     <div class="text-[10px] text-gray-400 flex items-center mt-0.5">
                                                                         <i data-lucide="credit-card" class="w-3 h-3 mr-1"></i>
-                                                                        <span x-text="seg.documento"></span>
-                                                                    </div>
-                                                                </div>
+<span x-text="seg.documento"></span>
                                                             </div>
-                                                        </td>
+                                                        </div>
+                                                    </td>
                                                         <td class="px-6 py-4">
                                                             <span class="px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-wider bg-white shadow-sm" x-text="seg.perfil"></span>
                                                         </td>
@@ -652,6 +657,7 @@ if (!$colaboradorId) {
                             </div>
                         </div>
                     </div>
+                </div>
                 <!-- Tab: Redes Sociales -->
                 <div x-show="activeTab === 'social'">
                     <div x-show="loadingSocial" class="text-center py-8">
@@ -697,9 +703,91 @@ if (!$colaboradorId) {
                         </template>
                     </div>
                 </div>
+                <!-- Tab: Zonas de Trabajo -->
+                <div x-show="activeTab === 'zonas_trabajo'">
+                    <div x-show="loadingZonas" class="text-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-fuchsia-600 mx-auto"></div>
+                    </div>
+                    <div x-show="!loadingZonas">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Zonas de Trabajo Social</h3>
+                            <button @click="abrirModalZona()" class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 text-sm flex items-center">
+                                <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Agregar Zona
+                            </button>
+                        </div>
+                        <div x-show="zonasTrabajo.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
+                            <i data-lucide="map-pin" class="w-16 h-16 text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-2"><span x-text="colaborador?.nombres || 'Este líder'"></span> no tiene zonas de trabajo</h3>
+                            <p class="text-gray-500 max-w-md mb-4">Este líder aún no ha registrado zonas de trabajo social. ¿Quieres crear la primera zona?</p>
+                            <button @click="abrirModalZona()" class="px-6 py-3 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700 shadow-lg shadow-fuchsia-500/20">
+                                Crear Zona de Trabajo
+                            </button>
+                        </div>
+                        <div x-show="zonasTrabajo.length > 0">
+                            <div class="mb-3 flex gap-3 text-sm">
+                                <span class="px-3 py-1 rounded-full bg-fuchsia-100 text-fuchs-700 font-medium"><span x-text="statsZonas.propias"></span> propias</span>
+                                <span class="badge badge-info"><span x-text="statsZonas.seguidores"></span> de seguidores</span>
+                                <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">Total: <span x-text="zonasTrabajo.length"></span></span>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div>
+                                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                            <thead class="bg-gray-50">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-600">Zona</th>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-600">Municipio</th>
+                                                    <th class="px-4 py-3 text-center font-semibold text-gray-600">Tipo</th>
+                                                    <th class="px-4 py-3 text-left font-semibold text-gray-600">Responsable</th>
+                                                    <th class="px-4 py-3 text-center font-semibold text-gray-600"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100">
+                                                <template x-for="zona in zonasTrabajo" :key="zona.id">
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-4 py-3">
+                                                            <span class="font-medium text-gray-800" x-text="zona.barrio"></span>
+                                                            <span class="text-xs text-gray-400 block" x-text="zona.Territorio + ' (' + zona.Tipo_territorio + ')'"></span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-gray-600" x-text="zona.municipio"></td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <span class="px-2 py-0.5 rounded text-xs font-medium" :class="zona.tipo === 'propia' ? 'bg-fuchsia-100 text-fuchsia-700' : 'bg-blue-100 text-blue-700'" x-text="zona.tipo === 'propia' ? 'Propia' : 'Seguidor'"></span>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <span x-show="zona.tipo === 'seguidor'" class="text-gray-600" x-text="zona.responsable_nombres + ' ' + zona.responsable_apellidos"></span>
+                                                            <span x-show="zona.tipo === 'propia'" class="text-gray-400">—</span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <div class="flex gap-1 justify-center">
+                                                                <button x-show="zona.tipo === 'propia'" @click="editarZona(zona)" class="p-1.5 text-gray-400 hover:text-fuchsia-600 rounded" title="Editar"><i data-lucide="edit" class="w-3.5 h-3.5"></i></button>
+                                                                <button x-show="zona.tipo === 'propia'" @click="eliminarZona(zona.id)" class="p-1.5 text-gray-400 hover:text-red-600 rounded" title="Eliminar"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                                                <span x-show="zona.tipo === 'seguidor'" class="text-xs text-gray-400 italic">Solo lectura</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2" x-text="'Impacto estimado total: ' + zonasTrabajo.reduce((a, z) => a + (parseInt(z.impacto_estimado) || 0), 0) + ' personas'"></p>
+                                </div>
+                                <div>
+                                    <div id="mapaZonas" class="h-[400px] rounded-lg border border-gray-200"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div></template>
+
+    <!-- Toast notification -->
+    <div x-show="notifMsg" x-transition.duration.300ms
+        class="toast z-[100]"
+        :class="notifTipo === 'success' ? 'toast-success' : 'toast-error'"
+        x-text="notifMsg">
+    </div>
 
     <!-- Modal: Cambiar Líder -->
     <div x-show="showModal === 'cambiarLider'" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
@@ -742,7 +830,7 @@ if (!$colaboradorId) {
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
-                    <button @click="showModal = null" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <button @click="showModal = null" class="btn-secondary">
                         Cancelar
                     </button>
                     <button @click="confirmarCambioLider()" class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700">
@@ -783,12 +871,81 @@ if (!$colaboradorId) {
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
-                    <button @click="showModal = null" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <button @click="showModal = null" class="btn-secondary">
                         Cancelar
                     </button>
                     <button @click="confirmarReevaluacion()" class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700">
                         Confirmar Reevaluación
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Agregar/Editar Zona de Trabajo -->
+    <div x-show="zonaModalOpen" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black/50 transition-opacity" @click="cerrarModalZona()"></div>
+            <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4" x-text="zonaEditId ? 'Editar Zona de Trabajo' : 'Agregar Zona de Trabajo'"></h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Departamento</label>
+                        <select x-model="zonaForm.departamento" @change="zonaCargarMunicipios()" class="input">
+                            <option value="">Seleccionar...</option>
+                            <template x-for="dep in zonaListas.departamentos" :key="dep">
+                                <option :value="dep" x-text="dep"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                        <select x-model="zonaSelectedMunicipio" @change="zonaSelectMunicipio()" class="input" :disabled="!zonaForm.departamento">
+                            <option value="">Seleccionar...</option>
+                            <template x-for="mun in zonaListas.municipios" :key="mun.cod_mpio">
+                                <option :value="JSON.stringify(mun)" x-text="mun.municipio"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Territorio</label>
+                        <select x-model="zonaForm.tipo_territorio" @change="zonaCargarTerritorios()" class="input" :disabled="!zonaForm.municipio">
+                            <option value="">Seleccionar...</option>
+                            <template x-for="tipo in zonaListas.tipos_territorio" :key="tipo">
+                                <option :value="tipo" x-text="tipo"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Territorio (Comuna / Vereda)</label>
+                        <select x-model="zonaSelectedTerritorio" @change="zonaCargarBarrios()" class="input" :disabled="!zonaForm.tipo_territorio">
+                            <option value="">Seleccionar...</option>
+                            <template x-for="terr in zonaListas.territorios" :key="terr">
+                                <option :value="terr" x-text="terr"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Barrio / Vereda</label>
+                        <select x-model="zonaForm.territorio_id" class="input" :disabled="!zonaSelectedTerritorio">
+                            <option value="">Seleccionar...</option>
+                            <template x-for="b in zonaListas.barrios" :key="b.id">
+                                <option :value="b.id" x-text="b.barrio"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Impacto estimado (personas)</label>
+                        <input type="number" x-model="zonaForm.impacto_estimado" min="0" class="input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea x-model="zonaForm.descripcion" rows="3" class="input" placeholder="Descripción del trabajo social en esta zona..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button @click="cerrarModalZona()" class="btn-secondary">Cancelar</button>
+                    <button @click="guardarZona()" class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700" x-text="zonaEditId ? 'Actualizar' : 'Agregar'"></button>
                 </div>
             </div>
         </div>
@@ -844,7 +1001,7 @@ if (!$colaboradorId) {
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
-                    <button @click="showModal = null" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                    <button @click="showModal = null" class="btn-secondary">
                         Cancelar
                     </button>
                     <button @click="confirmAddCurriculumItem()" class="px-4 py-2 bg-fuchsia-600 text-white rounded-lg hover:bg-fuchsia-700">
@@ -1200,6 +1357,20 @@ function colaboradorDetalle() {
         social: [],
         socialCount: 0,
 
+        // Zonas de Trabajo
+        loadingZonas: false,
+        zonasTrabajo: [],
+        statsZonas: { propias: 0, seguidores: 0 },
+        zonaMapa: null,
+        zonaModalOpen: false,
+        zonaEditId: null,
+        zonaForm: { territorio_id: '', departamento: '', municipio: '', cod_mpio: '', tipo_territorio: '', territorio: '', barrio: '', impacto_estimado: '', descripcion: '' },
+        zonaListas: { departamentos: [], municipios: [], tipos_territorio: [], territorios: [], barrios: [] },
+        zonaSelectedMunicipio: null,
+        zonaSelectedTerritorio: null,
+        notifMsg: '',
+        notifTipo: 'success',
+
         async loadSocialTimeline() {
             if (this.loadingSocial) return;
             this.loadingSocial = true;
@@ -1221,6 +1392,163 @@ function colaboradorDetalle() {
             if (!fecha) return '';
             const f = new Date(fecha.replace(' ', 'T'));
             return f.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+        },
+
+        // Zonas de Trabajo
+        async loadZonasTrabajo() {
+            this.loadingZonas = true;
+            try {
+                const resp = await fetch(`api/zonas_trabajo.php?action=con_seguidores&colaborador_id=${this.colaboradorId}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    this.zonasTrabajo = json.data;
+                    this.statsZonas = { propias: json.propias, seguidores: json.seguidores };
+                }
+            } catch (e) { console.error('Error cargando zonas:', e); }
+            finally { this.loadingZonas = false; }
+            this.$nextTick(() => this.initMapaZonas());
+        },
+
+        initMapaZonas() {
+            if (this.zonasTrabajo.length === 0) return;
+            const container = document.getElementById('mapaZonas');
+            if (!container || this.zonaMapa) return;
+            this.zonaMapa = L.map('mapaZonas', { zoomControl: true }).setView([3.4516, -76.5320], 12);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap', maxZoom: 18
+            }).addTo(this.zonaMapa);
+            const params = `action=geo&con_seguidores=1&colaborador_id=${this.colaboradorId}`;
+            fetch(`api/zonas_trabajo.php?${params}`)
+                .then(r => r.json())
+                .then(geo => {
+                    if (geo.features) {
+                        const layer = L.geoJSON(geo, {
+                            style: { color: '#6b21a8', weight: 2, fillOpacity: 0.15 }
+                        }).bindPopup(f => `<b>${f.properties.barrio}</b><br>${f.properties.Territorio}<br>Impacto: ${f.properties.impacto_estimado} personas<br><span class="text-xs text-gray-500">Responsable: ${f.properties.colaborador_nombre}</span>`).addTo(this.zonaMapa);
+                        this.zonaMapa.fitBounds(layer.getBounds().pad(0.1));
+                    }
+                }).catch(e => console.error('Error cargando geo:', e));
+        },
+
+        destroyMapaZonas() {
+            if (this.zonaMapa) { this.zonaMapa.remove(); this.zonaMapa = null; }
+        },
+
+        abrirModalZona(zona) {
+            this.zonaListas.departamentos = [];
+            this.zonaListas.municipios = [];
+            this.zonaListas.tipos_territorio = [];
+            this.zonaListas.territorios = [];
+            this.zonaListas.barrios = [];
+            this.zonaSelectedMunicipio = null;
+            this.zonaSelectedTerritorio = null;
+            this.zonaForm = { territorio_id: '', departamento: '', municipio: '', cod_mpio: '', tipo_territorio: '', territorio: '', barrio: '', impacto_estimado: '', descripcion: '' };
+
+            fetch('/aratio/api/territorios.php?accion=departamentos', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json()).then(j => {
+                    if (j.success) {
+                        this.zonaListas.departamentos = j.data;
+                        if (zona) {
+                            this.zonaEditId = zona.id;
+                            this.$nextTick(() => this.zonaPrecargarEdicion(zona));
+                        } else {
+                            this.zonaEditId = null;
+                            this.zonaModalOpen = true;
+                        }
+                    }
+                });
+        },
+
+        async zonaPrecargarEdicion(zona) {
+            try {
+                const resp = await fetch(`/aratio/api/territorios.php?accion=detalle_territorio&id=${zona.territorio_id}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const json = await resp.json();
+                if (!json.success || !json.data) return;
+                const t = json.data;
+
+                this.zonaForm.departamento = t.departamento;
+                this.zonaForm.municipio = t.municipio;
+                this.zonaForm.cod_mpio = t.cod_mpio;
+
+                const munResp = await fetch(`/aratio/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(t.departamento)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const munJson = await munResp.json();
+                if (munJson.success) {
+                    this.zonaListas.municipios = munJson.data;
+                    const mun = munJson.data.find(m => m.municipio === t.municipio);
+                    if (mun) this.zonaSelectedMunicipio = JSON.stringify(mun);
+                }
+
+                this.zonaForm.tipo_territorio = t.Tipo_territorio;
+                const tiposResp = await fetch(`/aratio/api/territorios.php?accion=tipos_territorio&departamento=${encodeURIComponent(t.departamento)}&municipio=${encodeURIComponent(t.municipio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const tiposJson = await tiposResp.json();
+                if (tiposJson.success) this.zonaListas.tipos_territorio = tiposJson.data;
+
+                const terrResp = await fetch(`/aratio/api/territorios.php?accion=territorios&departamento=${encodeURIComponent(t.departamento)}&municipio=${encodeURIComponent(t.municipio)}&tipo_territorio=${encodeURIComponent(t.Tipo_territorio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const terrJson = await terrResp.json();
+                if (terrJson.success) {
+                    this.zonaListas.territorios = terrJson.data;
+                    this.zonaSelectedTerritorio = t.Territorio;
+                }
+
+                const barResp = await fetch(`/aratio/api/territorios.php?accion=barrios_v2&departamento=${encodeURIComponent(t.departamento)}&municipio=${encodeURIComponent(t.municipio)}&tipo_territorio=${encodeURIComponent(t.Tipo_territorio)}&territorio=${encodeURIComponent(t.Territorio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const barJson = await barResp.json();
+                if (barJson.success) {
+                    this.zonaListas.barrios = barJson.data;
+                }
+
+                this.zonaForm.territorio_id = zona.territorio_id;
+                this.zonaForm.impacto_estimado = zona.impacto_estimado;
+                this.zonaForm.descripcion = zona.descripcion || '';
+                this.zonaModalOpen = true;
+            } catch (e) {
+                console.error('Error precargando edición:', e);
+                this.zonaModalOpen = true;
+            }
+        },
+
+        cerrarModalZona() {
+            this.zonaModalOpen = false;
+            this.zonaEditId = null;
+        },
+
+        async guardarZona() {
+            if (!this.zonaForm.territorio_id) return;
+            try {
+                const url = this.zonaEditId ? `api/zonas_trabajo.php?id=${this.zonaEditId}` : 'api/zonas_trabajo.php';
+                const body = { territorio_id: this.zonaForm.territorio_id, impacto_estimado: this.zonaForm.impacto_estimado || 0, descripcion: this.zonaForm.descripcion };
+                if (this.zonaEditId) {
+                    body._method = 'PUT';
+                } else {
+                    body.colaborador_id = this.colaboradorId;
+                }
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: JSON.stringify(body)
+                });
+                const json = await resp.json();
+                if (json.success) {
+                    this.cerrarModalZona();
+                    this.loadZonasTrabajo();
+                    this.notificar('Zona ' + (this.zonaEditId ? 'actualizada' : 'creada') + ' correctamente', 'success');
+                } else {
+                    alert('Error: ' + (json.message || ''));
+                }
+            } catch (e) { console.error('Error guardando zona:', e); }
+        },
+
+        async eliminarZona(id) {
+            if (!confirm('¿Eliminar esta zona de trabajo?')) return;
+            try {
+                const resp = await fetch(`api/zonas_trabajo.php?id=${id}`, { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const json = await resp.json();
+                if (json.success) {
+                    this.loadZonasTrabajo();
+                    this.notificar('Zona eliminada', 'success');
+                } else alert('Error: ' + (json.message || ''));
+            } catch (e) { console.error('Error eliminando zona:', e); }
         },
 
         // Cambiar líder
@@ -1954,6 +2282,65 @@ function colaboradorDetalle() {
             this.editForm.lider_directo = lider.documento;
             this.editSearchLider = lider.nombres + ' ' + lider.apellidos;
             this.editLideresEncontrados = [];
+        },
+
+        // Zonas - helpers geográficos
+        async zonaCargarMunicipios() {
+            this.zonaListas.municipios = [];
+            this.zonaSelectedMunicipio = null;
+            this.zonaListas.tipos_territorio = [];
+            this.zonaListas.territorios = [];
+            this.zonaListas.barrios = [];
+            this.zonaForm.municipio = '';
+            if (!this.zonaForm.departamento) return;
+            const resp = await fetch(`/aratio/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.zonaForm.departamento)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await resp.json();
+            if (json.success) this.zonaListas.municipios = json.data;
+        },
+
+        zonaSelectMunicipio() {
+            if (!this.zonaSelectedMunicipio) return;
+            const mun = JSON.parse(this.zonaSelectedMunicipio);
+            this.zonaForm.municipio = mun.municipio;
+            this.zonaForm.cod_mpio = mun.cod_mpio;
+            this.zonaListas.tipos_territorio = [];
+            this.zonaListas.territorios = [];
+            this.zonaListas.barrios = [];
+            this.zonaForm.tipo_territorio = '';
+            this.zonaForm.territorio = '';
+            this.zonaForm.territorio_id = '';
+            if (this.zonaForm.departamento && this.zonaForm.municipio) {
+                fetch(`/aratio/api/territorios.php?accion=tipos_territorio&departamento=${encodeURIComponent(this.zonaForm.departamento)}&municipio=${encodeURIComponent(this.zonaForm.municipio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(r => r.json()).then(j => { if (j.success) this.zonaListas.tipos_territorio = j.data; });
+            }
+        },
+
+        async zonaCargarTerritorios() {
+            this.zonaListas.territorios = [];
+            this.zonaListas.barrios = [];
+            this.zonaSelectedTerritorio = null;
+            this.zonaForm.territorio = '';
+            this.zonaForm.territorio_id = '';
+            if (!this.zonaForm.tipo_territorio) return;
+            const resp = await fetch(`/aratio/api/territorios.php?accion=territorios&departamento=${encodeURIComponent(this.zonaForm.departamento)}&municipio=${encodeURIComponent(this.zonaForm.municipio)}&tipo_territorio=${encodeURIComponent(this.zonaForm.tipo_territorio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await resp.json();
+            if (json.success) this.zonaListas.territorios = json.data;
+        },
+
+ async zonaCargarBarrios() {
+            this.zonaListas.barrios = [];
+            this.zonaForm.territorio_id = '';
+            if (!this.zonaSelectedTerritorio) return;
+            this.zonaForm.territorio = this.zonaSelectedTerritorio;
+            const resp = await fetch(`/aratio/api/territorios.php?accion=barrios_v2&departamento=${encodeURIComponent(this.zonaForm.departamento)}&municipio=${encodeURIComponent(this.zonaForm.municipio)}&tipo_territorio=${encodeURIComponent(this.zonaForm.tipo_territorio)}&territorio=${encodeURIComponent(this.zonaForm.territorio)}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await resp.json();
+            if (json.success) this.zonaListas.barrios = json.data;
+        },
+
+        notificar(msg, tipo) {
+            this.notifMsg = msg;
+            this.notifTipo = tipo;
+            setTimeout(() => { this.notifMsg = ''; }, 3000);
         }
     };
 }

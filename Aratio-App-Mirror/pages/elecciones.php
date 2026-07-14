@@ -192,7 +192,7 @@ $elecciones = $stmt->fetchAll();
                 this.loading = true;
                 const method = this.form.id ? 'PUT' : 'POST';
                 try {
-                    const response = await fetch('/api/elecciones.php', {
+                    const response = await fetch('/aratio/api/elecciones.php', {
                         method: method,
                         headers: {
                             'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ $elecciones = $stmt->fetchAll();
             async eliminar(id) {
                 if (!confirm('¿Estás seguro de eliminar esta elección?\n\nEsta acción no se puede deshacer y puede afectar campañas y candidatos asociados.')) return;
                 try {
-                    const response = await fetch(`/api/elecciones.php?id=${id}`, {
+                    const response = await fetch(`/aratio/api/elecciones.php?id=${id}`, {
                         method: 'DELETE',
                         headers: { 'X-Requested-With': 'XMLHttpRequest' }
                     });

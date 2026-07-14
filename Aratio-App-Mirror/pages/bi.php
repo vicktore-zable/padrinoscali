@@ -39,13 +39,9 @@
     <!-- ════════════════ PANORAMA ════════════════ -->
     <template x-if="tab == 'panorama'">
         <div>
-            <!-- Loading -->
             <div x-show="loading && !data.panorama" class="flex items-center justify-center py-12">
                 <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <template x-if="data.panorama">
-            <div>
-            <!-- KPI row -->
             <div class="grid grid-cols-3 lg:grid-cols-7 gap-2 mb-4">
                 <template x-for="(k, key) in ['colaboradores','lideres','activos','inactivos','donaciones_periodo','eventos_periodo','whatsapp_tasa']" :key="key">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
@@ -64,13 +60,9 @@
                                 <span x-text="(data.panorama.kpi[k].vs_periodo > 0 ? '▲ +' : data.panorama.kpi[k].vs_periodo < 0 ? '▼ ' : '― ') + data.panorama.kpi[k].vs_periodo + '%'"></span>
                             </template>
                         </p>
-            </template>
-        </div>
-        </template>
-    </template>
+                    </div>
+                </template>
             </div>
-
-            <!-- Alertas -->
             <template x-if="data.panorama?.alertas?.length">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 mb-4">
                     <p class="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-500"></i> Alertas</p>
@@ -84,8 +76,6 @@
                     </div>
                 </div>
             </template>
-
-            <!-- Cards: Rol + Estado + Género -->
             <div class="grid grid-cols-3 gap-3 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
                     <h4 class="text-xs font-semibold text-gray-900 mb-2">Rol</h4>
@@ -124,24 +114,20 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Cards: Nivel Participación -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 mb-4">
                 <h4 class="text-xs font-semibold text-gray-900 mb-2">Nivel de Participación</h4>
                 <template x-if="data.panorama?.distribuciones?.nivel_participacion?.length">
-                <div class="flex flex-wrap gap-2">
-                    <template x-for="d in data.panorama.distribuciones.nivel_participacion" :key="d.label">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                            <span x-text="d.label"></span>
-                            <span class="font-bold" x-text="formatNum(d.total)"></span>
-                        </span>
-                    </template>
-                </div>
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="d in data.panorama.distribuciones.nivel_participacion" :key="d.label">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                <span x-text="d.label"></span>
+                                <span class="font-bold" x-text="formatNum(d.total)"></span>
+                            </span>
+                        </template>
+                    </div>
                 </template>
                 <p x-show="!data.panorama?.distribuciones?.nivel_participacion?.length" class="text-xs text-gray-400 text-center py-2">Sin datos</p>
             </div>
-
-            <!-- Charts row: Tendencia + Top Territorios + Top Barrios -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
                     <h4 class="text-xs font-semibold text-gray-900 mb-3">Tendencia Colaboradores (12m)</h4>
@@ -165,8 +151,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Top 10 Líderes Directos -->
             <template x-if="data.panorama?.topLideres?.length">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
                     <h4 class="text-xs font-semibold text-gray-900 mb-3">Top 10 Líderes Directos</h4>
@@ -175,8 +159,6 @@
                     </div>
                 </div>
             </template>
-            </div>
-            </template>  <!-- data.panorama -->
         </div>
     </template>
 
@@ -186,8 +168,6 @@
             <div x-show="loading && !data.territorio" class="flex items-center justify-center py-12">
                 <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <template x-if="data.territorio">
-            <div>
             <!-- KPI row -->
             <div class="grid grid-cols-4 gap-2 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
@@ -207,18 +187,10 @@
                     <p class="text-lg font-bold text-amber-600 mt-0.5" x-text="data.territorio?.kpis?.rural_pct ?? 0 + '%'"></p>
                 </div>
             </div>
-
             <!-- Mapa único con capas toggle -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
                 <div class="p-3 border-b border-gray-100 flex items-center gap-3 flex-wrap">
-                    <template x-for="(capa, key) in {
-                        viven: {label:'Dónde viven',color:'#3b82f6'},
-                        zonas: {label:'Zonas trabajo',color:'#22c55e'},
-                        actividad: {label:'Actividad',color:'#8b5cf6'},
-                        compromisos: {label:'Compromisos',color:'#8b5cf6'},
-                        eventos: {label:'Eventos',color:'#f97316'},
-                        instagram: {label:'Instagram',color:'#ec4899'}
-                    }" :key="key">
+                    <template x-for="(capa, key) in { viven: {label:'Dónde viven',color:'#3b82f6'}, zonas: {label:'Zonas trabajo',color:'#22c55e'}, actividad: {label:'Actividad',color:'#8b5cf6'}, compromisos: {label:'Compromisos',color:'#8b5cf6'}, eventos: {label:'Eventos',color:'#f97316'}, instagram: {label:'Instagram',color:'#ec4899'} }" :key="key">
                         <label class="flex items-center gap-1.5 text-xs cursor-pointer select-none">
                             <input type="checkbox" :checked="capasActivas[key]" @change="toggleCapa(key)" class="rounded">
                             <span class="w-2 h-2 rounded-full inline-block" :style="'background:'+capa.color"></span>
@@ -238,7 +210,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Brechas de cobertura -->
             <template x-if="data.territorio?.brechas?.length">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4">
@@ -264,9 +235,7 @@
                                         <td class="py-2 pr-3 text-right text-green-600" x-text="b.con_zona"></td>
                                         <td class="py-2 pr-3 text-right" :class="b.sin_zona > 0 ? 'text-red-600 font-semibold' : 'text-gray-500'" x-text="b.sin_zona"></td>
                                         <td class="py-2 pr-3 text-right">
-                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium"
-                                                  :class="b.cobertura_pct >= 80 ? 'bg-green-100 text-green-700' : b.cobertura_pct >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
-                                                  x-text="b.cobertura_pct + '%'"></span>
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-medium" :class="b.cobertura_pct >= 80 ? 'bg-green-100 text-green-700' : b.cobertura_pct >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'" x-text="b.cobertura_pct + '%'"></span>
                                         </td>
                                     </tr>
                                 </template>
@@ -274,9 +243,7 @@
                         </table>
                     </div>
                 </div>
-            </template>  <!-- brechas -->
-            </div>
-            </template>  <!-- data.territorio -->
+            </template>
         </div>
     </template>
 
@@ -286,10 +253,8 @@
             <div x-show="loading && !data.red" class="flex items-center justify-center py-12">
                 <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <template x-if="data.red">
-            <div>
             <!-- KPI row -->
-            <div class="grid grid-cols-5 gap-2 mb-4">
+            <div class="grid grid-cols-4 gap-2 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
                     <p class="text-[10px] text-gray-500 uppercase">Líderes</p>
                     <p class="text-lg font-bold text-gray-900 mt-0.5" x-text="data.red?.kpis?.lideres ?? 0"></p>
@@ -306,12 +271,7 @@
                     <p class="text-[10px] text-gray-500 uppercase">Profundidad</p>
                     <p class="text-lg font-bold text-gray-900 mt-0.5" x-text="data.red?.kpis?.profundidad_max ?? 0"></p>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 text-center">
-                    <p class="text-[10px] text-gray-500 uppercase">Rotación</p>
-                    <p class="text-lg font-bold text-amber-600 mt-0.5" x-text="(data.red?.kpis?.rotacion_mensual ?? 0) + ' cambios'"></p>
-                </div>
             </div>
-
             <!-- Charts row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -329,7 +289,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Tabla top líderes -->
             <template x-if="data.red?.topLideres?.length">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
@@ -365,9 +324,7 @@
                         </table>
                     </div>
                 </div>
-            </template>  <!-- Top 15 table -->
-            </div>
-            </template>  <!-- data.red -->
+            </template>
         </div>
     </template>
 </div>
@@ -586,17 +543,12 @@ function biHub() {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(this.mapaTerritorio);
             this.mapaListo = true;
-            Object.keys(this.capasActivas).forEach(k => this.toggleCapa(k));
+            Object.keys(this.capasActivas).forEach(k => {
+                if (this.capasActivas[k] && this.data.territorio?.mapas?.[k]) this.agregarCapaTerritorio(k);
+            });
         },
 
-        toggleCapa(key) {
-            this.capasActivas[key] = !this.capasActivas[key];
-            if (!this.mapaTerritorio || !this.data.territorio?.mapas?.[key]) return;
-            if (this.capasTerritorio[key]) {
-                this.mapaTerritorio.removeLayer(this.capasTerritorio[key]);
-                this.capasTerritorio[key] = null;
-                return;
-            }
+        agregarCapaTerritorio(key) {
             const geojson = this.data.territorio.mapas[key];
             if (!geojson.features || !geojson.features.length) return;
             this.capasTerritorio[key] = L.geoJSON(geojson, {
@@ -606,6 +558,19 @@ function biHub() {
                     if (f.properties.popup) l.bindPopup(f.properties.popup);
                 }
             }).addTo(this.mapaTerritorio);
+        },
+
+        toggleCapa(key) {
+            this.capasActivas[key] = !this.capasActivas[key];
+            if (!this.mapaTerritorio || !this.data.territorio?.mapas?.[key]) return;
+            if (this.capasActivas[key]) {
+                this.agregarCapaTerritorio(key);
+            } else {
+                if (this.capasTerritorio[key]) {
+                    this.mapaTerritorio.removeLayer(this.capasTerritorio[key]);
+                    this.capasTerritorio[key] = null;
+                }
+            }
         },
 
         async recargarTerritorio() {

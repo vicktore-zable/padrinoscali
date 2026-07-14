@@ -49,6 +49,7 @@ class Curriculum {
             $result['experiencia_laboral'] = $this->decodeJson($result['experiencia_laboral']);
             $result['formacion_academica'] = $this->decodeJson($result['formacion_academica']);
             $result['participacion_politica'] = $this->decodeJson($result['participacion_politica']);
+            $result['hijos_data'] = $this->decodeJson($result['hijos_data'] ?? null);
         }
 
         return $result;
@@ -68,9 +69,28 @@ class Curriculum {
             $result['experiencia_laboral'] = $this->decodeJson($result['experiencia_laboral']);
             $result['formacion_academica'] = $this->decodeJson($result['formacion_academica']);
             $result['participacion_politica'] = $this->decodeJson($result['participacion_politica']);
+            $result['hijos_data'] = $this->decodeJson($result['hijos_data'] ?? null);
         }
 
         return $result;
+    }
+
+    /**
+     * Guardar curriculum (upsert: crea o actualiza)
+     *
+     * @param int $colaboradorId
+     * @param array $data
+     * @return bool
+     */
+    public function save(int $colaboradorId, array $data): bool {
+        $data['colaborador_id'] = $colaboradorId;
+        $existing = $this->getByColaboradorId($colaboradorId);
+
+        if ($existing) {
+            return $this->update($existing['id'], $data);
+        } else {
+            return (bool) $this->create($data);
+        }
     }
 
     /**

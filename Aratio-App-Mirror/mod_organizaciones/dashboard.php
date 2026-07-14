@@ -336,7 +336,7 @@ if (isset($isIncluded)) {
                         <input 
                             x-model="searchTerm" 
                             type="text" 
-                            placeholder="Buscar por organización o líder..." 
+                            placeholder="Buscar por organización o padrino..." 
                             class="pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl w-full md:w-80 outline-none focus:ring-4 focus:ring-secondary/10 focus:border-secondary transition-all font-bold text-sm search-input"
                         >
                     </div>

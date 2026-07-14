@@ -471,10 +471,10 @@ class Usuario {
 
         $this->db->insert('sesiones', [
             'usuario_id' => $userId,
-            'token' => $token,
+            'token_sesion' => $token,
             'ip_address' => $ip,
             'user_agent' => $userAgent,
-            'expires_at' => $expiresAt
+            'expira_en' => $expiresAt
         ]);
 
         return $token;
@@ -490,8 +490,8 @@ class Usuario {
         $sql = "SELECT s.*, u.*
                 FROM sesiones s
                 INNER JOIN " . self::TABLE . " u ON s.usuario_id = u.id
-                WHERE s.token = ?
-                  AND s.expires_at > NOW()
+                WHERE s.token_sesion = ?
+                  AND s.expira_en > NOW()
                   AND u.activo = TRUE";
 
         $result = $this->db->fetchOne($sql, [$token]);
@@ -499,8 +499,8 @@ class Usuario {
         if ($result) {
             // Actualizar expiración
             $this->db->update('sesiones', [
-                'expires_at' => date('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime'])
-            ], 'token = ?', [$token]);
+                'expira_en' => date('Y-m-d H:i:s', time() + SESSION_CONFIG['lifetime'])
+            ], 'token_sesion = ?', [$token]);
 
             unset($result['password']);
         }
@@ -515,7 +515,7 @@ class Usuario {
      * @return bool
      */
     public function destroySession(string $token): bool {
-        $result = $this->db->delete('sesiones', 'token = ?', [$token]);
+        $result = $this->db->delete('sesiones', 'token_sesion = ?', [$token]);
         return $result > 0;
     }
 
@@ -539,7 +539,7 @@ class Usuario {
     public function getActiveSessions(int $userId): array {
         $sql = "SELECT * FROM sesiones
                 WHERE usuario_id = ?
-                  AND expires_at > NOW()
+                  AND expira_en > NOW()
                 ORDER BY created_at DESC";
 
         return $this->db->fetchAll($sql, [$userId]);

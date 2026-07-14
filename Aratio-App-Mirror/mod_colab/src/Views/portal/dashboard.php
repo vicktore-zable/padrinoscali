@@ -227,7 +227,7 @@ use App\Utils\Helpers;
         </div>
         <div class="flex gap-2 w-full md:w-auto">
             <div class="relative flex-1 md:w-64">
-                <input type="text" x-model="search" placeholder="Buscar líder..." class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-[#002244] focus:border-[#002244] outline-none">
+                <input type="text" x-model="search" placeholder="Buscar padrino..." class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-[#002244] focus:border-[#002244] outline-none">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
             </div>
             <button @click="exportTeam()" class="px-4 py-2 rounded-lg bg-white border border-gray-200 text-xs font-bold hover:bg-gray-50 transition-all flex items-center gap-2 text-gray-600 shadow-sm">
@@ -248,7 +248,7 @@ use App\Utils\Helpers;
                     <i data-lucide="user-plus" class="w-10 h-10 text-gray-400"></i>
                 </div>
                 <h4 class="text-xl font-bold text-gray-800 mb-2">Comienza a construir tu legado</h4>
-                <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">Aún no tienes líderes directos. Comparte tu enlace de activación para empezar a construir tu estructura política.</p>
+                <p class="text-sm text-gray-500 max-w-sm mx-auto mb-8">Aún no tienes padrinos directos. Comparte tu enlace de activación para empezar a construir tu estructura política.</p>
                 <button onclick="document.getElementById('refLinkInput').select()" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#002244] text-white font-bold rounded-xl hover:scale-105 transition-transform shadow-lg">
                     <i data-lucide="share-2" class="w-4 h-4"></i>
                     Compartir Enlace

@@ -165,6 +165,19 @@ class Colaborador {
     }
 
     /**
+     * Actualizar contraseña de colaborador con hash bcrypt
+     *
+     * @param int $id
+     * @param string $password
+     * @return bool
+     */
+    public function updatePassword(int $id, string $password): bool {
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $result = $this->db->update(self::TABLE, ['password' => $hash], 'id = ?', [$id]);
+        return $result > 0;
+    }
+
+    /**
      * Eliminar colaborador
      *
      * @param int $id

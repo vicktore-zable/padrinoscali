@@ -13,7 +13,7 @@
 | **Versión** | v2.18.1 |
 | **Fecha** | 2026-07-12 |
 | **Estado** | Producción |
-| **Commit** | `58490f4` |
+| **Commit** | `619ac48` |
 | **Feature** | Sidebar colapsable, Dashboard Territorial standalone, fixes BI Hub (loading, notificaciones, nivel_participacion) |
 
 ## Siguiente Versión

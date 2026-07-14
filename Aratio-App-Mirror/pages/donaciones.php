@@ -380,7 +380,7 @@ try {
             if (!confirm('¿Estás seguro de eliminar esta donación?')) return;
             
             try {
-                const response = await fetch(`/api/donaciones.php?id=${id}`, {
+                const response = await fetch(`/aratio/api/donaciones.php?id=${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -404,7 +404,7 @@ try {
             const method = this.form.id ? 'PUT' : 'POST';
             
             try {
-                const response = await fetch('/api/donaciones.php', {
+                const response = await fetch('/aratio/api/donaciones.php', {
                     method: method,
                     headers: { 
                         'Content-Type': 'application/json',

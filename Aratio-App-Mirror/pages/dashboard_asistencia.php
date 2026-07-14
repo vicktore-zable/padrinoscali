@@ -309,7 +309,7 @@ function dashboardAsistenciaData() {
 
         async cargarDepartamentos() {
             try {
-                const response = await fetch('/api/territorios.php?accion=departamentos');
+                const response = await fetch('/aratio/api/territorios.php?accion=departamentos');
                 const result = await response.json();
                 if (result.success) {
                     this.listas.departamentos = result.data;
@@ -326,7 +326,7 @@ function dashboardAsistenciaData() {
             if (!this.filtros.departamento) return;
 
             try {
-                const response = await fetch(`/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.filtros.departamento)}`);
+                const response = await fetch(`/aratio/api/territorios.php?accion=municipios&departamento=${encodeURIComponent(this.filtros.departamento)}`);
                 const result = await response.json();
                 if (result.success) {
                     this.listas.municipios_filtro = result.data;
@@ -348,7 +348,7 @@ function dashboardAsistenciaData() {
                     }
                 });
 
-                const response = await fetch(`/api/dashboard_asistencia.php?${params.toString()}`);
+                const response = await fetch(`/aratio/api/dashboard_asistencia.php?${params.toString()}`);
                 const result = await response.json();
 
                 if (result.success) {

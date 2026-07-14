@@ -274,8 +274,8 @@
                     </select>
                 </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
+            <div class="table-container">
+                <table class="table">
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Fecha</th>

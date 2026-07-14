@@ -104,7 +104,7 @@
                     <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Historial Líder
+                    Historial Padrino
                 </button>
             </nav>
         </div>
@@ -285,14 +285,14 @@
                                     <dd class="mt-1"><?= \App\Utils\Helpers::estadoBadge($colaborador['nivel_participacion'], 'participacion') ?></dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">Líder Directo</dt>
+                                    <dt class="text-sm font-medium text-gray-500">Padrino Directo</dt>
                                     <dd class="mt-1 text-sm text-gray-900">
                                         <?php if (!empty($liderDirecto)): ?>
                                             <a href="/colaboradores/<?= $liderDirecto['documento'] ?>" class="text-primary-600 hover:text-primary-700">
                                                 <?= htmlspecialchars(\App\Utils\Helpers::formatFullName($liderDirecto['nombres'], $liderDirecto['apellidos'])) ?>
                                             </a>
                                         <?php else: ?>
-                                            <span class="badge bg-purple-100 text-purple-800">Líder Principal</span>
+                                            <span class="badge bg-purple-100 text-purple-800">Padrino Principal</span>
                                         <?php endif; ?>
                                     </dd>
                                 </div>
@@ -1038,10 +1038,10 @@
                                                 <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                                                     <div>
                                                         <p class="text-sm text-gray-900">
-                                                            Cambio de líder:
-                                                            <span class="font-medium"><?= htmlspecialchars($cambio['lider_anterior'] ?? 'Sin líder') ?></span>
+                                                            Cambio de padrino:
+                                                            <span class="font-medium"><?= htmlspecialchars($cambio['lider_anterior'] ?? 'Sin padrino') ?></span>
                                                             →
-                                                            <span class="font-medium"><?= htmlspecialchars($cambio['lider_nuevo'] ?? 'Sin líder') ?></span>
+                                                            <span class="font-medium"><?= htmlspecialchars($cambio['lider_nuevo'] ?? 'Sin padrino') ?></span>
                                                         </p>
                                                         <?php if (!empty($cambio['motivo'])): ?>
                                                             <p class="mt-1 text-sm text-gray-500"><?= htmlspecialchars($cambio['motivo']) ?></p>
@@ -1066,7 +1066,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <h3 class="mt-4 text-lg font-medium text-gray-900">Sin historial de cambios</h3>
-                        <p class="mt-2 text-sm text-gray-500">No se han registrado cambios de líder para este colaborador.</p>
+                        <p class="mt-2 text-sm text-gray-500">No se han registrado cambios de padrino para este colaborador.</p>
                     </div>
                 </div>
             <?php endif; ?>

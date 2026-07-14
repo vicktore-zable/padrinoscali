@@ -250,7 +250,8 @@ function redJerarquica() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const rootDoc = urlParams.get('root_doc') || '';
                 const focusDoc = urlParams.get('focus') || '';
-                const response = await fetch(`api/colaboradores.php?action=network&campana_id=${this.campanaId}&root_doc=${rootDoc}`);
+                const rootParam = focusDoc || rootDoc;
+                const response = await fetch(`api/colaboradores.php?action=network&campana_id=${this.campanaId}&root_doc=${rootParam}&depth=5`);
                 const result = await response.json();
 
                 if (result.success) {

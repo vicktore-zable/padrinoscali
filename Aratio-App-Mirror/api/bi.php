@@ -302,35 +302,18 @@ function handleTerritorio(PDO $db, array $f): void
 function handleRedSocial(PDO $db, array $f): void
 {
     $cid = $f['campana_id'];
-    $monthAgo = date('Y-m-d', strtotime('-1 month'));
 
-    // KPIs
-    $lideres = (int)$db->query("SELECT COUNT(DISTINCT c.id) FROM colaboradores c WHERE c.campana_id=$cid AND (c.perfil LIKE '%Lider%' OR c.perfil LIKE '%Líder%')")->fetchColumn();
+    // Líderes = personas que aparecen como lider_directo de al menos 1 colaborador
+    $lideres = (int)$db->query("SELECT COUNT(*) FROM (SELECT lider_directo FROM colaboradores WHERE campana_id=$cid AND lider_directo IS NOT NULL AND lider_directo!='' GROUP BY lider_directo) AS sub")->fetchColumn();
+
+    // Seguidores = colaboradores con lider_directo asignado
     $totalSeguidores = (int)$db->query("SELECT COUNT(*) FROM colaboradores WHERE campana_id=$cid AND lider_directo IS NOT NULL AND lider_directo!=''")->fetchColumn();
-
-    // Profundidad máxima de la red
-    $profundidad = 0;
-    try {
-        $profundidad = (int)$db->query("
-            WITH RECURSIVE jerarquia AS (
-                SELECT id, 0 AS nivel FROM colaboradores WHERE campana_id=$cid AND perfil LIKE '%Lider%' AND (lider_directo IS NULL OR lider_directo='')
-                UNION ALL
-                SELECT c.id, j.nivel+1 FROM colaboradores c JOIN jerarquia j ON c.lider_directo = (SELECT documento FROM colaboradores WHERE id=j.id) WHERE c.campana_id=$cid
-            ) SELECT COALESCE(MAX(nivel),0) FROM jerarquia
-        ")->fetchColumn();
-    } catch (Exception $e) {
-        $profundidad = 0;
-    }
-
-    // Rotación (cambios de líder en últimos 30 días)
-    $rotacion = (int)$db->query("SELECT COUNT(*) FROM historial_cambios_lider WHERE created_at >= '$monthAgo'")->fetchColumn();
 
     $kpis = [
         'lideres' => $lideres,
         'seguidores_totales' => $totalSeguidores,
         'seguidores_por_lider' => $lideres > 0 ? round($totalSeguidores / $lideres, 1) : 0,
-        'profundidad_max' => $profundidad,
-        'rotacion_mensual' => $rotacion,
+        'profundidad_max' => 0,
     ];
 
     // Distribución de líderes por rango de seguidores
@@ -343,25 +326,25 @@ function handleRedSocial(PDO $db, array $f): void
             ELSE '20+'
         END AS rango, COUNT(*) AS total, MIN(seg_count) AS orden
         FROM (
-            SELECT l.id, COUNT(c.id) AS seg_count
+            SELECT l.documento, COUNT(c.id) AS seg_count
             FROM colaboradores l
-            LEFT JOIN colaboradores c ON l.documento=c.lider_directo AND c.campana_id=$cid
-            WHERE l.campana_id=$cid AND (l.perfil LIKE '%Lider%' OR l.perfil LIKE '%Líder%')
-            GROUP BY l.id
+            JOIN colaboradores c ON l.documento=c.lider_directo AND c.campana_id=$cid
+            WHERE l.campana_id=$cid
+            GROUP BY l.documento
         ) sub
         GROUP BY rango ORDER BY orden
     ");
     $distribucion = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-    // Top 15 padrinos
+    // Top 15 padrinos = líderes con más seguidores
     $stmt = $db->query("
         SELECT l.id, l.documento, l.nombres, l.apellidos, l.municipio, l.territorio, l.telefono,
                COUNT(c.id) AS seguidores,
                SUM(CASE WHEN c.estado IS NULL OR c.estado NOT IN ('inactivo','Inactivo') THEN 1 ELSE 0 END) AS activos,
                ROUND(SUM(CASE WHEN c.nivel_participacion IS NOT NULL AND c.nivel_participacion>0 THEN c.nivel_participacion ELSE 0 END) / GREATEST(COUNT(c.id),1), 1) AS participacion_promedio
         FROM colaboradores l
-        LEFT JOIN colaboradores c ON l.documento=c.lider_directo AND c.campana_id=$cid
-        WHERE l.campana_id=$cid AND (l.perfil LIKE '%Lider%' OR l.perfil LIKE '%Líder%') AND l.estado NOT IN ('inactivo','Inactivo')
+        JOIN colaboradores c ON l.documento=c.lider_directo AND c.campana_id=$cid
+        WHERE l.campana_id=$cid
         GROUP BY l.id
         ORDER BY seguidores DESC LIMIT 15
     ");

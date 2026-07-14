@@ -556,7 +556,7 @@ class Usuario {
      * @return bool
      */
     public function destroySession(string $token): bool {
-        $result = $this->db->delete('sesiones', 'token = ?', [$token]);
+        $result = $this->db->delete('sesiones', 'token_sesion = ?', [$token]);
         return $result > 0;
     }
 

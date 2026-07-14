@@ -523,7 +523,7 @@ $colorSecundario = $evento['color_secundario'] ?? '#FFD700';
                 this.message = '';
 
                 try {
-                    const response = await fetch('/api/asistencia_eventos.php', {
+                    const response = await fetch('/aratio/api/asistencia_eventos.php', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

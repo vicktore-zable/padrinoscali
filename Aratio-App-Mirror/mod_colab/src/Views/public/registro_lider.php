@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Líderes - Aratio Gold</title>
+    <title>Registro de Padrinos - Aratio Gold</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -78,10 +78,10 @@
                 <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-primary transition-all text-xs font-bold">
                     <i data-lucide="home" class="w-4 h-4"></i> <span class="hidden sm:inline">Inicio</span>
                 </a>
-                <a href="/registro-simpatizante" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 hover:bg-magenta-50 hover:text-primary transition-all text-xs font-bold">
-                    <i data-lucide="users" class="w-4 h-4"></i> <span class="hidden sm:inline">Simpatizantes</span>
+                <a href="/aratio/index.php?page=voluntario_registro" class="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-primary transition-all text-xs font-bold">
+                    <i data-lucide="heart-handshake" class="w-4 h-4"></i> <span class="hidden sm:inline">Voluntariado</span>
                 </a>
-                <a href="https://aratio.mrmtech.net/index.php?page=portal_landing" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all text-xs font-bold shadow-md shadow-slate-200">
+                <a href="/aratio/index.php?page=portal_landing" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all text-xs font-bold shadow-md shadow-slate-200">
                     <i data-lucide="log-in" class="w-4 h-4"></i> <span>Módulo Líder</span>
                 </a>
             </div>
@@ -100,7 +100,7 @@
                 Liderazgo y Coordinación
             </div>
             <h1 class="text-5xl md:text-6xl font-black mb-4 tracking-tight drop-shadow-md">Registro de Líderes</h1>
-            <p class="text-xl md:text-2xl opacity-90 font-light max-w-2xl mx-auto">Únete como líder profesional para transformar el territorio.</p>
+            <p class="text-xl md:text-2xl opacity-90 font-light max-w-2xl mx-auto">Únete como padrino profesional para transformar el territorio.</p>
         </div>
     </header>
 

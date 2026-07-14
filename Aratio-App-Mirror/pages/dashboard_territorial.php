@@ -197,45 +197,59 @@ function dashboardTerritorial() {
         },
 
         async loadKpi() {
-            const r = await fetch('api/dashboard.php?action=kpi');
-            const j = await r.json();
-            if (j.success) this.kpi = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=kpi');
+                const j = await r.json();
+                if (j.success) this.kpi = j.data;
+            } catch(e) { console.warn('loadKpi failed:', e); }
         },
 
         async loadTendencias() {
-            const r = await fetch('api/dashboard.php?action=tendencias');
-            const j = await r.json();
-            if (j.success) this.tendencias = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=tendencias');
+                const j = await r.json();
+                if (j.success) this.tendencias = j.data;
+            } catch(e) { console.warn('loadTendencias failed:', e); }
         },
 
         async loadRecientes() {
-            const r = await fetch('api/dashboard.php?action=recientes');
-            const j = await r.json();
-            if (j.success) this.recientes = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=recientes');
+                const j = await r.json();
+                if (j.success) this.recientes = j.data;
+            } catch(e) { console.warn('loadRecientes failed:', e); }
         },
 
         async loadAlasStats() {
-            const r = await fetch('api/dashboard.php?action=alas_stats');
-            const j = await r.json();
-            if (j.success) this.alas = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=alas_stats');
+                const j = await r.json();
+                if (j.success) this.alas = j.data;
+            } catch(e) { console.warn('loadAlasStats failed:', e); }
         },
 
         async loadSemaforo() {
-            const r = await fetch('api/dashboard.php?action=zonas_semaforo');
-            const j = await r.json();
-            if (j.success) this.semaforo = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=zonas_semaforo');
+                const j = await r.json();
+                if (j.success) this.semaforo = j.data;
+            } catch(e) { console.warn('loadSemaforo failed:', e); }
         },
 
         async loadLideresGeo() {
-            const r = await fetch('api/dashboard.php?action=lideres_por_territorio');
-            const j = await r.json();
-            if (j.success) this.lideresGeo = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=lideres_por_territorio');
+                const j = await r.json();
+                if (j.success) this.lideresGeo = j.data;
+            } catch(e) { console.warn('loadLideresGeo failed:', e); }
         },
 
         async loadDistribucion() {
-            const r = await fetch('api/dashboard.php?action=distribucion');
-            const j = await r.json();
-            if (j.success) this.distribucion = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=distribucion');
+                const j = await r.json();
+                if (j.success) this.distribucion = j.data;
+            } catch(e) { console.warn('loadDistribucion failed:', e); }
         },
 
         async recargarZonasSemaforo() {
@@ -422,9 +436,11 @@ function dashboardTerritorial() {
 
         // === Tabbed Map: Compromisos / Eventos / Acciones / Instagram ===
         async loadOtrosMapas() {
-            const r = await fetch('api/dashboard.php?action=otros_mapas');
-            const j = await r.json();
-            if (j.success) this.otrosData = j.data;
+            try {
+                const r = await fetch('api/dashboard.php?action=otros_mapas');
+                const j = await r.json();
+                if (j.success) this.otrosData = j.data;
+            } catch(e) { console.warn('loadOtrosMapas failed:', e); }
         },
 
         initMapaOtros() {

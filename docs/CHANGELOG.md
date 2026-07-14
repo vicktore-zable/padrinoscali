@@ -7,6 +7,59 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.18.5] — 2026-07-13
+
+### 🐛 Fix: Tendencias 500 Internal Server Error
+
+**Problema**: `handleTendencias()` usaba columna `creado_en` que no existe en `colaboradores` (columna real: `created_at`). SQL error 1054 → 500 JSON error.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/dashboard.php` | `creado_en` → `created_at` en query de tendencias |
+
+### 🐛 Fix: getGeoJSON crash PHP 8 con rows vacío
+
+**Problema**: `getGeoJSON()` llamaba `max(array_column($rows, $countField))` sin verificar `$rows` vacío. PHP 8 lanza `ValueError`, crasheando endpoint `otros_mapas`.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/dashboard.php` | `if (empty($rows)) return ['type'=>'FeatureCollection','features'=>[]]` |
+
+### 🐛 Fix: Spinners de mapa atascados
+
+**Problema**: Spinners usaban `x-show="!semaforo.lideres_total"` — si el API retornaba 0, el spinner quedaba visible para siempre.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/dashboard_territorial.php` | Los 3 spinners ahora usan `x-show="!loaded"` (flag post-carga) |
+
+### 🐛 Fix: Catch individual por fetch
+
+**Problema**: `refreshAll()` usaba `Promise.all` sin try/catch individual — si un endpoint fallaba, todo se rechazaba.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/dashboard_territorial.php` | 7 funciones `load*()` envueltas en try/catch |
+
+### 🐛 Fix: Red Social — definición de líder
+
+**Problema**: Líderes se contaban por `perfil LIKE '%Lider%'` en vez de por `lider_directo`. Profundidad usaba `WITH RECURSIVE` (no soportado en Hostinger). Rotación innecesaria.
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/bi.php` | Líderes = `COUNT(DISTINCT lider_directo)`; removed profundidad recursiva + rotación |
+| `pages/bi.php` | KPI row: grid 5→4, removida card Rotación |
+
+### 🐛 Fix: toggleCapa mapa territorio
+
+**Problema**: `initMapaTerritorio()` llamaba `toggleCapa()` que togglea `capasActivas`, dejando checkboxes invertidos respecto a la capa visible.
+
+| Archivo | Cambio |
+|---------|--------|
+| `pages/bi.php` | `agregarCapaTerritorio()` separada; `toggleCapa()` usa `capasActivas` post-toggle para decisión show/hide |
+
+---
+
 ## [2.18.0] — 2026-07-12
 
 ### 🆕 Panorama BI Hub rediseñado: distribuciones + top rankings

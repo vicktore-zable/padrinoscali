@@ -10,11 +10,11 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.18.1 |
-| **Fecha** | 2026-07-12 |
+| **Versión** | v2.18.5 |
+| **Fecha** | 2026-07-13 |
 | **Estado** | Producción |
-| **Commit** | `619ac48` |
-| **Feature** | Sidebar colapsable, Dashboard Territorial standalone, fixes BI Hub (loading, notificaciones, nivel_participacion) |
+| **Commit** | `c5e8dec` |
+| **Feature** | BI Hub: líderes por lider_directo, fix toggleCapa mapa, Dashboard Territorial: fix 500 + spinners + loading |
 
 ## Siguiente Versión
 
@@ -31,6 +31,10 @@
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
 | **v3.0.0** | 2026-06-30 | Refactor: Logger, Container DI, PHPUnit, Social CRM completo | *(actual)* |
+| **v2.18.5** | **2026-07-13** | **Fix tendencias 500: creado_en → created_at** | `c5e8dec` |
+| **v2.18.4** | **2026-07-13** | **Dashboard: fix getGeoJSON max([]) crash, spinners loaded flag** | `247ec33` |
+| **v2.18.3** | **2026-07-13** | **Dashboard: try/catch en cada fetch** | `6a5ba96` |
+| **v2.18.2** | **2026-07-13** | **BI Hub: líderes por lider_directo, fix toggleCapa mapa** | `e66ef73` |
 | **v2.18.1** | **2026-07-12** | **Sidebar colapsable, Dashboard Territorial standalone, fixes BI Hub** | `58490f4` |
 | **v2.18.0** | **2026-07-12** | **Panorama BI Hub: distribuciones + top rankings** | `6b00ac3` |
 | **v2.17.1** | **2026-07-12** | **Dashboard v2: fix sin_trabajo, charts barrio/comuna, tabbed map 4 capas, remover ALAS/Recientes** | **(deployed)** |

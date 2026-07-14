@@ -186,9 +186,9 @@ function handleTendencias(PDO $db, int $campanaId): void
 {
     // Colaboradores registrados por mes (últimos 12)
     $stmt = $db->query("
-        SELECT DATE_FORMAT(creado_en, '%Y-%m') AS mes, COUNT(*) AS total
+        SELECT DATE_FORMAT(created_at, '%Y-%m') AS mes, COUNT(*) AS total
         FROM colaboradores
-        WHERE campana_id = $campanaId AND creado_en >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+        WHERE campana_id = $campanaId AND created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
         GROUP BY mes ORDER BY mes ASC
     ");
     $colabTrend = $stmt->fetchAll(PDO::FETCH_ASSOC);

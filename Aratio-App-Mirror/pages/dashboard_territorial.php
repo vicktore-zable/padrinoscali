@@ -62,7 +62,7 @@
                 </div>
             </div>
             <div id="mapaViven" style="height:360px" class="bg-gray-50 relative">
-                <div x-show="!lideresGeo.total_colaboradores" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
+                <div x-show="!loaded" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
                     <div class="text-center">
                         <i data-lucide="loader-2" class="w-6 h-6 text-gray-400 mx-auto animate-spin"></i>
                         <p class="text-xs text-gray-400 mt-1">Cargando mapa...</p>
@@ -90,7 +90,7 @@
                 </div>
             </div>
             <div id="mapaZonas" style="height:360px" class="bg-gray-50 relative">
-                <div x-show="!semaforo.lideres_total" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
+                <div x-show="!loaded" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
                     <div class="text-center">
                         <i data-lucide="loader-2" class="w-6 h-6 text-gray-400 mx-auto animate-spin"></i>
                         <p class="text-xs text-gray-400 mt-1">Cargando mapa...</p>
@@ -135,7 +135,7 @@
             </div>
         </div>
         <div id="mapaOtros" style="height:360px" class="bg-gray-50 relative">
-            <div x-show="!otrosCargados[tabOtros]" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
+            <div x-show="!loaded" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center z-[999]" style="border-radius:0 0 0.75rem 0.75rem;">
                 <div class="text-center">
                     <i data-lucide="loader-2" class="w-6 h-6 text-gray-400 mx-auto animate-spin"></i>
                     <p class="text-xs text-gray-400 mt-1">Cargando mapa...</p>
@@ -150,6 +150,7 @@ function dashboardTerritorial() {
     return {
         loading: false,
         loadingZonas: false,
+        loaded: false,
         periodo: '12',
         kpi: {},
         semaforo: { lideres_total: 0, con_trabajo: 0, sin_trabajo: 0, geojson: { features: [] } },
@@ -185,6 +186,7 @@ function dashboardTerritorial() {
                 ]);
             } catch(e) { console.error('Dashboard error:', e); }
             this.loading = false;
+            this.loaded = true;
             this.$nextTick(() => {
                 this.initMapaViven();
                 if (typeof lucide !== 'undefined') lucide.createIcons();

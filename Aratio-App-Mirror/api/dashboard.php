@@ -385,6 +385,7 @@ function handleDistribucion(PDO $db, int $campanaId): void
 function handleOtrosMapas(PDO $db, int $campanaId): void
 {
     $getGeoJSON = function(array $rows, string $labelField, string $countField, array $palette): array {
+        if (empty($rows)) return ['type'=>'FeatureCollection', 'features'=>[]];
         $max = max(array_column($rows, $countField)) ?: 1;
         $features = [];
         foreach ($rows as $r) {

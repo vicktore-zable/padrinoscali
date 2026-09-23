@@ -10,17 +10,17 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión** | v2.18.5 |
-| **Fecha** | 2026-07-13 |
+| **Versión** | v2.20.0 |
+| **Fecha** | 2026-09-23 |
 | **Estado** | Producción |
-| **Commit** | `c5e8dec` |
-| **Feature** | BI Hub: líderes por lider_directo, fix toggleCapa mapa, Dashboard Territorial: fix 500 + spinners + loading |
+| **Commit** | *(pendiente)* |
+| **Feature** | Autocompletado QR por documento + Seguridad mod_eventos |
 
 ## Siguiente Versión
 
 | Campo | Valor |
 |-------|-------|
-| **Próxima** | **v2.19.0** |
+| **Próxima** | **v2.21.0** |
 | **Feature** | *(por definir)* |
 | **Estado** | Por definir |
 
@@ -30,7 +30,9 @@
 
 | Versión | Fecha | Feature Principal | Commit |
 |:-------:|:-----:|-------------------|:------:|
-| **v3.0.0** | 2026-06-30 | Refactor: Logger, Container DI, PHPUnit, Social CRM completo | *(actual)* |
+| **v2.20.0** | **2026-09-23** | **Autocompletado QR por documento + Seguridad mod_eventos** | *(deployed)* |
+| **v2.19.0** | **2026-07-30** | **Módulo Eventos v2: firma digital, export, reportes Chart.js** | *(deployed)* |
+| **v2.18.6** | **2026-07-21** | **Fix mod_eventos: MutationObserver loop + 30 Alpine errors** | *(deployed)* |
 | **v2.18.5** | **2026-07-13** | **Fix tendencias 500: creado_en → created_at** | `c5e8dec` |
 | **v2.18.4** | **2026-07-13** | **Dashboard: fix getGeoJSON max([]) crash, spinners loaded flag** | `247ec33` |
 | **v2.18.3** | **2026-07-13** | **Dashboard: try/catch en cada fetch** | `6a5ba96` |

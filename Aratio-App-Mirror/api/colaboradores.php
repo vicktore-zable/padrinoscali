@@ -10,8 +10,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 $action = $_GET['action'] ?? null;
 
-// Autenticación requerida para todo EXCEPTO para obtener líderes (público)
-if ($action !== 'lideres') {
+// Autenticación requerida para todo EXCEPTO acciones públicas
+$publicActions = ['lideres', 'buscar_por_documento'];
+if (!in_array($action, $publicActions)) {
     requireAuth();
 }
 
@@ -33,6 +34,9 @@ try {
         switch ($action) {
             case 'lideres':
                 handleGetLideres($db);
+                break;
+            case 'buscar_por_documento':
+                handleBuscarPorDocumento($db);
                 break;
             case 'import':
                 handleImport($db, $userId);
@@ -114,9 +118,9 @@ function calcularEstado($dato_potencial, $dato_historico)
     if ($dato_potencial == 0)
         return 'Nuevo';
     if ($dato_historico == 0)
-        return 'Vinculado';
+        return 'Sin gestion';
     if ($dato_historico > $dato_potencial)
-        return 'Creció';
+        return 'Crecio';
     if ($dato_historico < $dato_potencial)
         return 'Decrece';
     return 'Igual';
@@ -309,7 +313,6 @@ function handleGetLideres($db)
         SELECT documento, nombres, apellidos, perfil
         FROM colaboradores
         WHERE campana_id = ?
-        AND (perfil LIKE '%Lider%' OR perfil LIKE '%Líder%' OR perfil LIKE '%Candidat%')
     ";
     $params = [$campanaId];
 
@@ -328,7 +331,8 @@ function handleGetLideres($db)
         $dbLideres = $stmt->fetchAll();
 
         foreach ($dbLideres as $l) {
-            $l['nombre_completo'] = $l['nombres'] . ' ' . $l['apellidos'] . ' (' . $l['perfil'] . ')';
+            $perfilStr = $l['perfil'] ? " ({$l['perfil']})" : '';
+            $l['nombre_completo'] = $l['nombres'] . ' ' . $l['apellidos'] . $perfilStr;
             $lideres[] = $l;
         }
     } catch (Exception $e) {
@@ -336,6 +340,125 @@ function handleGetLideres($db)
     }
 
     jsonResponse(['success' => true, 'data' => $lideres]);
+}
+
+/**
+ * GET: Buscar persona por documento para autocompletar registro QR.
+ * Público (sin auth). Busca primero en colaboradores, luego en asistencia_eventos.
+ */
+function handleBuscarPorDocumento($db)
+{
+    $documento = trim($_GET['documento'] ?? '');
+    $eventoId = isset($_GET['evento_id']) ? (int)$_GET['evento_id'] : null;
+    $campanaId = isset($_GET['campana_id']) ? (int)$_GET['campana_id'] : null;
+
+    if ($documento === '' || strlen($documento) < 5) {
+        jsonResponse(['success' => true, 'encontrado' => false]);
+    }
+
+    // Si se provee evento_id, derivar campana_id
+    if ($eventoId && !$campanaId) {
+        $stmtEv = $db->prepare("SELECT campana_id FROM eventos WHERE id = ?");
+        $stmtEv->execute([$eventoId]);
+        $ev = $stmtEv->fetch();
+        if ($ev) {
+            $campanaId = (int)$ev['campana_id'];
+        }
+    }
+
+    $persona = null;
+    $fuente = null;
+
+    // 1. Buscar en colaboradores (prioridad: misma campaña, luego global)
+    if ($campanaId) {
+        $stmt = $db->prepare("
+            SELECT nombres, apellidos, tipo_documento, documento, telefono, email,
+                   fecha_nacimiento, genero, departamento, municipio,
+                   tipo_territorio, territorio, barrio
+            FROM colaboradores
+            WHERE documento = ? AND campana_id = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$documento, $campanaId]);
+        $persona = $stmt->fetch();
+    }
+
+    if (!$persona) {
+        $stmt = $db->prepare("
+            SELECT nombres, apellidos, tipo_documento, documento, telefono, email,
+                   fecha_nacimiento, genero, departamento, municipio,
+                   tipo_territorio, territorio, barrio
+            FROM colaboradores
+            WHERE documento = ?
+            ORDER BY updated_at DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$documento]);
+        $persona = $stmt->fetch();
+    }
+
+    if ($persona) {
+        $fuente = 'colaborador';
+    }
+
+    // 2. Buscar en asistencia_eventos (última asistencia registrada)
+    if (!$persona) {
+        $stmt = $db->prepare("
+            SELECT nombre, tipo_documento, documento, telefono, email,
+                   fecha_nacimiento, genero, departamento, municipio,
+                   tipo_territorio, territorio, barrio
+            FROM asistencia_eventos
+            WHERE documento = ?
+            ORDER BY fecha_registro DESC
+            LIMIT 1
+        ");
+        $stmt->execute([$documento]);
+        $row = $stmt->fetch();
+        if ($row) {
+            // Separar nombre completo en nombres/apellidos
+            $partes = explode(' ', trim($row['nombre']), 2);
+            $persona = [
+                'nombres' => $partes[0] ?? $row['nombre'],
+                'apellidos' => $partes[1] ?? '',
+                'tipo_documento' => $row['tipo_documento'] ?? 'cc',
+                'documento' => $row['documento'],
+                'telefono' => $row['telefono'] ?? '',
+                'email' => $row['email'] ?? '',
+                'fecha_nacimiento' => $row['fecha_nacimiento'] ?? '',
+                'genero' => $row['genero'] ?? '',
+                'departamento' => $row['departamento'] ?? '',
+                'municipio' => $row['municipio'] ?? '',
+                'tipo_territorio' => $row['tipo_territorio'] ?? '',
+                'territorio' => $row['territorio'] ?? '',
+                'barrio' => $row['barrio'] ?? '',
+            ];
+            $fuente = 'asistencia_previa';
+        }
+    }
+
+    if (!$persona) {
+        jsonResponse(['success' => true, 'encontrado' => false]);
+    }
+
+    $nombreCompleto = trim(($persona['nombres'] ?? '') . ' ' . ($persona['apellidos'] ?? ''));
+
+    jsonResponse([
+        'success' => true,
+        'encontrado' => true,
+        'fuente' => $fuente,
+        'mensaje_bienvenida' => '¡Tus datos están en la plataforma! Bienvenido(a) ' . $nombreCompleto . '. Solo firma para confirmar tu asistencia.',
+        'data' => [
+            'nombre' => $nombreCompleto,
+            'tipo_documento' => strtolower($persona['tipo_documento'] ?? 'cc'),
+            'documento' => $persona['documento'] ?? $documento,
+            'telefono' => $persona['telefono'] ?? '',
+            'email' => $persona['email'] ?? '',
+            'fecha_nacimiento' => $persona['fecha_nacimiento'] ?? '',
+            'genero' => $persona['genero'] ?? '',
+            'departamento' => $persona['departamento'] ?? '',
+            'municipio' => $persona['municipio'] ?? '',
+        ],
+    ]);
 }
 
 /**
@@ -379,7 +502,7 @@ function handleStats($db)
     $stmt->execute([$campanaId]);
     $todos = $stmt->fetchAll();
 
-    $porEstado = ['Nuevo' => 0, 'Desvinculado' => 0, 'Crecio' => 0, 'Decrece' => 0, 'Igual' => 0];
+    $porEstado = ['Nuevo' => 0, 'Sin gestion' => 0, 'Crecio' => 0, 'Decrece' => 0, 'Igual' => 0];
     foreach ($todos as $c) {
         $estado = calcularEstado($c['dato_potencial'], $c['dato_historico']);
         $porEstado[$estado]++;
@@ -1741,7 +1864,7 @@ function handleReportes($db)
             $stmt->execute([$campanaId]);
             $todos = $stmt->fetchAll();
 
-            $porEstado = ['Nuevo' => 0, 'Desvinculado' => 0, 'Crecio' => 0, 'Decrece' => 0, 'Igual' => 0];
+            $porEstado = ['Nuevo' => 0, 'Sin gestion' => 0, 'Crecio' => 0, 'Decrece' => 0, 'Igual' => 0];
             foreach ($todos as $c) {
                 $estado = calcularEstado($c['dato_potencial'], $c['dato_historico']);
                 $porEstado[$estado]++;

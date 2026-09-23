@@ -1,6 +1,6 @@
 # CLAUDE.md — Constitución del Agente: Padrinos Cali
 
-*Versión: 2.18.1 | Proyecto: padrinoscali.org | Cali, Colombia*
+*Versión: 2.20.0 | Proyecto: padrinoscali.org | Cali, Colombia*
 
 ---
 
@@ -119,7 +119,7 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 
 ## 🎯 Estado del Proyecto
 
-- **Versión**: v2.15.0 (WhatsApp Birthday + Zonas Trabajo + CRUD)
+- **Versión**: v2.20.0 (Autocompletado QR + Seguridad mod_eventos)
 - **Git**: ✅ Inicializado (3 repos: XAMPP, workspace root, Aratio-App-Mirror)
 - **Producción**: https://padrinoscali.org/aratio/ ✅ (DNS propagado)
 - **Legacy**: https://edisongiraldo.com/aratio/
@@ -134,6 +134,34 @@ python instagram_scraper.py --username edison_concejal --max-posts 5000 --monthl
 ---
 
 ## 📋 Changelog
+
+### v2.20.0 (2026-09-23) — Autocompletado QR por Documento + Seguridad mod_eventos
+
+**Problema**: Asistentes recurrentes debían digitar toda su info cada vez que escaneaban el QR. Además, 3 de 4 endpoints del módulo eventos no tenían autenticación, exponiendo PII.
+
+**Solución**: Autocompletado inteligente por documento (busca en colaboradores → asistencia_eventos) + hardening de seguridad (auth, CSRF, rate-limit, validación firma).
+
+| Archivo | Cambio |
+|---------|--------|
+| `api/colaboradores.php` | Action público `buscar_por_documento` |
+| `mod_eventos/pages/qr_registro.php` | Listener documento + autollenado + banner bienvenida + readonly |
+| `mod_eventos/api/asistencia.php` | Auth + CSRF + rate-limit + fix `notas` |
+| `mod_eventos/api/_security.php` | **NUEVO** — Helpers compartidos de seguridad |
+| `mod_eventos/api/reportes.php` | Auth + acceso campaña |
+| `mod_eventos/api/exportar_asistencia.php` | Auth + acceso campaña |
+| `mod_eventos/api/eventos.php` | Fix validación fechas + sin fuga errores |
+
+**Deploy**: 6 archivos × 2 dominios. **Tests**: Playwright E2E confirmado.
+
+### v2.18.6 (2026-07-21) — Fix mod_eventos: MutationObserver loop + 30 Alpine Expression Errors
+
+**Problema**: Página mod_eventos se congelaba por MutationObserver infinito que llamaba `lucide.createIcons()` en cada mutación DOM. Además, 30 errores Alpine por acceder a propiedades de `null` (`detalleEvento.nombre`, `eventoSolo.latitud`).
+
+| Archivo | Cambio |
+|---------|--------|
+| `mod_eventos/pages/eventos.php` | `x-show="detalleEvento"` → `<template x-if="detalleEvento">` |
+| `mod_eventos/pages/eventos.php` | `eventoSolo.latitud` → `eventoSolo?.latitud ?? ''` |
+| `mod_eventos/pages/eventos.php` | MutationObserver removido → `$watch('filtros', ...)` para lucide |
 
 ### v2.18.0 (2026-07-12) — Panorama BI Hub: distribuciones + top rankings
 

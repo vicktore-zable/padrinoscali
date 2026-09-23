@@ -7,6 +7,103 @@ Versiones siguen [SemVer](https://semver.org/).
 
 ---
 
+## [2.20.0] — 2026-09-23
+
+### ✨ Autocompletado QR por Documento + Seguridad mod_eventos
+
+**Problema**: Asistentes recurrentes (líderes, colaboradores, padrinos) debían digitar
+toda su información cada vez que escaneaban el QR. Además, 3 de 4 endpoints del módulo
+eventos no tenían autenticación, exponiendo PII (nombres, cédulas, teléfonos, firmas).
+
+**Solución**: Autocompletado inteligente por documento + hardening de seguridad completo.
+
+| Cambio | Archivos | Detalle |
+|--------|----------|---------|
+| **Autocompletado QR** | `api/colaboradores.php`, `qr_registro.php` | Nuevo action público `buscar_por_documento`. Al digitar documento (≥5 chars) + blur, busca en `colaboradores` → `asistencia_eventos`, autocompleta form y muestra banner "¡Bienvenido(a)!" |
+| **Campos readonly** | `qr_registro.php` | Cuando hay autocompletado: nombre, teléfono, email, fecha_nac, depto, municipio → readonly; tipo_doc, género → disabled |
+| **Rate-limit POST público** | `asistencia.php` | 20 intentos / 5 min por IP. Validación firma: 512KB max, formato data URI |
+| **Auth GET/PUT/DELETE** | `asistencia.php` | `requireAuth()` + `hasAccessToCampana` en todos los endpoints admin |
+| **Auth export/reportes** | `exportar_asistencia.php`, `reportes.php` | `requireAuth()` + acceso por campaña |
+| **CSRF en mutaciones** | `asistencia.php` | Token `X-CSRF-Token` en PUT/DELETE |
+| **Fix handlePut** | `asistencia.php` | `observaciones` → `notas` (columna real). Removidos `sentimiento_*` inexistentes |
+| **Validación fechas** | `api/eventos.php` | `fecha_inicio < fecha_fin` |
+| **Helper compartido** | `_security.php` (NUEVO) | `eventos_require_admin`, `eventos_csrf_verify`, `eventos_rate_limit`, `eventos_validate_firma`, `eventos_resolve_responsable`, `eventos_validate_fechas` |
+| **Sin fuga de errores** | `api/eventos.php` | `$e->getMessage()` removido del response JSON |
+| **Deploy script** | `scripts/deploy_autocomplete_qr.py` | Upload SFTP a ambos dominios |
+
+**Archivos modificados**:
+- `api/colaboradores.php` — action `buscar_por_documento` público
+- `mod_eventos/pages/qr_registro.php` — listener documento + autollenado + banner + readonly
+- `mod_eventos/api/asistencia.php` — auth + CSRF + rate-limit + fix notas
+- `mod_eventos/api/_security.php` — **NUEVO** helpers de seguridad
+- `mod_eventos/api/reportes.php` — auth + acceso campaña
+- `mod_eventos/api/exportar_asistencia.php` — auth + acceso campaña
+- `mod_eventos/api/eventos.php` — fix validación fechas + sin fuga errores
+- `scripts/deploy_autocomplete_qr.py` — **NUEVO** deploy script
+
+**Deploy**: 6 archivos × 2 dominios (padrinoscali.org + edisongiraldo.com). PHP syntax check remoto: ✅ limpio.
+
+**Tests**: Playwright E2E con documento `16832362` en evento 5 — autocompletado + banner + readonly confirmados.
+
+---
+
+## [2.19.0] — 2026-07-30
+
+### ✨ Módulo Eventos v2: Firma Digital, Exportación, Reportes Chart.js
+
+**Problema**: El registro QR no capturaba firma digital. No se podían ver las firmas en la
+planilla de asistencia. El botón "Exportar Excel" era un placeholder. No había reportes
+consolidados por barrio/comuna.
+
+**Solución**: Rediseño completo del módulo eventos con 7 fases integradas.
+
+| Fase | Archivos | Cambio |
+|------|----------|--------|
+| 0 | `index.php`, `eventos.php`, `qr_registro.php` | Fix `$campanaId`, firma canvas, logo Padrinos, modal detalle asistente |
+| 1 | `database/migration_033_eventos_v2.sql` | Migration: `autorizacion_imagenes` BOOLEAN en `asistencia_eventos` |
+| 2 | `qr_registro.php` | Checkboxes: `acepta_comunicaciones` + `autorizacion_imagenes` |
+| 3 | `api/asistencia.php` | GET retorna `firma_digital` + `autorizacion_imagenes`. POST acepta `autorizacion_imagenes` |
+| 4 | `eventos.php` | Columna "Firma" con thumbnail en tabla. Firma completa en detalle modal |
+| 5 | `eventos.php` | Menú ⋮ eliminado → acciones movidas a modalDetalle (QR, WhatsApp, Asistentes, Mapa, Dashboard) |
+| 6 | `api/exportar_asistencia.php` | **NUEVO** — Export XLSX (SimpleXLSXGen) + PDF imprimible con logo y firmas |
+| 7 | `api/reportes.php`, `reportes.php` | **NUEVO** — Endpoint consolidado + 4 charts Chart.js (barrios, municipios, tipo, comparativo) |
+
+**Detalle por archivo**:
+
+| Archivo | Cambio |
+|---------|--------|
+| `mod_eventos/index.php` | `$campanaId = $campanaActivaId` agregado para las vistas `asistencia` y `reportes` |
+| `mod_eventos/pages/eventos.php` | Menú ⋮ removido, acciones integradas en modalDetalle. Columna firma (thumbnail `<img>`) en tabla asistentes. Detalle asistente muestra firma full + acepta_comunicaciones + autorizacion_imagenes. Botones export Excel y PDF funcionales |
+| `mod_eventos/pages/qr_registro.php` | Canvas firma digital con mouse/touch. Logo Padrinos. 3 checkboxes (habeas_data, acepta_comunicaciones, autorizacion_imagenes). Validación firma no vacía |
+| `mod_eventos/pages/reportes.php` | Tabs General/Consolidado. Chart.js: barrios (barras H), municipios (doughnut), tipo (pie), comparativo (barras dobles) |
+| `mod_eventos/api/asistencia.php` | GET: `firma_digital` + `autorizacion_imagenes` en SELECT. POST: `autorizacion_imagenes` en INSERT + VALUES |
+| `mod_eventos/api/exportar_asistencia.php` | **NUEVO**. `formato=xlsx`: 17 columnas con SimpleXLSXGen. `formato=pdf`: HTML `@media print` con logo, QR, firma por asistente. `&asistente_id=Y`: export individual |
+| `mod_eventos/api/reportes.php` | **NUEVO**. `action=consolidado`: SQL agrupado por barrio, municipio y tipo, con totales |
+| `database/migration_033_eventos_v2.sql` | **NUEVO**. `ALTER TABLE asistencia_eventos ADD COLUMN autorizacion_imagenes` |
+
+**Notas técnicas**:
+- `SimpleXLSXGen` (namespace `Shuchkin`) usado para Excel — ya incluido en `includes/`, sin Composer
+- PDF es HTML imprimible con `@media print` (no librería PDF externa)
+- Chart.js vía CDN `cdn.jsdelivr.net/npm/chart.js@4.4.1`
+- `firma_digital` almacenada como LONGTEXT (base64 PNG, hasta 4GB teórico)
+- La migración 033 se ejecutó en producción: `ALTER TABLE` con DEFAULT FALSE
+
+## [2.18.6] — 2026-07-21
+
+### 🐛 Fix: mod_eventos congelado por MutationObserver infinito
+
+**Problema**: `init()` en eventos.php creaba un `MutationObserver` que observaba `document.body` y llamaba `lucide.createIcons()` en cada mutación. Como `lucide.createIcons()` reemplaza `<i>` por SVGs (generando nuevas mutaciones), se creaba un loop infinito que congelaba el navegador.
+
+### 🐛 Fix: 30 Alpine Expression Errors (Cannot read properties of null)
+
+**Problema**: El modal de detalle usaba `x-show="detalleEvento"` pero Alpine evalúa `x-text="detalleEvento.nombre"` incluso dentro de elementos ocultos. Al iniciar con `detalleEvento: null`, 28 expresiones lanzaban TypeError. Igual con `eventoSolo.latitud` en el modal de mapa solo.
+
+| Archivo | Cambio |
+|---------|--------|
+| `mod_eventos/pages/eventos.php` | `x-show="detalleEvento"` → `<template x-if="detalleEvento">` (no evalúa expresiones anidadas cuando es falso) |
+| `mod_eventos/pages/eventos.php` | `eventoSolo.latitud` → `eventoSolo?.latitud ?? ''` (optional chaining) |
+| `mod_eventos/pages/eventos.php` | MutationObserver removido, reemplazado por `$watch('filtros', ...)` para lucide icons |
+
 ## [2.18.5] — 2026-07-13
 
 ### 🐛 Fix: Tendencias 500 Internal Server Error
